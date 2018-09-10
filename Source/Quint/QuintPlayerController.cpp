@@ -21,6 +21,9 @@ AQuintPlayerController::AQuintPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+	Goal = nullptr;
+	Task = No_Interaction;
+	DoingTask = false;
 	TaskCoolDownTimer.Invalidate();
 }
 
@@ -107,11 +110,17 @@ void AQuintPlayerController::SetTask(AActor* goal, EInteractionType task){
 		break;
 	case Examine:
 		MaxGoalDistance = GetMinRange();
+		DoingTask = false;
 		break;
 	case Use:
 		MaxGoalDistance = GetMinRange();
 		MoveToGoal();
+		DoingTask = false;
 		break;
+	case Attack:
+		MaxGoalDistance = GetMinRange();
+		MoveToGoal();
+		DoingTask = false;
 	default:
 		MoveToGoal();
 		break;
@@ -148,9 +157,7 @@ bool AQuintPlayerController::IsAtGoal(){
 
 bool AQuintPlayerController::IsTaskReadyIfUsed()
 {
-	
-	switch (Task)
-	{
+	switch (Task){
 	case Attack:
 		return !TaskCoolDownTimer.IsValid();
 	default:
@@ -230,7 +237,23 @@ void AQuintPlayerController::OnSetDestinationReleased()
 			SetNewMoveDestination(Hit.ImpactPoint, Hit.Actor.Get());
 	}
 }
-
+void AQuintPlayerController::FinishedTask(){
+	if(!HasAuthority())
+		return;
+	DoingTask = false;
+	switch(Task){
+	case Attack:
+		//TODO: Need damage type
+		int dmg = 0;
+		//TODO:Get player id
+		//TODO ret val should be dmg not success/fail ?
+		UWeaponHelper::GetWeaponDamageForPlayById(GetPlayerState()->GetPlayerPrimaryWeapon,0,dmg);
+		//UGameplayStatics::ApplyDamage(Goal,dmg,this,GetPawn(), damgetype);
+		break;
+	default:
+		break;
+	}
+}
 void AQuintPlayerController::ActionAnimDone()
 {
 	if(!HasAuthority())

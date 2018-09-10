@@ -14,16 +14,16 @@ class AQuintPlayerController : public APlayerController
 	GENERATED_BODY()
 protected:
 	float MaxGoalDistance = 0.f;
-	AActor* Goal = nullptr;
+	AActor* Goal;
 	enum EInteractionType Task;
-	bool DoingTask = false;
-	FTimerHandle TaskCoolDownTimer = FTimerHandle();
+	bool DoingTask;
+	FTimerHandle TaskCoolDownTimer;
 public:
 
 protected:
-	//Action distance calculation
-	static float GetMinRange() { return 64.f; }
-	float GetMaxRangeDistance(){ return MaxGoalDistance + GetMinRange();}
+	//Action distance calculation needs to be round 120
+	static float GetMinRange() { return 120.f; }
+	float GetMaxRangeDistance(){ return MaxGoalDistance;}
 
 	// Begin PlayerController interface
 	virtual void Tick(float DeltaTime) override;
@@ -57,14 +57,14 @@ protected:
 	//Set the timer for the task
 	void SetTaskCoolDownTime(float time);
 	//The timer has finisshed and we can reset tasks
-	void TaskCoolDownDone(){ TaskCoolDownTimer.Invalidate(); GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "done timer");}
+	void TaskCoolDownDone(){ TaskCoolDownTimer.Invalidate();}
 	//try to do the task given to us
 	void DoTask();
 	//Cancle any current task
 	void StopDoingTask();
 	//This is called after any animations are done. ie where we apply damage
 	UFUNCTION(BlueprintCallable)
-	void FinishedTask() { if(HasAuthority())DoingTask = false; }
+	void FinishedTask();
 	//TODO: Complete task vs finished task? what?
 	//This is called after any animations are done. ie where we apply damage
 	void CompleteTask();
