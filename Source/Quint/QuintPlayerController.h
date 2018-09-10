@@ -62,12 +62,7 @@ protected:
 	void DoTask();
 	//Cancle any current task
 	void StopDoingTask();
-	//This is called after any animations are done. ie where we apply damage
-	UFUNCTION(BlueprintCallable)
-	void FinishedTask();
-	//TODO: Complete task vs finished task? what?
-	//This is called after any animations are done. ie where we apply damage
-	void CompleteTask();
+	void DamageGoal();
 	//Can't cast pawn to quint char?  in inline?
 	class AQuintCharacter* GetPlayerPawn();
 	FORCEINLINE class AQuintPlayerState* GetPlayerState() { return Cast<AQuintPlayerState>(PlayerState); }

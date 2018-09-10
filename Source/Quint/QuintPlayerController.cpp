@@ -11,6 +11,7 @@
 #include "InteractableInterface.h"
 #include "WeaponHelper.h"
 
+
 AQuintCharacter * AQuintPlayerController::GetPlayerPawn()
 {
 	return Cast<AQuintCharacter>(GetPawn());
@@ -237,23 +238,6 @@ void AQuintPlayerController::OnSetDestinationReleased()
 			SetNewMoveDestination(Hit.ImpactPoint, Hit.Actor.Get());
 	}
 }
-void AQuintPlayerController::FinishedTask(){
-	if(!HasAuthority())
-		return;
-	DoingTask = false;
-	switch(Task){
-	case Attack:
-		//TODO: Need damage type
-		int dmg = 0;
-		//TODO:Get player id
-		//TODO ret val should be dmg not success/fail ?
-		UWeaponHelper::GetWeaponDamageForPlayById(GetPlayerState()->GetPlayerPrimaryWeapon,0,dmg);
-		//UGameplayStatics::ApplyDamage(Goal,dmg,this,GetPawn(), damgetype);
-		break;
-	default:
-		break;
-	}
-}
 void AQuintPlayerController::ActionAnimDone()
 {
 	if(!HasAuthority())
@@ -265,14 +249,22 @@ void AQuintPlayerController::ActionAnimDone()
 	{
 	case Attack:
 		DoingTask = false;
-		//TODO:GET primary weapon
 		if(UWeaponHelper::GetWeaponOrDefault(GetPlayerState()->GetPlayerPrimaryWeapon(),wpStruct))
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt((int)wpStruct.WeaponSpeed));  
 		SetTaskCoolDownTime(wpStruct.WeaponSpeed);
 		//either spawn projectile or apply damage*/ 
+		DamageGoal();
 		break;
 	default:
 		break;
 	}
+}
+void AQuintPlayerController::DamageGoal(){		
+	//TODO: Need damage type
+	int dmg = 0;
+	//TODO:Get player id
+	//TODO ret val should be dmg not success/fail ?
+	//UWeaponHelper::GetWeaponDamageForPlayById(GetPlayerState()->GetPlayerPrimaryWeapon,0,dmg);
+	//UGameplayStatics::ApplyDamage(Goal,dmg,this,GetPawn(), damgetype);
 }
 bool AQuintPlayerController::SetNewMoveDestination_Validate(const FVector DestLocation, AActor* DestActor) { return true; }
