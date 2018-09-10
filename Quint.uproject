@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{2CDCAA9F-496A-ED66-CFCD-03938F4E029B}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Quint",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	]
+}
