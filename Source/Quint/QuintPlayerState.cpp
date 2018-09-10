@@ -15,7 +15,6 @@ void AQuintPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	DOREPLIFETIME(AQuintPlayerState, Helm);
 	DOREPLIFETIME(AQuintPlayerState, Chest);
 	DOREPLIFETIME(AQuintPlayerState, Greaves);
-	DOREPLIFETIME(AQuintPlayerState, Boots);
 	DOREPLIFETIME(AQuintPlayerState, Gloves);
 	DOREPLIFETIME(AQuintPlayerState, PrimaryWeapon);
 	DOREPLIFETIME(AQuintPlayerState, SecondaryWeapon);
@@ -28,9 +27,6 @@ void AQuintPlayerState::OnRepChest(){
 }
 
 void AQuintPlayerState::OnRepGreaves(){
-}
-
-void AQuintPlayerState::OnRepBoots(){
 }
 
 void AQuintPlayerState::OnRepGloves(){
@@ -57,20 +53,12 @@ bool AQuintPlayerState::SetPlayerChest(int32 chest){
 	return false;
 }
 
-bool AQuintPlayerState::SetPlayerGreaves(int32 Greaves){
+bool AQuintPlayerState::SetPlayerGreaves(int32 greaves){
 	if(!HasAuthority())
 		return false;
 	OnRepGreaves();
 	return false;
 }
-
-bool AQuintPlayerState::SetPlayerBoots(int32 boots){
-	if(!HasAuthority())
-		return false;
-	OnRepBoots();
-	return false;
-}
-
 bool AQuintPlayerState::SetPlayerGloves(int32 gloves){
 	if(!HasAuthority())
 		return false;

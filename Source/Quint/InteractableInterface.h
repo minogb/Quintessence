@@ -34,10 +34,10 @@ class QUINT_API IInteractableInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	//Returns a bitmask of tasks
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
+
 	virtual int32 GetAvaliableTasks() { return No_Interaction; }
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
+
 	virtual EInteractionType GetDefaultTask() { return No_Interaction; }
+
 	virtual void UseObject() {}
 };

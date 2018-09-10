@@ -49,8 +49,6 @@ protected:
 	int32 Chest;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepGreaves)
 	int32 Greaves;
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepBoots)
-	int32 Boots;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepEquipment)
 	int32 Gloves;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepPrimaryWeapon)
@@ -72,10 +70,7 @@ protected:
 
 	UFUNCTION()
 	void OnRepGreaves();
-
-	UFUNCTION()
-	void OnRepBoots();
-
+	
 	UFUNCTION()
 	void OnRepGloves();
 
@@ -88,14 +83,26 @@ protected:
 	UFUNCTION()
 	void OnRepAttackable() {}
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetPlayerHelm(){return Helm;}
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetPlayerChest(){return Chest;}
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetPlayerGreaves(){return Greaves;}
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetPlayerGloves(){return Gloves;}
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetPlayerPrimaryWeapon(){return PrimaryWeapon;}
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetPlayerSecondaryWeapon(){return SecondaryWeapon;}
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EProtectionState GetAttackableState() { return Attackable.GetValue(); }
+
 	//TODO: Add verification check on player stats and equipment type
 	bool SetPlayerEquipment(FEquipmentStruct equipment) {return false;}
 	bool SetPlayerHelm(int32 helm);
 	bool SetPlayerChest(int32 chest);
-	bool SetPlayerGreaves(int32 Greaves);
-	bool SetPlayerBoots(int32 boots);
+	bool SetPlayerGreaves(int32 greaves);
 	bool SetPlayerGloves(int32 gloves);
 	bool SetPlayerPrimary(int32 primaryWeapon);
 	bool SetPlayerSecondaryWeapon(int32 secondaryWeapon);

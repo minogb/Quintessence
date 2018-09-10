@@ -21,6 +21,7 @@ AQuintPlayerController::AQuintPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+	TaskCoolDownTimer.Invalidate();
 }
 
 void AQuintPlayerController::Tick(float DeltaTime)
@@ -151,7 +152,7 @@ bool AQuintPlayerController::IsTaskReadyIfUsed()
 	switch (Task)
 	{
 	case Attack:
-		return TaskCoolDownTimer.IsValid();
+		return !TaskCoolDownTimer.IsValid();
 	default:
 		return true;
 	}
@@ -172,6 +173,7 @@ void AQuintPlayerController::DoTask()
 	}
 	IInteractableInterface* goal = Cast<IInteractableInterface>(Goal);
 	//TODO: Face twoard target
+	GetPlayerPawn()->GetMovementComponent()->StopActiveMovement();
 	GetPlayerPawn()->FaceRotation(FRotator());
 	switch (Task)
 	{
@@ -205,6 +207,7 @@ void AQuintPlayerController::DoTask()
 
 void AQuintPlayerController::StopDoingTask()
 {
+	GetPlayerPawn()->GetMovementComponent()->StopActiveMovement();
 	Goal = nullptr;
 	Task = No_Interaction;
 	DoingTask = false;
@@ -240,7 +243,7 @@ void AQuintPlayerController::ActionAnimDone()
 	case Attack:
 		DoingTask = false;
 		//TODO:GET primary weapon
-		if(UWeaponHelper::GetWeaponOrDefault(0,wpStruct))
+		if(UWeaponHelper::GetWeaponOrDefault(GetPlayerState()->GetPlayerPrimaryWeapon(),wpStruct))
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt((int)wpStruct.WeaponSpeed));  
 		SetTaskCoolDownTime(wpStruct.WeaponSpeed);
 		//either spawn projectile or apply damage*/ 
