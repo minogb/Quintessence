@@ -6,13 +6,12 @@
 #include "Engine/UserDefinedStruct.h"
 #include "Engine/DataTable.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "QuintDamageType.h"
 #include "WeaponDataStruct.generated.h"
 
 /**
  * 
  */
-
-
 
 UENUM(BlueprintType)
 enum EWeaponScaleEnum {
@@ -66,23 +65,5 @@ struct QUINT_API FWeaponDataStruct : public FTableRowBase
 	TEnumAsByte<EWeaponScaleEnum> DexterityScale = A_Scale;
 	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> PureScale = F_Scale;
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> BluntScale = A_Scale;
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> CleaveScale = A_Scale;
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> PeircingScale = A_Scale;
-	
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> MagicScale = F_Scale;
-	/*
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> ColdScale;
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> HeatScale;
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TEnumAsByte<EWeaponScaleEnum> ElectricScale;
-	*/
-
+	TSubclassOf<UQuintDamageType> DamageType = UQuintDamageType::StaticClass();
 };

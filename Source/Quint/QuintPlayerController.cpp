@@ -11,21 +11,22 @@
 #include "InteractableInterface.h"
 #include "WeaponHelper.h"
 
-AQuintCharacter * AQuintPlayerController::GetPlayerPawn()
-{
+
+AQuintCharacter * AQuintPlayerController::GetPlayerPawn(){
 	return Cast<AQuintCharacter>(GetPawn());
 }
 
 
-AQuintPlayerController::AQuintPlayerController()
-{
+AQuintPlayerController::AQuintPlayerController(){
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+	Goal = nullptr;
+	Task = No_Interaction;
+	DoingTask = false;
 	TaskCoolDownTimer.Invalidate();
 }
 
-void AQuintPlayerController::Tick(float DeltaTime)
-{
+void AQuintPlayerController::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 	if (HasAuthority()) {
 		if (Goal) {
@@ -43,8 +44,7 @@ void AQuintPlayerController::Tick(float DeltaTime)
 	}
 }
 
-void AQuintPlayerController::SetupInputComponent()
-{
+void AQuintPlayerController::SetupInputComponent(){
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
@@ -57,8 +57,7 @@ void AQuintPlayerController::SetupInputComponent()
 
 }
 
-void AQuintPlayerController::MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
+void AQuintPlayerController::MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location){
 	APawn* const MyPawn = GetPawn();
 	FVector2D ScreenSpaceLocation(Location);
 
@@ -107,24 +106,28 @@ void AQuintPlayerController::SetTask(AActor* goal, EInteractionType task){
 		break;
 	case Examine:
 		MaxGoalDistance = GetMinRange();
+		DoingTask = false;
 		break;
 	case Use:
 		MaxGoalDistance = GetMinRange();
 		MoveToGoal();
+		DoingTask = false;
 		break;
+	case Attack:
+		MaxGoalDistance = GetMinRange();
+		MoveToGoal();
+		DoingTask = false;
 	default:
 		MoveToGoal();
 		break;
 	}
 }
 
-void AQuintPlayerController::MoveToGoal()
-{
+void AQuintPlayerController::MoveToGoal(){
 	if (!IsAtGoal()) {
 		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
 		NavSys->SimpleMoveToActor(this, Goal);
-	}
-	
+	}	
 }
 
 void AQuintPlayerController::MoveToLocation(FVector location){
@@ -146,11 +149,8 @@ bool AQuintPlayerController::IsAtGoal(){
 	return Distance <= GetMaxRangeDistance();
 }
 
-bool AQuintPlayerController::IsTaskReadyIfUsed()
-{
-	
-	switch (Task)
-	{
+bool AQuintPlayerController::IsTaskReadyIfUsed(){
+	switch (Task){
 	case Attack:
 		return !TaskCoolDownTimer.IsValid();
 	default:
@@ -158,16 +158,14 @@ bool AQuintPlayerController::IsTaskReadyIfUsed()
 	}
 }
 
-void AQuintPlayerController::SetTaskCoolDownTime(float time)
-{
+void AQuintPlayerController::SetTaskCoolDownTime(float time){
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "Set cd");
 	UWorld* world = GetWorld();
 	if(world)
 		world->GetTimerManager().SetTimer(TaskCoolDownTimer, this, &AQuintPlayerController::TaskCoolDownDone, time, false);
 }
 
-void AQuintPlayerController::DoTask()
-{
+void AQuintPlayerController::DoTask(){
 	if (!GetPlayerPawn() || !Goal || !HasAuthority() || Task == No_Interaction) {
 		return;
 	}
@@ -205,8 +203,7 @@ void AQuintPlayerController::DoTask()
 	}
 }
 
-void AQuintPlayerController::StopDoingTask()
-{
+void AQuintPlayerController::StopDoingTask(){
 	GetPlayerPawn()->GetMovementComponent()->StopActiveMovement();
 	Goal = nullptr;
 	Task = No_Interaction;
@@ -230,7 +227,6 @@ void AQuintPlayerController::OnSetDestinationReleased()
 			SetNewMoveDestination(Hit.ImpactPoint, Hit.Actor.Get());
 	}
 }
-
 void AQuintPlayerController::ActionAnimDone()
 {
 	if(!HasAuthority())
@@ -242,14 +238,27 @@ void AQuintPlayerController::ActionAnimDone()
 	{
 	case Attack:
 		DoingTask = false;
-		//TODO:GET primary weapon
 		if(UWeaponHelper::GetWeaponOrDefault(GetPlayerState()->GetPlayerPrimaryWeapon(),wpStruct))
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt((int)wpStruct.WeaponSpeed));  
 		SetTaskCoolDownTime(wpStruct.WeaponSpeed);
 		//either spawn projectile or apply damage*/ 
+		DamageGoal();
 		break;
 	default:
 		break;
 	}
+}
+void AQuintPlayerController::DamageGoal(){
+	//TODO:Get player id
+	UGameplayStatics::ApplyDamage(
+		//thing to damage
+		Goal,
+		//Weapon Damage
+		UWeaponHelper::GetWeaponDamageForPlayById(GetPlayerState()->GetPlayerPrimaryWeapon(),0),
+		//me and my pawn
+		this,GetPawn(),
+		//Weapon Damage Type
+		UWeaponHelper::GetWeaponDamageType(GetPlayerState()->GetPlayerPrimaryWeapon())
+	);
 }
 bool AQuintPlayerController::SetNewMoveDestination_Validate(const FVector DestLocation, AActor* DestActor) { return true; }
