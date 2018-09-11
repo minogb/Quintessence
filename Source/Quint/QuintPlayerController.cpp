@@ -39,8 +39,7 @@ void AQuintPlayerController::Tick(float DeltaTime){
 		}
 		else {
 		}
-		//TODO: Load equipment
-		GetPlayerState()->SetPlayerPrimary(0);
+		GetPlayerState()->SetPlayerPrimary(1);
 	}
 }
 
@@ -249,11 +248,10 @@ void AQuintPlayerController::ActionAnimDone()
 	}
 }
 void AQuintPlayerController::DamageGoal(){
-	//TODO:Get player id
 	UGameplayStatics::ApplyDamage(
 		//thing to damage
 		Goal,
-		//Weapon Damage
+		//Weapon Damage TODO: Get player ID
 		UWeaponHelper::GetWeaponDamageForPlayById(GetPlayerState()->GetPlayerPrimaryWeapon(),0),
 		//me and my pawn
 		this,GetPawn(),

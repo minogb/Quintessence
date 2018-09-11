@@ -83,6 +83,7 @@ protected:
 	UFUNCTION()
 	void OnRepAttackable() {}
 public:
+	AQuintPlayerState();
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetPlayerHelm(){return Helm;}
 	UFUNCTION(BlueprintCallable, BlueprintPure)
