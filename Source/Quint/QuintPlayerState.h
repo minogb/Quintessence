@@ -43,6 +43,7 @@ class QUINT_API AQuintPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 protected:
+	//TODO: Get rid of blueprint read only here
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepHelm)
 	int32 Helm;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepChest)
@@ -55,11 +56,13 @@ protected:
 	int32 PrimaryWeapon;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepSecondaryWeapon)
 	int32 SecondaryWeapon;
+	
 
 	UPROPERTY(ReplicatedUsing = OnRepAttackable)
 	TEnumAsByte<EProtectionState> Attackable = Neutral;
 public:
 protected:
+
 	UFUNCTION()
 	void OnRepEquipment() {};
 	UFUNCTION()
@@ -79,9 +82,12 @@ protected:
 
 	UFUNCTION()
 	void OnRepSecondaryWeapon();
+	
+	UFUNCTION()
+	void OnRepHealth();
 
 	UFUNCTION()
-	void OnRepAttackable() {}
+	void OnRepAttackable();
 public:
 	AQuintPlayerState();
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -98,6 +104,7 @@ public:
 	int GetPlayerSecondaryWeapon(){return SecondaryWeapon;}
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EProtectionState GetAttackableState() { return Attackable.GetValue(); }
+	
 
 	//TODO: Add verification check on player stats and equipment type
 	bool SetPlayerEquipment(FEquipmentStruct equipment) {return false;}

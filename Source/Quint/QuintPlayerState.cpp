@@ -19,6 +19,12 @@ void AQuintPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	DOREPLIFETIME(AQuintPlayerState, PrimaryWeapon);
 	DOREPLIFETIME(AQuintPlayerState, SecondaryWeapon);
 }
+AQuintPlayerState::AQuintPlayerState(){
+	//Load player data from server
+	SetPlayerPrimary(1);
+
+}
+
 
 void AQuintPlayerState::OnRepHelm(){
 }
@@ -38,10 +44,11 @@ void AQuintPlayerState::OnRepPrimaryWeapon(){
 void AQuintPlayerState::OnRepSecondaryWeapon(){
 }
 
-AQuintPlayerState::AQuintPlayerState()
-{
-	//Load player data from server
+void AQuintPlayerState::OnRepHealth(){
 }
+void AQuintPlayerState::OnRepAttackable(){
+}
+
 
 //TODO: verify/save to server
 bool AQuintPlayerState::SetPlayerHelm(int32 helm){

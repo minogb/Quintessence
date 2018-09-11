@@ -39,7 +39,6 @@ void AQuintPlayerController::Tick(float DeltaTime){
 		}
 		else {
 		}
-		GetPlayerState()->SetPlayerPrimary(1);
 	}
 }
 
