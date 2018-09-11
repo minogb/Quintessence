@@ -10,6 +10,7 @@
 /**
  * 
  */
+class UQuintDamageType;
 static UDataTable* WeaponLookupTable = nullptr;
 static const FString WEAPON_CONTEXT_STRING(TEXT("GENERAL"));
 UCLASS()
@@ -26,8 +27,10 @@ public:
 	static bool GetWeaponOrDefault(int id, FWeaponDataStruct& weaponStruct);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	static bool GetWeaponDamageForPlayById(int id, int playerId, int& damage);
+	static int GetWeaponDamageForPlayById(int id, int playerId);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static float GetPercentFromScale(TEnumAsByte<EWeaponScaleEnum> scale, int playerScaleLevel);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static TSubclassOf<UQuintDamageType> GetWeaponDamageType(int id);
 	
 };

@@ -3,6 +3,7 @@
 #include "WeaponHelper.h"
 #include "Engine.h"
 #include "UObject/ConstructorHelpers.h"
+#include "QuintDamageType.h"
 UWeaponHelper::UWeaponHelper() :Super(){
 	if (!WeaponLookupTable) {
 		static ConstructorHelpers::FObjectFinder<UDataTable> WeaponTable(TEXT("DataTable'/Game/DataTables/WeaponDataTable.WeaponDataTable'"));
@@ -10,8 +11,7 @@ UWeaponHelper::UWeaponHelper() :Super(){
 			WeaponLookupTable = WeaponTable.Object;
 	}
 }
-bool UWeaponHelper::GetWeaponStructFromId(int id, FWeaponDataStruct & weaponStruct)
-{
+bool UWeaponHelper::GetWeaponStructFromId(int id, FWeaponDataStruct & weaponStruct){
 	if(!WeaponLookupTable)
 		return false;
 	FWeaponDataStruct* data = nullptr;
@@ -22,15 +22,13 @@ bool UWeaponHelper::GetWeaponStructFromId(int id, FWeaponDataStruct & weaponStru
 
 }
 
-bool UWeaponHelper::GetWeaponOrDefault(int id, FWeaponDataStruct & weaponStruct)
-{
+bool UWeaponHelper::GetWeaponOrDefault(int id, FWeaponDataStruct & weaponStruct){
 	if(GetWeaponStructFromId(id, weaponStruct))
 		return true;
 	return GetWeaponStructFromId(0, weaponStruct);
 }
 
-bool UWeaponHelper::GetWeaponDamageForPlayById(int id, int playerId, int & damage)
-{
+int UWeaponHelper::GetWeaponDamageForPlayById(int id, int playerId){
 	if(!WeaponLookupTable)
 		return false;
 	FWeaponDataStruct weaponData;
@@ -44,14 +42,12 @@ bool UWeaponHelper::GetWeaponDamageForPlayById(int id, int playerId, int & damag
 		totalScale+=GetPercentFromScale(weaponData.AgilityScale,100);
 		totalScale+=GetPercentFromScale(weaponData.StregnthScale,100);
 		totalScale+=GetPercentFromScale(weaponData.DexterityScale,100);
-		damage = FMath::FRandRange(damageBase, damageBase + (damageBase*totalScale));
-		return  true;
+		return FMath::FRandRange(damageBase, damageBase + (damageBase*totalScale));
 	}
-	return false;
+	return 0;
 }
 
-float UWeaponHelper::GetPercentFromScale(TEnumAsByte<EWeaponScaleEnum> scale, int playerScaleLevel)
-{
+float UWeaponHelper::GetPercentFromScale(TEnumAsByte<EWeaponScaleEnum> scale, int playerScaleLevel){
 	switch(scale.GetValue()){
 	case S_Scale:
 		return 1.25 * (playerScaleLevel/100);
@@ -73,4 +69,9 @@ float UWeaponHelper::GetPercentFromScale(TEnumAsByte<EWeaponScaleEnum> scale, in
 		break;
 	}
 	return 0.0f;
+}
+
+TSubclassOf<UQuintDamageType> UWeaponHelper::GetWeaponDamageType(int id)
+{
+	return UQuintDamageType::StaticClass();
 }
