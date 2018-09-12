@@ -29,6 +29,7 @@ AQuintPlayerController::AQuintPlayerController(){
 void AQuintPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	//Load player data from server
 	if(HasAuthority()){
 		int var = FMath::RandRange(0,1);
 		if(GetPlayerState())

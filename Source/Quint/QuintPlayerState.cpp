@@ -20,7 +20,6 @@ void AQuintPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	DOREPLIFETIME(AQuintPlayerState, SecondaryWeapon);
 }
 AQuintPlayerState::AQuintPlayerState(){
-	//Load player data from server
 
 }
 
