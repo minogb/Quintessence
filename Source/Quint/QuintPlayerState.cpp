@@ -2,7 +2,7 @@
 
 #include "QuintPlayerState.h"
 #include "UnrealNetwork.h"
-
+#include "Engine.h"
 
 
 
@@ -21,7 +21,6 @@ void AQuintPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 }
 AQuintPlayerState::AQuintPlayerState(){
 	//Load player data from server
-	SetPlayerPrimary(1);
 
 }
 

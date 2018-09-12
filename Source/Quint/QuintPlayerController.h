@@ -69,6 +69,7 @@ protected:
 	
 public:
 	AQuintPlayerController();
+	virtual void BeginPlay() override;
 };
 
 
