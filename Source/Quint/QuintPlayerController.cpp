@@ -26,6 +26,18 @@ AQuintPlayerController::AQuintPlayerController(){
 	TaskCoolDownTimer.Invalidate();
 }
 
+void AQuintPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	//Load player data from server
+	if(HasAuthority()){
+		int var = FMath::RandRange(0,1);
+		if(GetPlayerState())
+			GetPlayerState()->SetPlayerPrimary(var);
+		if(GEngine)GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt(var));
+	}
+}
+
 void AQuintPlayerController::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 	if (HasAuthority()) {
@@ -39,7 +51,6 @@ void AQuintPlayerController::Tick(float DeltaTime){
 		}
 		else {
 		}
-		GetPlayerState()->SetPlayerPrimary(1);
 	}
 }
 

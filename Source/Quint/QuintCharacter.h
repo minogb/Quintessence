@@ -23,9 +23,13 @@ protected:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* CursorToWorld;
+
+	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRepHealth)
+	int32 Health;
 public:
 protected:
-	
+	UFUNCTION()
+	void OnRepHealth();
 	//---------------------------------------Animations--------------------------------------------
 	UFUNCTION(BlueprintNativeEvent)
 	void BpPrimaryAttackAnimation();
@@ -35,6 +39,7 @@ protected:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void BpHitAnimation();
+	
 public:
 	AQuintCharacter();
 
@@ -53,7 +58,10 @@ public:
 	virtual EInteractionType GetDefaultTask() override;
 	virtual int32 GetAvaliableTasks() override { return Move_Here | Follow | Trade; }
 	virtual void BeginPlay() override;
-	
+	virtual float TakeDamage(float DamageAmount,
+		struct FDamageEvent const & DamageEvent,
+		class AController * EventInstigator,
+		AActor * DamageCauser) override;
 	//---------------------------------------Replicate---------------------------------------------
 	//---------------------------------------Animations--------------------------------------------
 	UFUNCTION(NetMulticast,Unreliable)

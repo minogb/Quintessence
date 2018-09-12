@@ -14,9 +14,16 @@
 #include "ServerHelper.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "QuintPlayerState.h"
+#include "UnrealNetwork.h"
 
-AQuintCharacter::AQuintCharacter()
-{
+void AQuintCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AQuintCharacter, Health);
+
+}
+void AQuintCharacter::OnRepHealth(){
+}
+AQuintCharacter::AQuintCharacter(){
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -72,6 +79,9 @@ void AQuintCharacter::Tick(float DeltaSeconds){
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
 	}
+}
+float AQuintCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser){
+	return DamageAmount;
 }
 AQuintPlayerState * AQuintCharacter::GetPlayerState(){
 	return Cast<AQuintPlayerState>(PlayerState);
