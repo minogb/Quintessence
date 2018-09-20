@@ -26,8 +26,7 @@ AQuintPlayerController::AQuintPlayerController(){
 	TaskCoolDownTimer.Invalidate();
 }
 
-void AQuintPlayerController::BeginPlay()
-{
+void AQuintPlayerController::BeginPlay(){
 	Super::BeginPlay();
 	//Load player data from server
 	if(HasAuthority()){

@@ -6,12 +6,17 @@
 #include "GameFramework/Character.h"
 #include "InteractableInterface.h"
 #include "QuintCharacter.generated.h"
+
+
+
 UCLASS(Blueprintable)
 class AQuintCharacter : public ACharacter, public IInteractableInterface
 {
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(ReplicatedUsing = OnRepHealth)
+	int32 Health;
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
@@ -23,13 +28,9 @@ protected:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* CursorToWorld;
-
-	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRepHealth)
-	int32 Health;
 public:
 protected:
-	UFUNCTION()
-	void OnRepHealth();
+	void SetHealth(int amount);
 	//---------------------------------------Animations--------------------------------------------
 	UFUNCTION(BlueprintNativeEvent)
 	void BpPrimaryAttackAnimation();
@@ -40,6 +41,13 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void BpHitAnimation();
 	
+	UFUNCTION()
+	void OnRepHealth(){}
+
+	UFUNCTION(NetMulticast, Unreliable)
+	//value > 0 hit, < 0 heal, = 0 block
+	void ReplicateHitBlockOrHeal(int value);
+
 public:
 	AQuintCharacter();
 

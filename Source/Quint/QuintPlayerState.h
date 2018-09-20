@@ -50,21 +50,19 @@ protected:
 	int32 Chest;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepGreaves)
 	int32 Greaves;
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepEquipment)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepGloves)
 	int32 Gloves;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepPrimaryWeapon)
 	int32 PrimaryWeapon;
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRepSecondaryWeapon)
 	int32 SecondaryWeapon;
-	
+
 
 	UPROPERTY(ReplicatedUsing = OnRepAttackable)
 	TEnumAsByte<EProtectionState> Attackable = Neutral;
 public:
 protected:
 
-	UFUNCTION()
-	void OnRepEquipment() {};
 	UFUNCTION()
 	void OnRepHelm();
 
@@ -83,9 +81,6 @@ protected:
 	UFUNCTION()
 	void OnRepSecondaryWeapon();
 	
-	UFUNCTION()
-	void OnRepHealth();
-
 	UFUNCTION()
 	void OnRepAttackable();
 public:
@@ -116,5 +111,4 @@ public:
 	bool SetPlayerSecondaryWeapon(int32 secondaryWeapon);
 
 	void SetAttackable(EProtectionState attackable) { if (HasAuthority()) { Attackable = attackable; OnRepAttackable(); } }
-
 };

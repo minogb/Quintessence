@@ -23,7 +23,6 @@ AQuintPlayerState::AQuintPlayerState(){
 
 }
 
-
 void AQuintPlayerState::OnRepHelm(){
 }
 
@@ -42,8 +41,6 @@ void AQuintPlayerState::OnRepPrimaryWeapon(){
 void AQuintPlayerState::OnRepSecondaryWeapon(){
 }
 
-void AQuintPlayerState::OnRepHealth(){
-}
 void AQuintPlayerState::OnRepAttackable(){
 }
 
@@ -95,3 +92,4 @@ bool AQuintPlayerState::SetPlayerSecondaryWeapon(int32 secondaryWeapon){
 	OnRepSecondaryWeapon();
 	return false;
 }
+

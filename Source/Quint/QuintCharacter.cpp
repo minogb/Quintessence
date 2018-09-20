@@ -17,11 +17,15 @@
 #include "UnrealNetwork.h"
 
 void AQuintCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AQuintCharacter, Health);
-
 }
-void AQuintCharacter::OnRepHealth(){
+void AQuintCharacter::SetHealth(int amount)
+{
+	if(HasAuthority()){
+		//TODO: Save health to server
+		Health = amount; 
+		OnRepHealth();
+	}
 }
 AQuintCharacter::AQuintCharacter(){
 	// Set size for player capsule
@@ -81,10 +85,13 @@ void AQuintCharacter::Tick(float DeltaSeconds){
 	}
 }
 float AQuintCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser){
-	return DamageAmount;
-}
-AQuintPlayerState * AQuintCharacter::GetPlayerState(){
-	return Cast<AQuintPlayerState>(PlayerState);
+	AQuintPlayerState* state = GetPlayerState();
+	//TODO: Calculate damage actually receieved after reduction
+	//Need player stats
+	const int dmg = DamageAmount;
+	SetHealth(Health-dmg);
+	ReplicateHitBlockOrHeal(dmg);
+	return dmg;
 }
 EInteractionType AQuintCharacter::GetDefaultTask(){
 	return Attack;
@@ -111,4 +118,17 @@ void AQuintCharacter::BpBlockAnimation_Implementation(){
 }
 
 void AQuintCharacter::BpHitAnimation_Implementation(){
+}
+
+void AQuintCharacter::ReplicateHitBlockOrHeal_Implementation(int value)
+{
+	if(value > 0)
+		BpHitAnimation();
+	else if(value < 0)
+	{}
+	else
+		BpBlockAnimation();
+}
+AQuintPlayerState * AQuintCharacter::GetPlayerState(){
+	return Cast<AQuintPlayerState>(PlayerState);
 }
