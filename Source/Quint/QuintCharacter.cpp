@@ -76,8 +76,31 @@ void AQuintCharacter::Tick(float DeltaSeconds){
 		}
 	}
 }
-float AQuintCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser){
-	AQuintPlayerState* state = GetPlayerState();
+void AQuintCharacter::SetHealth(int amount)
+{
+	if(HasAuthority()){
+		//TODO: Save health to backend server
+		Health = amount; 
+		//server does not call this by default
+		OnRepHealth();
+	}
+}
+void AQuintCharacter::AddHealth(int amount){
+	if(HasAuthority()){
+		ReplicateHitBlockOrHeal(amount);
+		SetHealth(Health + amount);
+	}
+}
+void AQuintCharacter::ReduceHealth(int amount){
+	if(HasAuthority()){
+		ReplicateHitBlockOrHeal(amount*-1);
+		SetHealth(Health - amount);
+		//TODO: Deathcheck
+		if(Health <= 0){
+		}
+	}
+}
+void AQuintCharacter::ReduceIncomingDamage(int & amount, FDamageEvent const & DamageEvent){
 	//TODO: Calculate damage actually receieved after reduction
 	//Need player stats
 }
