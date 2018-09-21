@@ -31,6 +31,9 @@ protected:
 public:
 protected:
 	void SetHealth(int amount);
+	void ReduceIncomingDamage(int& amount, FDamageEvent const & DamageEvent);
+	void AddHealth(int amount);
+	void ReduceHealth(int amount);
 	//---------------------------------------Animations--------------------------------------------
 	UFUNCTION(BlueprintNativeEvent)
 	void BpPrimaryAttackAnimation();
@@ -42,10 +45,10 @@ protected:
 	void BpHitAnimation();
 	
 	UFUNCTION()
-	void OnRepHealth(){}
+	void OnRepHealth();
 
 	UFUNCTION(NetMulticast, Unreliable)
-	//value > 0 hit, < 0 heal, = 0 block
+	//value > 0 heal, < 0 damage, = 0 block
 	void ReplicateHitBlockOrHeal(int value);
 
 public:
