@@ -7,7 +7,12 @@
 
 AQuintGameMode::AQuintGameMode()
 {
-	PlayerControllerClass = APlayerCharacter::StaticClass();
+	PlayerControllerClass = AWorldController::StaticClass();
 	DefaultPawnClass = APlayerCharacter::StaticClass();
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/BpPlayerCharacter"));
+	if (PlayerPawnBPClass.Class != NULL)
+	{
+		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
 	//PlayerStateClass = AQuintPlayerState::StaticClass();
 }

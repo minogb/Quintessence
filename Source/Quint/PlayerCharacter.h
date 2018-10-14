@@ -4,15 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "PawnInterface.h"
 #include "PlayerCharacter.generated.h"
 
-UCLASS()
-class QUINT_API APlayerCharacter : public ACharacter
+UCLASS(Blueprintable)
+class QUINT_API APlayerCharacter : public ACharacter, public IPawnInterface
 {
 	GENERATED_BODY()
 
 
 protected:
+	static const float MIN_MOVE_DISTANCE;
 	//UPROPERTY(ReplicatedUsing = OnRepHealth)
 	int32 Health;
 	/** Top down camera */
@@ -39,6 +41,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
+	virtual void MovePawnToLocationOrActor(const FVector DestLocation, AActor* DestActor) override;
 	
 };

@@ -5,8 +5,11 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "AI/Navigation/NavigationSystem.h"
+#include "Engine/World.h"
+#include "Engine.h"
 
-
+const float APlayerCharacter::MIN_MOVE_DISTANCE = 120.f;
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -61,5 +64,29 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void APlayerCharacter::MovePawnToLocationOrActor(const FVector DestLocation, AActor * DestActor){
+	
+	bool newTask = false;
+	if(!DestActor || true){
+		//if actor does not have valid task to do
+
+		float const Distance = FVector::Dist(DestLocation, GetActorLocation());
+		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
+
+		// We need to issue move command only if far enough in order for walk animation to play correctly
+		if (NavSys && (true || Distance > MIN_MOVE_DISTANCE))	{
+			NavSys->SimpleMoveToLocation(GetController(),DestLocation);
+			newTask = true;
+		}
+	}
+	else{
+		//actor has task to do
+	}
+	if(newTask){
+		//Stop doing old task
+		//start doing new task
+	}
 }
 

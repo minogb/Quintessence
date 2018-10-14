@@ -22,5 +22,5 @@ class QUINT_API IPawnInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	void MovePawnToLocationOrActor(const FVector DestLocation, AActor* DestActor){}
+	virtual void MovePawnToLocationOrActor(const FVector DestLocation, AActor* DestActor){}
 };

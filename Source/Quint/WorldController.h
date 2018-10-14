@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class QUINT_API AWorldController : public APlayerController
 {
 protected:

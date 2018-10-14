@@ -55,15 +55,7 @@ void AWorldController::OnSetDestinationReleased(){
 }
 
 void AWorldController::SetDestinationHelper(FHitResult HitResult){
-	
-	APawn* const MyPawn = GetPawn();
-	if (HitResult.bBlockingHit && MyPawn) {
-		float const Distance = FVector::Dist(HitResult.ImpactPoint, MyPawn->GetActorLocation());
-		//Should we bother with the network call
-		if (Distance > 120)
-			// We hit something, move there
-			SetNewMoveDestination(HitResult.ImpactPoint, HitResult.Actor.Get());
-	}
+	SetNewMoveDestination(HitResult.ImpactPoint, HitResult.Actor.Get());
 }
 
 void AWorldController::SetNewMoveDestination_Implementation(const FVector DestLocation, AActor* DestActor){
