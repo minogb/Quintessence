@@ -15,7 +15,7 @@ class QUINT_API APlayerCharacter : public ACharacter, public IPawnInterface
 
 protected:
 	static const float MIN_MOVE_DISTANCE;
-	//UPROPERTY(ReplicatedUsing = OnRepHealth)
+	UPROPERTY(Replicated)
 	int32 Health;
 	/** Top down camera */
 	//in the future add third person? or other

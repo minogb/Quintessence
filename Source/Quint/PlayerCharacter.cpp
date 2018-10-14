@@ -8,11 +8,17 @@
 #include "AI/Navigation/NavigationSystem.h"
 #include "Engine/World.h"
 #include "Engine.h"
+#include "UnrealNetwork.h"
 
 const float APlayerCharacter::MIN_MOVE_DISTANCE = 120.f;
-// Sets default values
-APlayerCharacter::APlayerCharacter()
-{
+
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APlayerCharacter, Health);
+}
+
+APlayerCharacter::APlayerCharacter(){
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 		// Set size for player capsule
@@ -46,22 +52,19 @@ APlayerCharacter::APlayerCharacter()
 }
 
 // Called when the game starts or when spawned
-void APlayerCharacter::BeginPlay()
-{
+void APlayerCharacter::BeginPlay(){
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void APlayerCharacter::Tick(float DeltaTime)
-{
+void APlayerCharacter::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 
 }
 
 // Called to bind functionality to input
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }

@@ -5,8 +5,7 @@
 #include "WorldController.h"
 #include "UObject/ConstructorHelpers.h"
 
-AQuintGameMode::AQuintGameMode()
-{
+AQuintGameMode::AQuintGameMode(){
 	PlayerControllerClass = AWorldController::StaticClass();
 	DefaultPawnClass = APlayerCharacter::StaticClass();
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/BpPlayerCharacter"));
