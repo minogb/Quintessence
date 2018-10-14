@@ -14,9 +14,11 @@ class QUINT_API AWorldController : public APlayerController
 {
 protected:
 	GENERATED_BODY()
+	FORCEINLINE class IPawnInterface* GetPlayerPawn();
 	/** Navigate player to the current touch location. */
 	void MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location);
 	
+	void SetDestinationHelper(FHitResult HitResult);
 	/** Input handlers for SetDestination action. */
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
@@ -26,6 +28,7 @@ protected:
 	// Begin PlayerController interface
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
+
 public:
 	
 	AWorldController();
