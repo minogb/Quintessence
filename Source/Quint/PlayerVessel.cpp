@@ -7,7 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine/World.h"
 #include "Engine/GameEngine.h"
-
+#include "Avatar.h"
 // Sets default values
 APlayerVessel::APlayerVessel()
 {
@@ -15,6 +15,7 @@ APlayerVessel::APlayerVessel()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
+	PanRotationSpeed = 50.f;
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -24,6 +25,7 @@ APlayerVessel::APlayerVessel()
 	 // Don't want to pull camera in when it collides with level
 	CameraBoom->bDoCollisionTest = false;
 	CameraBoom->TargetArmLength = 2500.f;
+	CameraBoom->bInheritPitch = false;
 	CameraBoom->RelativeRotation = FRotator(-60.f, 0.f, 0.f);
 	
 	// Create a camera...
@@ -42,6 +44,9 @@ void APlayerVessel::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("PanMode", IE_Pressed, this, &APlayerVessel::PressPan);
 	PlayerInputComponent->BindAction("PanMode", IE_Released, this, &APlayerVessel::ReleasePan);
+	
+	//Reset Camera
+	PlayerInputComponent->BindAction("ResetCamera", IE_Released, this, &APlayerVessel::ResetCamera);
 
 	PlayerInputComponent->BindAxis("MouseUp", this, &APlayerVessel::MoveMouseY);
 	PlayerInputComponent->BindAxis("MouseRight", this, &APlayerVessel::MoveMouseX);
@@ -71,6 +76,17 @@ void APlayerVessel::AttachToAvatar(){
 
 void APlayerVessel::ReleasePan(){
 	SetPanning(false);
+}
+void APlayerVessel::ResetCamera(){
+	
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if(pc){
+		pc->SetControlRotation(FRotator(0));
+	}
+	FRotator current = CameraBoom->RelativeRotation;
+	float pitch = -60.f;
+	current.Pitch = pitch;
+	CameraBoom->SetRelativeRotation(current);
 }
 void APlayerVessel::PressPan(){
 	SetPanning(true);
@@ -107,7 +123,9 @@ void APlayerVessel::MoveMouseY(float Val){
 	
 	if(IsPanning){
 		FRotator current = CameraBoom->RelativeRotation;
-		float pitch = FMath::ClampAngle((current.Pitch+Val*(PanRotationSpeed) * GetWorld()->GetDeltaSeconds()),-89.f,0.f);
+		float pitch = FMath::ClampAngle(
+			(current.Pitch+Val*(PanRotationSpeed) * GetWorld()->GetDeltaSeconds()),
+			-89.f,0.f);
 		current.Pitch = pitch;
 		CameraBoom->SetRelativeRotation(current);
 

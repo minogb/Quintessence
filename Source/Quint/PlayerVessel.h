@@ -33,15 +33,20 @@ public:
 
 protected:
 	bool IsPanning = false;
-	float PanRotationSpeed = 10.f;
+	float PanRotationSpeed;;
 	FVector2D LockedMousePos = FVector2D();
-	// Called when the game starts or when spawned
+	class AAvatar* PlayerAvatar;
+
 	virtual void BeginPlay() override;
-	AActor* PlayerAvatar;
+
+	void ResetCamera();
 	void AttachToAvatar();
+	
 	void PressPan();
 	void ReleasePan();
+
 	void SetPanning(bool Panning);
+
 	void MoveMouseX(float Val);
 	void MoveMouseY(float Val);
 };
