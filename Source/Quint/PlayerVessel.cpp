@@ -9,8 +9,7 @@
 #include "Engine/GameEngine.h"
 #include "Avatar.h"
 // Sets default values
-APlayerVessel::APlayerVessel()
-{
+APlayerVessel::APlayerVessel(){
 	PrimaryActorTick.bCanEverTick = true;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
@@ -44,13 +43,21 @@ void APlayerVessel::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("PanMode", IE_Pressed, this, &APlayerVessel::PressPan);
 	PlayerInputComponent->BindAction("PanMode", IE_Released, this, &APlayerVessel::ReleasePan);
+	PlayerInputComponent->BindAxis("Zoom", this, &APlayerVessel::Zoom);
 	
-	//Reset Camera
 	PlayerInputComponent->BindAction("ResetCamera", IE_Released, this, &APlayerVessel::ResetCamera);
 
 	PlayerInputComponent->BindAxis("MouseUp", this, &APlayerVessel::MoveMouseY);
 	PlayerInputComponent->BindAxis("MouseRight", this, &APlayerVessel::MoveMouseX);
 
+}
+void APlayerVessel::SetPlayerAvater(AAvatar * avatar, APlayerController * controller){
+	if(HasAuthority()){
+		if(controller && controller == GetController()){
+			PlayerAvatar = avatar;
+			AttachToAvatar();
+		}
+	}
 }
 // Called when the game starts or when spawned
 void APlayerVessel::BeginPlay()
@@ -130,4 +137,7 @@ void APlayerVessel::MoveMouseY(float Val){
 		CameraBoom->SetRelativeRotation(current);
 
 	}
+}
+void APlayerVessel::Zoom(float Val){
+	CameraBoom->TargetArmLength = CameraBoom->TargetArmLength + Val * GetWorld()->GetDeltaSeconds(); 
 }

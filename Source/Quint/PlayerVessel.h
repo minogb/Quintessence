@@ -31,6 +31,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void SetPlayerAvater(class AAvatar* avatar, APlayerController* controller);
 protected:
 	bool IsPanning = false;
 	float PanRotationSpeed;;
@@ -49,4 +50,6 @@ protected:
 
 	void MoveMouseX(float Val);
 	void MoveMouseY(float Val);
+
+	void Zoom(float Val);
 };
