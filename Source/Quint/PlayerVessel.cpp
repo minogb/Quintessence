@@ -14,7 +14,6 @@ APlayerVessel::APlayerVessel(){
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
-	PanRotationSpeed = 50.f;
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -30,11 +29,10 @@ APlayerVessel::APlayerVessel(){
 	// Create a camera...
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	TopDownCameraComponent->RelativeRotation = FRotator(0,0,-180.f);
+	//TopDownCameraComponent->RelativeRotation = FRotator(0,0,-180.f);
 	// Camera does not rotate relative to arm
 	TopDownCameraComponent->bUsePawnControlRotation = false; 
 
-	PlayerAvatar = nullptr;
 }
 
 // Called to bind functionality to input
@@ -75,7 +73,10 @@ void APlayerVessel::Tick(float DeltaTime)
 void APlayerVessel::AttachToAvatar(){
 	if(PlayerAvatar && PlayerAvatar->IsValidLowLevel()){
 		if(!this->IsAttachedTo(PlayerAvatar)){
-			this->AttachToActor(PlayerAvatar, FAttachmentTransformRules::KeepRelativeTransform);
+			FAttachmentTransformRules rules = FAttachmentTransformRules(
+				EAttachmentRule::SnapToTarget,EAttachmentRule::KeepRelative,EAttachmentRule::KeepRelative,true);
+			//rules.LocationRule= EAttachmentRule::SnapToTarget;
+			this->AttachToActor(PlayerAvatar, rules);
 		}
 	}
 }
@@ -132,7 +133,7 @@ void APlayerVessel::MoveMouseY(float Val){
 		FRotator current = CameraBoom->RelativeRotation;
 		float pitch = FMath::ClampAngle(
 			(current.Pitch+Val*(PanRotationSpeed) * GetWorld()->GetDeltaSeconds()),
-			-89.f,0.f);
+			-89.f,0);
 		current.Pitch = pitch;
 		CameraBoom->SetRelativeRotation(current);
 

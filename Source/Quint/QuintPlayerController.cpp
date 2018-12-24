@@ -11,16 +11,4 @@ AQuintPlayerController::AQuintPlayerController(){
 }
 
 void AQuintPlayerController::BeginPlay(){
-	if(HasAuthority()){
-		if(GetWorld()){
-			FActorSpawnParameters spawnInfo = FActorSpawnParameters();
-			FVector location = FVector(-490.0,-86.44342,292.000671);
-			//todo: spawninfo set player name
-			AAvatar* avatar = GetWorld()->SpawnActor<AAvatar>(location,FRotator(0),spawnInfo);
-			APlayerVessel* vessel = Cast<APlayerVessel>(GetPawn());
-			if(vessel){
-				vessel->SetPlayerAvater(avatar,this);
-			}
-		}
-	}
 }

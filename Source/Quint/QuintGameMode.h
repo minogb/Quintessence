@@ -16,5 +16,5 @@ class QUINT_API AQuintGameMode : public AGameModeBase
 public:
 	AQuintGameMode();
 protected:
-	
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

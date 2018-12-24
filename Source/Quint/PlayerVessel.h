@@ -34,9 +34,9 @@ public:
 	void SetPlayerAvater(class AAvatar* avatar, APlayerController* controller);
 protected:
 	bool IsPanning = false;
-	float PanRotationSpeed;;
+	float PanRotationSpeed = 80.f;
 	FVector2D LockedMousePos = FVector2D();
-	class AAvatar* PlayerAvatar;
+	class AAvatar* PlayerAvatar = nullptr;
 
 	virtual void BeginPlay() override;
 

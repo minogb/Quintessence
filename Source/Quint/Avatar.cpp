@@ -2,7 +2,7 @@
 
 #include "Avatar.h"
 #include "Components/CapsuleComponent.h"
-
+#include "AvatarController.h"
 
 // Sets default values
 AAvatar::AAvatar()
@@ -11,7 +11,8 @@ AAvatar::AAvatar()
 	PrimaryActorTick.bCanEverTick = true;
 	GetCapsuleComponent()->bHiddenInGame = false;
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
+	AIControllerClass= AAvatarController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 // Called when the game starts or when spawned
