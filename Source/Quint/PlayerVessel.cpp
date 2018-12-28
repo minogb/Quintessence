@@ -22,7 +22,7 @@ APlayerVessel::APlayerVessel(){
 	CameraBoom->bAbsoluteRotation = false; 
 	 // Don't want to pull camera in when it collides with level
 	CameraBoom->bDoCollisionTest = false;
-	CameraBoom->TargetArmLength = 2500.f;
+	CameraBoom->TargetArmLength = MaxCameraLength;
 	CameraBoom->bInheritPitch = false;
 	CameraBoom->RelativeRotation = FRotator(-60.f, 0.f, 0.f);
 	
@@ -51,6 +51,7 @@ void APlayerVessel::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 }
 void APlayerVessel::SetPlayerAvater(AAvatar * avatar, APlayerController * controller){
 	if(HasAuthority()){
+		//Todo:Do I really need this?
 		if(controller && controller == GetController()){
 			PlayerAvatar = avatar;
 			AttachToAvatar();
@@ -75,7 +76,6 @@ void APlayerVessel::AttachToAvatar(){
 		if(!this->IsAttachedTo(PlayerAvatar)){
 			FAttachmentTransformRules rules = FAttachmentTransformRules(
 				EAttachmentRule::SnapToTarget,EAttachmentRule::KeepRelative,EAttachmentRule::KeepRelative,true);
-			//rules.LocationRule= EAttachmentRule::SnapToTarget;
 			this->AttachToActor(PlayerAvatar, rules);
 		}
 	}
@@ -95,6 +95,7 @@ void APlayerVessel::ResetCamera(){
 	float pitch = -60.f;
 	current.Pitch = pitch;
 	CameraBoom->SetRelativeRotation(current);
+	CameraBoom->TargetArmLength = MaxCameraLength;
 }
 void APlayerVessel::PressPan(){
 	SetPanning(true);
@@ -124,11 +125,9 @@ void APlayerVessel::MoveMouseX(float Val){
 			pc->SetMouseLocation(LockedMousePos.X,LockedMousePos.Y);
 		}
 	}
-
 }
 
 void APlayerVessel::MoveMouseY(float Val){
-	
 	if(IsPanning){
 		FRotator current = CameraBoom->RelativeRotation;
 		float pitch = FMath::ClampAngle(
@@ -140,5 +139,7 @@ void APlayerVessel::MoveMouseY(float Val){
 	}
 }
 void APlayerVessel::Zoom(float Val){
-	CameraBoom->TargetArmLength = CameraBoom->TargetArmLength + Val * GetWorld()->GetDeltaSeconds(); 
+	float value = CameraBoom->TargetArmLength + Val * ZoomSpeed;	
+	value = FMath::Clamp(value,100.f,MaxCameraLength);
+	CameraBoom->TargetArmLength = value; 
 }

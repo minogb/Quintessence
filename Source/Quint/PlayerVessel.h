@@ -33,11 +33,15 @@ public:
 
 	void SetPlayerAvater(class AAvatar* avatar, APlayerController* controller);
 protected:
+	//Camera settings
 	bool IsPanning = false;
 	float PanRotationSpeed = 80.f;
+	float ZoomSpeed = 30.f;
+	float MaxCameraLength = 2500.f;
+	//Where the mouse is hidden when panning
 	FVector2D LockedMousePos = FVector2D();
+	//The players actual pawn
 	class AAvatar* PlayerAvatar = nullptr;
-
 	virtual void BeginPlay() override;
 
 	void ResetCamera();

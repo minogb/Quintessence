@@ -7,6 +7,7 @@
 #include "Avatar.h"
 #include "PlayerVessel.h"
 #include "Engine/GameEngine.h"
+#include "QuintPlayerController.h"
 AQuintGameMode::AQuintGameMode(){
 
 	//PlayerControllerClass = AWorldController::StaticClass();
@@ -23,12 +24,12 @@ void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
 			//todo: spawninfo set player name
 			AAvatar* avatar = GetWorld()->SpawnActor<AAvatar>(location,FRotator(0),spawnInfo);
 			APlayerVessel* vessel = Cast<APlayerVessel>(NewPlayer->GetPawn());
-			if(GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Spawned pawn")); 
 			if(vessel){
 				vessel->SetPlayerAvater(avatar,NewPlayer);
-				if(GEngine)
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("'possesed' pawn")); 
+				AQuintPlayerController* player = Cast<AQuintPlayerController>(NewPlayer);
+				if(player){
+					player->SetPlayerAvatar(avatar);
+				}
 			}
 		}
 	}
