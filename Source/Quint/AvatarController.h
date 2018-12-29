@@ -13,8 +13,9 @@ UCLASS()
 class QUINT_API AAvatarController : public AAIController
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+private:
+	class AAvatar* PlayerAvatar= nullptr;
+public:
+	void SetLocationGoal(FVector GoalLocation);
+	void SetGoalAndAction(AActor* Goal, bool Action);
 };

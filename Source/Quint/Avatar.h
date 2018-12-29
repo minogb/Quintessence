@@ -6,23 +6,19 @@
 #include "GameFramework/Character.h"
 #include "Avatar.generated.h"
 
+#define ECC_Interactable ECC_GameTraceChannel1
 UCLASS()
-class QUINT_API AAvatar : public ACharacter
-{
+class QUINT_API AAvatar : public ACharacter{
 	GENERATED_BODY()
-
-public:
-	// Sets default values for this character's properties
-	AAvatar();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 public:	
+	// Sets default values for this character's properties
+	AAvatar();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
