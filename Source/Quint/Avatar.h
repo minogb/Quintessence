@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interactable.h"
 #include "Avatar.generated.h"
 
 #define ECC_Interactable ECC_GameTraceChannel1
 UCLASS()
-class QUINT_API AAvatar : public ACharacter{
+class QUINT_API AAvatar : public ACharacter, public IInteractable{
 	GENERATED_BODY()
 
 protected:
@@ -21,7 +22,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	virtual int32 GetAvaliableTasks() { return Follow | Trade | Examine; }
 	
 	
 };

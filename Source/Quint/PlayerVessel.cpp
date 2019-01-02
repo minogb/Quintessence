@@ -36,8 +36,7 @@ APlayerVessel::APlayerVessel(){
 }
 
 // Called to bind functionality to input
-void APlayerVessel::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
+void APlayerVessel::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("PanMode", IE_Pressed, this, &APlayerVessel::PressPan);
 	PlayerInputComponent->BindAction("PanMode", IE_Released, this, &APlayerVessel::ReleasePan);
@@ -59,17 +58,14 @@ void APlayerVessel::SetPlayerAvater(AAvatar * avatar, APlayerController * contro
 	}
 }
 // Called when the game starts or when spawned
-void APlayerVessel::BeginPlay()
-{
+void APlayerVessel::BeginPlay(){
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void APlayerVessel::Tick(float DeltaTime)
-{
+void APlayerVessel::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
-	AttachToAvatar();
 }
 void APlayerVessel::AttachToAvatar(){
 	if(PlayerAvatar && PlayerAvatar->IsValidLowLevel()){
