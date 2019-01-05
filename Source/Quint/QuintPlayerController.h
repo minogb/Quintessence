@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Interactable.h"
 #include "QuintPlayerController.generated.h"
 #define ECC_Interactable ECC_GameTraceChannel1
 #define ECC_Floor ECC_GameTraceChannel2
@@ -16,6 +17,7 @@ public:
 	AQuintPlayerController();
 	bool SetPlayerAvatar(class AAvatar* avatar);
 protected:
+	UPROPERTY(Replicated)
 	class AAvatar* PlayerAvatar;
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -26,5 +28,5 @@ protected:
 	void Server_SetDestination(FVector Location);
 	//TODO: change bool action to an enum
 	UFUNCTION(Server, Unreliable, WithValidation)
-	void Server_SetGoalAndAction(AActor* Goal, bool Action);
+	void Server_SetGoalAndAction(AActor* Goal, EInteractionType Action);
 };

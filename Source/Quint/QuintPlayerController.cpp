@@ -6,6 +6,11 @@
 #include "PlayerVessel.h"
 #include "Engine/GameEngine.h"
 #include "AvatarController.h"
+#include "UnrealNetwork.h"
+void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
+	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
+	DOREPLIFETIME(AQuintPlayerController, PlayerAvatar);
+}
 AQuintPlayerController::AQuintPlayerController(){
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
@@ -29,14 +34,11 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 	if(GetHitResultUnderCursor(ECC_Interactable, false, Hit)){
 		AActor* hitActor = Hit.GetActor();
 		if(hitActor && hitActor != PlayerAvatar){
-			//TODO: Get default Action
-			GotGoal = true;
-			if(GEngine){
-			  GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, *FString(PlayerAvatar== nullptr? "valid":"invalid"));   
+			IInteractable* goal = Cast<IInteractable>(hitActor);
+			if(goal && (goal->GetDefaultTask() | (No_Interaction | Move_Here)) != ( No_Interaction | Move_Here) ){
+				Server_SetGoalAndAction(hitActor,goal->GetDefaultTask());
+				GotGoal = true;
 			}
-		}
-		else{
-			GotGoal = false;
 		}
 	}
 	if (!GotGoal && GetHitResultUnderCursor(ECC_Floor, false, Hit)){
@@ -53,11 +55,8 @@ void AQuintPlayerController::Server_SetDestination_Implementation  (FVector Loca
 	if(PlayerAvatar && HasAuthority() && IsValidLocation(Location)){
 		Cast<AAvatarController>(PlayerAvatar->GetController())->SetLocationGoal(Location);
 	}
-	if(GEngine){
-      //GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Some debug message!"));   
-	}
 }
-void AQuintPlayerController::Server_SetGoalAndAction_Implementation  (AActor * Goal, bool Action){
+void AQuintPlayerController::Server_SetGoalAndAction_Implementation  (AActor * Goal, EInteractionType Action){
 	
 	if(PlayerAvatar && HasAuthority() && Goal){
 		Cast<AAvatarController>(PlayerAvatar->GetController())->SetGoalAndAction(Goal, Action);
@@ -67,7 +66,7 @@ void AQuintPlayerController::Server_SetGoalAndAction_Implementation  (AActor * G
 bool AQuintPlayerController::Server_SetDestination_Validate (FVector Location){
 	return true;
 }
-bool AQuintPlayerController::Server_SetGoalAndAction_Validate (AActor * Goal, bool Action){
+bool AQuintPlayerController::Server_SetGoalAndAction_Validate (AActor * Goal, EInteractionType Action){
 	return true;
 }
 
