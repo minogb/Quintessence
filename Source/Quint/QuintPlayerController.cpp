@@ -53,13 +53,13 @@ bool AQuintPlayerController::IsValidLocation(FVector location){
 
 void AQuintPlayerController::Server_SetDestination_Implementation  (FVector Location){
 	if(PlayerAvatar && HasAuthority() && IsValidLocation(Location)){
-		Cast<AAvatarController>(PlayerAvatar->GetController())->SetLocationGoal(Location);
+		PlayerAvatar->SetLocationGoal(Location);
 	}
 }
 void AQuintPlayerController::Server_SetGoalAndAction_Implementation  (AActor * Goal, EInteractionType Action){
 	
 	if(PlayerAvatar && HasAuthority() && Goal){
-		Cast<AAvatarController>(PlayerAvatar->GetController())->SetGoalAndAction(Goal, Action);
+		PlayerAvatar->SetGoalAndAction(Goal, Action);
 	}
 }
 
