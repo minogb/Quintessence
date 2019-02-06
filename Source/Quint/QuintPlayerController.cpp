@@ -33,7 +33,7 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 	bool GotGoal = false;
 	if(GetHitResultUnderCursor(ECC_Interactable, false, Hit)){
 		AActor* hitActor = Hit.GetActor();
-		if(hitActor && hitActor != PlayerAvatar){
+		if(PlayerAvatar && hitActor && hitActor != PlayerAvatar){
 			IInteractable* goal = Cast<IInteractable>(hitActor);
 			if(goal && (goal->GetDefaultTask() | (No_Interaction | Move_Here)) != ( No_Interaction | Move_Here) ){
 				Server_SetGoalAndAction(hitActor,goal->GetDefaultTask());

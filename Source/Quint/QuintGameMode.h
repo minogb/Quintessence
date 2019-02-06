@@ -15,6 +15,8 @@ class QUINT_API AQuintGameMode : public AGameModeBase
 	GENERATED_BODY()
 public:
 	AQuintGameMode();
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AAvatar> PlayerAvatarClass;
 protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

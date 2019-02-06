@@ -7,6 +7,7 @@
 #include "TimerManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/ArrowComponent.h"
+#include "UnrealNetwork.h"
 
 // Sets default values
 AAvatar::AAvatar(){
@@ -35,13 +36,14 @@ void AAvatar::BeginPlay(){
 
 // Called every frame
 void AAvatar::Tick(float DeltaTime){
+	
 	Super::Tick(DeltaTime);
 	if(!HasAuthority())
 		return;
 	if(ValidTask()){
 		
 		//if !facing target face it
-		FVector Direction = ((GoalActor ? GoalActor->GetActorLocation() : GoalLocation) - GetActorLocation());
+		FVector Direction = ((ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation) - GetActorLocation());
 		Direction.Normalize();
 		float diffInYaw = Direction.Rotation().Yaw - GetActorRotation().Yaw;
 		if(diffInYaw > 3 || diffInYaw < -3){
@@ -54,6 +56,9 @@ void AAvatar::Tick(float DeltaTime){
 			//Can do task
 			if(!IsDoingTask && !IsTaskOnCoolDown){
 				StartDoingTask();
+			}
+			else if (IsDoingTask){
+				PercentTaskCompleted = GetWorldTimerManager().GetTimerElapsed(TaskTimer) / GetCurrentTaskDuration();
 			}
 			//if can't do task, do nothing
 		}
@@ -71,10 +76,31 @@ void AAvatar::Tick(float DeltaTime){
 
 }
 
+void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
+	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
+	DOREPLIFETIME(AAvatar, Health);
+	DOREPLIFETIME(AAvatar, PercentTaskCompleted);
+	DOREPLIFETIME(AAvatar, IsDoingTask);
+	
+}
 // Called to bind functionality to input
 void AAvatar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	if(!HasAuthority())
+		return 0.f;
+	DamageEvent.ClassID;
+	DamageEvent.DamageTypeClass;
+	int FinalHealthRemoved = (Health-DamageAmount) >= 0.f ? DamageAmount : Health;
+	Health -= FinalHealthRemoved;
+	if(Health<= 0.f){ 
+		Destroy(true);
+	}
+	return FinalHealthRemoved;
 }
 
 
@@ -99,14 +125,14 @@ float AAvatar::GetGoalDistance(){
 	switch(GoalAction){
 	case Attack:
 		//Calculate based on weapon
-		return 0.f;
+		return 80.f;
 	default:
-		return 180.f;
+		return 80.f;
 	}
 }
 
 bool AAvatar::IsAtGoal(){
-	if(GoalActor){
+	if(ValidGoal()){
 		return this->GetActorLocation().Equals(GoalActor->GetActorLocation(),GetGoalDistance());
 	}
 	else{
@@ -120,7 +146,7 @@ void AAvatar::MoveToLocationOrGoal(){
 		return;
 	AAvatarController* controller = Cast<AAvatarController>(GetController());
 	if(controller){
-		if(GoalActor){
+		if(ValidGoal()){
 			controller->MoveToActor(GoalActor);
 		}
 		else{
@@ -162,28 +188,39 @@ float AAvatar::GetCurrentTaskDuration(){
 	case Attack:
 		//Calculate based on weapon
 		return 2.f;
+		break;
 	case Follow:
-		0.5;
+		return 0.5;
+		break;
 	default:
-		return 1.f;
+		return 0.1;
+		break;
 	}
 }
 
 float AAvatar::GetCurrentTaskCoolDownDuration(){
 	switch(GoalAction){
 	case Attack:
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("attack task cd")); 
 		//Calculate based on weapon
-		return 2.f;
+		return 0.1;
 	case Follow:
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("follow task cd")); 
 		return 0.5;
 	default:
-		return 1.f;
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Default task cd")); 
+		return 0.1;
 	}
 }
 
 void AAvatar::TaskCompleted(){
+	TaskTimer.Invalidate();
 	if(!HasAuthority())
 		return;
+
 	//Once we are done we are no longer working on the task
 	IsDoingTask = false;
 	//Every task has a cool down period to prevent future tasks
@@ -192,6 +229,15 @@ void AAvatar::TaskCompleted(){
 	switch(GoalAction){
 	case Attack:
 		//Attack
+		if(ValidGoal()){
+			FDamageEvent dmgEvent = FDamageEvent();
+			GoalActor->TakeDamage(5.f,dmgEvent,GetController(),this);
+			if(GEngine)
+			  GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Damage Delt")); 
+		}
+		else{
+			Stop();
+		}
 		break;
 	case Follow:
 		break;
@@ -213,5 +259,10 @@ void AAvatar::EndTaskCooldown(){
 }
 
 bool AAvatar::ValidTask(){
-	return (GoalActor && GoalAction != No_Interaction) || !GoalLocation.Equals(INVALID_LOCATION);
+	return (ValidGoal() && GoalAction != No_Interaction) || !GoalLocation.Equals(INVALID_LOCATION);
+}
+
+void AAvatar::ReplicateDamageRecived_Implementation(int Amount){
+	if(GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, *FString::FromInt(Amount)); 
 }

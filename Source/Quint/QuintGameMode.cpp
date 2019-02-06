@@ -21,8 +21,14 @@ void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
 		if(GetWorld()){
 			FActorSpawnParameters spawnInfo = FActorSpawnParameters();
 			FVector location = FVector(-490.0,-86.44342,292.000671);
+			AAvatar * avatar = nullptr;
 			//todo: spawninfo set player name
-			AAvatar* avatar = GetWorld()->SpawnActor<AAvatar>(location,FRotator(0),spawnInfo);
+			if(IsValid(PlayerAvatarClass)){
+				avatar = GetWorld()->SpawnActor<AAvatar>(PlayerAvatarClass, location,FRotator(0),spawnInfo);
+			}
+			else{
+				avatar = GetWorld()->SpawnActor<AAvatar>(location,FRotator(0),spawnInfo);
+			}
 			APlayerVessel* vessel = Cast<APlayerVessel>(NewPlayer->GetPawn());
 			if(vessel){
 				vessel->SetPlayerAvater(avatar,NewPlayer);
