@@ -9,31 +9,35 @@
 
 #define ECC_Interactable ECC_GameTraceChannel1
 UCLASS()
-class QUINT_API AAvatar : public ACharacter, public IInteractable{
+class QUINT_API AAvatar : public ACharacter, public IInteractable {
 	GENERATED_BODY()
 
 protected:
 	AActor* GoalActor = nullptr;
 	EInteractionType GoalAction = No_Interaction;
+	const FVector INVALID_LOCATION = FVector(-1000);
 	FVector GoalLocation = INVALID_LOCATION;
 
-	const FVector INVALID_LOCATION = FVector(-1000);
 	FTimerHandle TaskCoolDownTimer;
 	
 	FTimerHandle TaskTimer;
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated)
 	bool IsDoingTask = false;
 	bool IsTaskOnCoolDown = false;
 
-	//UPROPERTY(Replicated)
+	UPROPERTY(Replicated)
 	float TurnSpeed = 2.f;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated)
 	float Health = 10.f;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float PercentTaskCompleted = 0.f;
 
+	int InventorySizeMax = 5;
+
+	UPROPERTY(Replicated)
+	TArray<class UItem*> Inventory;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	//how close do we need to get to the goal
@@ -52,6 +56,7 @@ protected:
 	void TaskCompleted();
 	//The time between tasks has been completed
 	void EndTaskCooldown();
+	void PickUpTask();
 	//Replication
 	UFUNCTION(NetMulticast,Unreliable)
 	void ReplicateDamageRecived(int Amount);
@@ -87,4 +92,9 @@ public:
 	//how long between tasks
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentTaskCoolDownDuration();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsDoingTask(){return IsDoingTask;}
+	UFUNCTION(BlueprintCallable)
+	TArray<class UItem*>GetInventory(){return Inventory;}
 };

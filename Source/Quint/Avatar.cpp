@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/ArrowComponent.h"
 #include "UnrealNetwork.h"
+#include "Item_World.h"
+#include "Item.h"
 
 // Sets default values
 AAvatar::AAvatar(){
@@ -26,6 +28,7 @@ AAvatar::AAvatar(){
 	bUseControllerRotationPitch = false;
 	GetArrowComponent()->SetVisibility(true);
 	GetArrowComponent()->bHiddenInGame = false;
+	Inventory.Init(nullptr,InventorySizeMax);
 }
 
 // Called when the game starts or when spawned
@@ -81,6 +84,8 @@ void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifeti
 	DOREPLIFETIME(AAvatar, Health);
 	DOREPLIFETIME(AAvatar, PercentTaskCompleted);
 	DOREPLIFETIME(AAvatar, IsDoingTask);
+	DOREPLIFETIME(AAvatar, TurnSpeed);
+	DOREPLIFETIME(AAvatar, Inventory);
 	
 }
 // Called to bind functionality to input
@@ -176,6 +181,8 @@ void AAvatar::InteruptTask(){
 	if(!HasAuthority())
 		return;
 	IsDoingTask= false;
+	GetWorldTimerManager().ClearTimer(TaskTimer);
+	TaskTimer.Invalidate();
 	AAvatarController* controller = Cast<AAvatarController>(GetController());
 	if(controller){
 		controller->StopMovement();
@@ -220,7 +227,10 @@ void AAvatar::TaskCompleted(){
 	TaskTimer.Invalidate();
 	if(!HasAuthority())
 		return;
-
+	
+	if(!IsValid(GoalActor) || !GoalActor){
+		Stop();
+	}
 	//Once we are done we are no longer working on the task
 	IsDoingTask = false;
 	//Every task has a cool down period to prevent future tasks
@@ -241,6 +251,10 @@ void AAvatar::TaskCompleted(){
 		break;
 	case Follow:
 		break;
+	case Pick_Up:
+		PickUpTask();
+		Stop();
+		break;
 	default:
 		Stop();
 		break;
@@ -256,6 +270,21 @@ void AAvatar::EndTaskCooldown(){
 	if(!HasAuthority())
 		return;
 	IsTaskOnCoolDown = false;
+}
+
+void AAvatar::PickUpTask(){
+		AItem_World* goal = Cast<AItem_World>(GoalActor);
+		if(!IsValid(goal)){
+			Stop();
+		}
+		else{
+			for(int i = 0; i < InventorySizeMax; i++){
+				goal->CombineWith(Inventory[i]);
+				//all items added to inventory
+				if(!IsValid(goal))
+					break;
+			}
+		}
 }
 
 bool AAvatar::ValidTask(){

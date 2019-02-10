@@ -32,6 +32,8 @@ class QUINT_API IInteractable {
 	GENERATED_BODY()
 
 public:
+	//TODO: Prob use something other than the avatar class here
+	virtual UObject* UseThis(class AAvatar* Player, UObject* With) {return nullptr;}
 	//Returns bitmask
 	virtual int32 GetAvaliableTasks() { return No_Interaction; }
 
