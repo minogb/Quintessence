@@ -20,6 +20,7 @@ void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
 	if(NewPlayer){
 		if(GetWorld()){
 			FActorSpawnParameters spawnInfo = FActorSpawnParameters();
+			spawnInfo.Owner = NewPlayer;
 			FVector location = FVector(-490.0,-86.44342,292.000671);
 			AAvatar * avatar = nullptr;
 			//todo: spawninfo set player name

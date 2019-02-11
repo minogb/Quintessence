@@ -26,18 +26,15 @@ protected:
 	bool IsTaskOnCoolDown = false;
 
 	UPROPERTY(Replicated)
-	float TurnSpeed = 2.f;
+	float TurnSpeed = 5.f;
 
 	UPROPERTY(Replicated)
 	float Health = 10.f;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(Replicated)
 	float PercentTaskCompleted = 0.f;
 
-	int InventorySizeMax = 5;
 
-	UPROPERTY(Replicated)
-	TArray<class UItem*> Inventory;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	//how close do we need to get to the goal
@@ -96,5 +93,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsDoingTask(){return IsDoingTask;}
 	UFUNCTION(BlueprintCallable)
-	TArray<class UItem*>GetInventory(){return Inventory;}
+	float GetPercentTaskDone(){return PercentTaskCompleted;}
 };

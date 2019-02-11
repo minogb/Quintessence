@@ -19,6 +19,8 @@ private:
 	int MaxStackSize = 5;
 	int ItemId = 1;
 public:
+	UPROPERTY(Replicated)
+	uint32 bReplicatedFlag:1;
 	UFUNCTION(BlueprintCallable)
 	int GetID(){return ItemId;}
 	
@@ -29,4 +31,5 @@ public:
 	int GetMaxStackSize(){return MaxStackSize;}
 
 	void Combine(UItem*& that);
+	virtual bool IsSupportedForNetworking() const override{return true;}
 };

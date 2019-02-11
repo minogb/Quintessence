@@ -3,6 +3,7 @@
 #include "Item_World.h"
 #include "Components/CapsuleComponent.h"
 #include "Item.h"
+#include "UnrealNetwork.h"
 
 // Sets default values
 AItem_World::AItem_World()
@@ -22,6 +23,10 @@ AItem_World::AItem_World()
 	this->SetReplicates(true);
 }
 
+void AItem_World::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
+	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
+	DOREPLIFETIME(AItem_World, ItemReference);
+}
 // Called when the game starts or when spawned
 void AItem_World::BeginPlay()
 {
@@ -48,6 +53,7 @@ void AItem_World::CombineWith(UItem*& item){
 	}
 	//If we no longer have anything to give, destroy us
 	if(!IsValid(ItemReference)){
+		ItemReference = nullptr;
 		this->Destroy(true);
 	}
 }

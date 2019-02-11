@@ -13,10 +13,11 @@ UCLASS()
 class QUINT_API AQuintPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-public:
-	AQuintPlayerController();
-	bool SetPlayerAvatar(class AAvatar* avatar);
 protected:
+	int InventorySizeMax = 30;
+	UPROPERTY(Replicated)
+	TArray<class UItem*> Inventory;
+	
 	UPROPERTY(Replicated)
 	class AAvatar* PlayerAvatar;
 	virtual void BeginPlay() override;
@@ -29,4 +30,15 @@ protected:
 	//TODO: change bool action to an enum
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_SetGoalAndAction(AActor* Goal, EInteractionType Action);
+public:
+	AQuintPlayerController();
+	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
+	bool SetPlayerAvatar(class AAvatar* avatar);
+	
+	void AddItemToInventory(class AItem_World* ItemWorld);
+	UFUNCTION(BlueprintCallable)
+	int GetInventorySize(){return InventorySizeMax;}
+	UFUNCTION(BlueprintCallable)
+	class UItem* GetInventorySlot(int index){return Inventory.IsValidIndex(index)? Inventory[index] : nullptr;}
+
 };

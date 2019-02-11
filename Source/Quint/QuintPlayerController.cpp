@@ -7,14 +7,29 @@
 #include "Engine/GameEngine.h"
 #include "AvatarController.h"
 #include "UnrealNetwork.h"
+#include "Item_World.h"
+#include "Engine/ActorChannel.h"
 void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
 	DOREPLIFETIME(AQuintPlayerController, PlayerAvatar);
+	DOREPLIFETIME(AQuintPlayerController, Inventory);
 }
+bool AQuintPlayerController::ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags)
+ {
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	for(int i = 0; i < InventorySizeMax;i++){
+		if(Inventory.IsValidIndex(i) && Inventory[i]){
+			WroteSomething |= Channel->ReplicateSubobject((UObject*)Inventory[i], *Bunch, *RepFlags);
+		}
+	}
+ 
+	return WroteSomething;
+ }
 AQuintPlayerController::AQuintPlayerController(){
+	SetReplicates(true);
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
-
+	Inventory.Init(nullptr,InventorySizeMax);
 }
 
 bool AQuintPlayerController::SetPlayerAvatar(AAvatar * avatar){
@@ -25,7 +40,19 @@ bool AQuintPlayerController::SetPlayerAvatar(AAvatar * avatar){
 	return false;
 }
 
+void AQuintPlayerController::AddItemToInventory(AItem_World* ItemWorld){
+	if(!IsValid(ItemWorld))
+		return;
+	for(int i = 0; i < InventorySizeMax; i++){
+		ItemWorld->CombineWith(Inventory[i]);
+		//all items added to inventory
+		if(!IsValid(ItemWorld))
+			break;
+	}
+}
+
 void AQuintPlayerController::BeginPlay(){
+	Super::BeginPlay();
 }
 
 void AQuintPlayerController::SetDestinationOrGoal(){

@@ -8,6 +8,7 @@ void UItem::Combine(UItem*& that){
 		return;
 	int Amount = FMath::Clamp(StackSize+that->StackSize,0,MaxStackSize);
 	that->StackSize -= Amount - StackSize;
+	StackSize= Amount;
 	if(that->StackSize<=0){
 		that = nullptr;
 	}
@@ -15,5 +16,7 @@ void UItem::Combine(UItem*& that){
 }
 
 void UItem::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
+	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
 	DOREPLIFETIME(UItem, StackSize);
+	DOREPLIFETIME(UItem, bReplicatedFlag);
 }

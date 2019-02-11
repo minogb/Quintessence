@@ -10,6 +10,7 @@
 #include "UnrealNetwork.h"
 #include "Item_World.h"
 #include "Item.h"
+#include  "QuintPlayerController.h"
 
 // Sets default values
 AAvatar::AAvatar(){
@@ -28,7 +29,7 @@ AAvatar::AAvatar(){
 	bUseControllerRotationPitch = false;
 	GetArrowComponent()->SetVisibility(true);
 	GetArrowComponent()->bHiddenInGame = false;
-	Inventory.Init(nullptr,InventorySizeMax);
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -85,7 +86,6 @@ void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifeti
 	DOREPLIFETIME(AAvatar, PercentTaskCompleted);
 	DOREPLIFETIME(AAvatar, IsDoingTask);
 	DOREPLIFETIME(AAvatar, TurnSpeed);
-	DOREPLIFETIME(AAvatar, Inventory);
 	
 }
 // Called to bind functionality to input
@@ -273,16 +273,16 @@ void AAvatar::EndTaskCooldown(){
 }
 
 void AAvatar::PickUpTask(){
+	if(!HasAuthority())
+		return;
 		AItem_World* goal = Cast<AItem_World>(GoalActor);
 		if(!IsValid(goal)){
 			Stop();
 		}
 		else{
-			for(int i = 0; i < InventorySizeMax; i++){
-				goal->CombineWith(Inventory[i]);
-				//all items added to inventory
-				if(!IsValid(goal))
-					break;
+			AQuintPlayerController* owner = Cast<AQuintPlayerController>(GetOwner());
+			if(owner){
+				owner->AddItemToInventory(goal);
 			}
 		}
 }

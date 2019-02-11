@@ -22,7 +22,7 @@ APlayerVessel::APlayerVessel(){
 	CameraBoom->bAbsoluteRotation = false; 
 	 // Don't want to pull camera in when it collides with level
 	CameraBoom->bDoCollisionTest = false;
-	CameraBoom->TargetArmLength = MaxCameraLength;
+	CameraBoom->TargetArmLength = MaxCameraLength/3;
 	CameraBoom->bInheritPitch = false;
 	CameraBoom->RelativeRotation = FRotator(-60.f, 0.f, 0.f);
 	
