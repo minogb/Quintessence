@@ -127,12 +127,14 @@ void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action){
 }
 
 float AAvatar::GetGoalDistance(){
+	IInteractable* goal = Cast<IInteractable>(GoalActor);
+	float bonusDistance = IsValid((UObject*)goal) ? goal->GetSize() : 0;
 	switch(GoalAction){
 	case Attack:
 		//Calculate based on weapon
-		return 80.f;
+		return bonusDistance + 80.f;
 	default:
-		return 80.f;
+		return bonusDistance + 80.f;
 	}
 }
 
@@ -196,9 +198,9 @@ float AAvatar::GetCurrentTaskDuration(){
 		//Calculate based on weapon
 		return 2.f;
 		break;
-	case Follow:
-		return 0.5;
-		break;
+	case Harvest:
+		//Calculate base on node
+		return 1.f;
 	default:
 		return 0.1;
 		break;
@@ -208,18 +210,12 @@ float AAvatar::GetCurrentTaskDuration(){
 float AAvatar::GetCurrentTaskCoolDownDuration(){
 	switch(GoalAction){
 	case Attack:
-		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("attack task cd")); 
 		//Calculate based on weapon
 		return 0.1;
-	case Follow:
-		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("follow task cd")); 
-		return 0.5;
+	case Harvest:
+		return .4;
 	default:
-		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Default task cd")); 
-		return 0.1;
+		return 0.5;
 	}
 }
 
@@ -255,6 +251,9 @@ void AAvatar::TaskCompleted(){
 		PickUpTask();
 		Stop();
 		break;
+	case Harvest:
+		HarvestTask();
+		break;
 	default:
 		Stop();
 		break;
@@ -285,6 +284,10 @@ void AAvatar::PickUpTask(){
 				owner->AddItemToInventory(goal);
 			}
 		}
+}
+
+void AAvatar::HarvestTask(){
+	//TODO GET REWAREDS
 }
 
 bool AAvatar::ValidTask(){

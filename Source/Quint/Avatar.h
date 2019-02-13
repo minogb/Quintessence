@@ -54,6 +54,7 @@ protected:
 	//The time between tasks has been completed
 	void EndTaskCooldown();
 	void PickUpTask();
+	void HarvestTask();
 	//Replication
 	UFUNCTION(NetMulticast,Unreliable)
 	void ReplicateDamageRecived(int Amount);

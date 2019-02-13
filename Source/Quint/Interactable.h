@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "Interactable.generated.h"
 
+#define ECC_Interactable ECC_GameTraceChannel1
 /**
  * 
  */
@@ -30,7 +31,9 @@ enum EInteractionType {
 ENUM_CLASS_FLAGS( EInteractionType )
 class QUINT_API IInteractable {
 	GENERATED_BODY()
-
+protected:
+	//Get the rewards from a loot table. Should be called internally only
+	TArray<class UItem*> GetLootRewards(TArray<struct FLootStruct>LootTable);
 public:
 	//TODO: Prob use something other than the avatar class here
 	virtual UObject* UseThis(class AAvatar* Player, UObject* With) {return nullptr;}
@@ -38,4 +41,5 @@ public:
 	virtual int32 GetAvaliableTasks() { return No_Interaction; }
 
 	virtual EInteractionType GetDefaultTask() { return No_Interaction; }
+	virtual float GetSize(){return 32.f;}
 };

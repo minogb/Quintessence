@@ -7,7 +7,6 @@
 #include "Interactable.h"
 #include "Item_World.generated.h"
 
-#define ECC_Interactable ECC_GameTraceChannel1
 
 UCLASS()
 class QUINT_API AItem_World : public AActor, public IInteractable

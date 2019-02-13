@@ -36,9 +36,10 @@ public:
 	bool SetPlayerAvatar(class AAvatar* avatar);
 	
 	void AddItemToInventory(class AItem_World* ItemWorld);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable,BlueprintPure)
 	int GetInventorySize(){return InventorySizeMax;}
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable,BlueprintPure)
 	class UItem* GetInventorySlot(int index){return Inventory.IsValidIndex(index)? Inventory[index] : nullptr;}
-
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+	class AAvatar* GetPlayerAvatar(){return PlayerAvatar;}
 };
