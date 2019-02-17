@@ -20,7 +20,7 @@ struct FPlayerHarvestedStruct{
 		Player= player;
 		TimeHarvested = time;
 	}
-	FPlayerHarvestedStruct(){}
+	FPlayerHarvestedStruct(){}//check to see if the aggro record matches another aggro record by overloading the "==" operator.
 };
 UCLASS(BlueprintType)
 class QUINT_API AResourceNode : public AActor, public IInteractable
@@ -36,7 +36,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void RemovePlayersFromHarvesters();
-	float TimeToReset = .1*60*60;
+	float TimeToReset = 4;
 public:	
 	// Sets default values for this actor's properties
 	AResourceNode();
@@ -49,5 +49,5 @@ public:
 	virtual float GetSize() override;
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 	TArray<FPlayerHarvestedStruct> GetHarvesters(){return Harvesters;}
-	
+	virtual bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr);
 };

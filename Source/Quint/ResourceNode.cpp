@@ -59,3 +59,15 @@ float AResourceNode::GetSize()
 	return BoxComponent->GetScaledBoxExtent().X;
 }
 
+bool AResourceNode::IsValidTask(EInteractionType Task, AAvatar * Player){
+	if((GetAvaliableTasks() & Task) == Task){
+		for(int i = 0; i < Harvesters.Num(); i++){
+			//has player already harvested?
+			if(Harvesters.IsValidIndex(i) && Harvesters[i].Player == Player)
+				return false;
+		}
+		//player has not harvested yet
+		return true;
+	}
+	return false;
+}

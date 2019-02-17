@@ -11,6 +11,7 @@
 #include "Item_World.h"
 #include "Item.h"
 #include  "QuintPlayerController.h"
+#include "ResourceNode.h"
 
 // Sets default values
 AAvatar::AAvatar(){
@@ -45,39 +46,43 @@ void AAvatar::Tick(float DeltaTime){
 	if(!HasAuthority())
 		return;
 	if(ValidTask()){
-		
-		//if !facing target face it
-		FVector Direction = ((ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation) - GetActorLocation());
-		Direction.Normalize();
-		float diffInYaw = Direction.Rotation().Yaw - GetActorRotation().Yaw;
-		if(diffInYaw > 3 || diffInYaw < -3){
-			diffInYaw = FMath::Clamp(diffInYaw,TurnSpeed*-1,TurnSpeed);
-			FRotator rotator = FRotator(0.f,diffInYaw,0.f);
-			AddActorWorldRotation(rotator);
-		}
-		//At goal
-		else if(IsAtGoal()){
-			//Can do task
-			if(!IsDoingTask && !IsTaskOnCoolDown){
-				StartDoingTask();
+		if(CanDoCurrentTask()){
+			//if !facing target face it
+			FVector Direction = ((ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation) - GetActorLocation());
+			Direction.Normalize();
+			float diffInYaw = Direction.Rotation().Yaw - GetActorRotation().Yaw;
+			if(diffInYaw > 3 || diffInYaw < -3){
+				diffInYaw = FMath::Clamp(diffInYaw,TurnSpeed*-1,TurnSpeed);
+				FRotator rotator = FRotator(0.f,diffInYaw,0.f);
+				AddActorWorldRotation(rotator);
 			}
-			else if (IsDoingTask){
-				PercentTaskCompleted = GetWorldTimerManager().GetTimerElapsed(TaskTimer) / GetCurrentTaskDuration();
+			//At goal
+			else if(IsAtGoal()){
+				//Can do task
+				if(!IsDoingTask && !IsTaskOnCoolDown){
+					StartDoingTask();
+				}
+				else if (IsDoingTask){
+					PercentTaskCompleted = GetWorldTimerManager().GetTimerElapsed(TaskTimer) / GetCurrentTaskDuration();
+				}
+				//if can't do task, do nothing
 			}
-			//if can't do task, do nothing
+			//Am I not doing anything? and am I 
+			else{
+				//Am I not at goal and doing a task?
+				if(IsDoingTask){
+					//stop doing task out of range
+					InteruptTask();
+				}
+				//If I am not at goal move to goal
+				MoveToLocationOrGoal();
+			}
 		}
-		//Am I not doing anything? and am I 
 		else{
-			//Am I not at goal and doing a task?
-			if(IsDoingTask){
-				//stop doing task out of range
-				InteruptTask();
-			}
-			//If I am not at goal move to goal
-			MoveToLocationOrGoal();
+			//TODO this stop is causing break after harvest
+			Stop();
 		}
 	}
-
 }
 
 void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
@@ -288,10 +293,20 @@ void AAvatar::PickUpTask(){
 
 void AAvatar::HarvestTask(){
 	//TODO GET REWAREDS
+	AResourceNode* node = Cast<AResourceNode>(GoalActor);
+	if(IsValid(node)){
+		node->HarvestThis(this);
+	}
 }
 
 bool AAvatar::ValidTask(){
 	return (ValidGoal() && GoalAction != No_Interaction) || !GoalLocation.Equals(INVALID_LOCATION);
+}
+
+bool AAvatar::CanDoCurrentTask()
+{
+	IInteractable* task =  Cast<IInteractable>(GoalActor);
+	return IsValid((UObject*)task) ? task->IsValidTask(GoalAction,this) : true;
 }
 
 void AAvatar::ReplicateDamageRecived_Implementation(int Amount){

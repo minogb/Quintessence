@@ -35,6 +35,7 @@ protected:
 	//Get the rewards from a loot table. Should be called internally only
 	TArray<class UItem*> GetLootRewards(TArray<struct FLootStruct>LootTable);
 public:
+	virtual bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr){return (GetAvaliableTasks() & Task) == Task;}
 	//TODO: Prob use something other than the avatar class here
 	virtual UObject* UseThis(class AAvatar* Player, UObject* With) {return nullptr;}
 	//Returns bitmask

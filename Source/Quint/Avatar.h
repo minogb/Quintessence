@@ -73,11 +73,13 @@ public:
 	//Do we have a current task
 	UFUNCTION(BlueprintCallable)
 	bool ValidTask();
+	UFUNCTION(Blueprintable)
+	bool CanDoCurrentTask();
 	UFUNCTION(BlueprintCallable)
-	bool ValidGoal(){ return GoalActor && IsValid(GoalActor);}
+	bool ValidGoal(){ return IsValid(GoalActor);}
 
 	//GETS
-	virtual int32 GetAvaliableTasks() override{ return Follow | Trade | Examine; }
+	virtual int32 GetAvaliableTasks() override{ return Follow | Trade | Examine | Attack; }
 	virtual EInteractionType GetDefaultTask() override{ return Attack; }
 
 	UFUNCTION(BlueprintCallable)
