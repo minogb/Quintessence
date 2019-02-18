@@ -58,12 +58,11 @@ void AAvatar::Tick(float DeltaTime){
 			}
 			//At goal
 			else if(IsAtGoal()){
-				//Can do task
-				if(!IsDoingTask && !IsTaskOnCoolDown){
-					StartDoingTask();
+				if(!IsValid(GoalActor)){
+					Stop();
 				}
-				else if (IsDoingTask){
-					PercentTaskCompleted = GetWorldTimerManager().GetTimerElapsed(TaskTimer) / GetCurrentTaskDuration();
+				else if(!IsDoingTask && !IsTaskOnCoolDown){
+					StartDoingTask();
 				}
 				//if can't do task, do nothing
 			}
@@ -82,6 +81,9 @@ void AAvatar::Tick(float DeltaTime){
 			//TODO this stop is causing break after harvest
 			Stop();
 		}
+	}
+	if(IsDoingTask){
+		PercentTaskCompleted = GetWorldTimerManager().GetTimerElapsed(TaskTimer) / GetCurrentTaskDuration();
 	}
 }
 
@@ -171,6 +173,10 @@ void AAvatar::StartDoingTask(){
 	if(!HasAuthority())
 		return;
 	IsDoingTask = true;
+	AAvatarController* controller = Cast<AAvatarController>(GetController());
+	if(controller){
+		controller->StopMovement();
+	}
 	if(GetWorld())
 		GetWorldTimerManager().SetTimer(TaskTimer,this, &AAvatar::TaskCompleted,GetCurrentTaskDuration(),false);
 }
@@ -189,11 +195,9 @@ void AAvatar::InteruptTask(){
 		return;
 	IsDoingTask= false;
 	GetWorldTimerManager().ClearTimer(TaskTimer);
-	TaskTimer.Invalidate();
 	AAvatarController* controller = Cast<AAvatarController>(GetController());
 	if(controller){
 		controller->StopMovement();
-		GetWorldTimerManager().ClearTimer(TaskTimer);
 	}
 }
 
@@ -225,7 +229,7 @@ float AAvatar::GetCurrentTaskCoolDownDuration(){
 }
 
 void AAvatar::TaskCompleted(){
-	TaskTimer.Invalidate();
+	GetWorldTimerManager().ClearTimer(TaskTimer);
 	if(!HasAuthority())
 		return;
 	
@@ -236,6 +240,9 @@ void AAvatar::TaskCompleted(){
 	IsDoingTask = false;
 	//Every task has a cool down period to prevent future tasks
 	IsTaskOnCoolDown = true;
+	//Set how long we are on cool down for
+	if(GetWorld())
+		GetWorldTimerManager().SetTimer(TaskCoolDownTimer,this, &AAvatar::EndTaskCooldown,GetCurrentTaskCoolDownDuration(),false);
 	
 	switch(GoalAction){
 	case Attack:
@@ -265,9 +272,6 @@ void AAvatar::TaskCompleted(){
 	}
 	if(GEngine)
       GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Task Completed")); 
-	//Set how long we are on cool down for
-	if(GetWorld())
-		GetWorldTimerManager().SetTimer(TaskTimer,this, &AAvatar::EndTaskCooldown,GetCurrentTaskCoolDownDuration(),false);
 }
 
 void AAvatar::EndTaskCooldown(){
@@ -300,7 +304,7 @@ void AAvatar::HarvestTask(){
 }
 
 bool AAvatar::ValidTask(){
-	return (ValidGoal() && GoalAction != No_Interaction) || !GoalLocation.Equals(INVALID_LOCATION);
+	return ValidGoal() || !GoalLocation.Equals(INVALID_LOCATION);
 }
 
 bool AAvatar::CanDoCurrentTask()
