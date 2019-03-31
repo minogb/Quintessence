@@ -8,6 +8,7 @@
 #include "AvatarController.h"
 #include "UnrealNetwork.h"
 #include "Item_World.h"
+#include "Item.h"
 #include "Engine/ActorChannel.h"
 void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
@@ -51,6 +52,22 @@ void AQuintPlayerController::AddItemToInventory(AItem_World* ItemWorld){
 	}
 }
 
+void AQuintPlayerController::AddItemToInventory(UItem*& Item){
+	if(!IsValid(Item))
+		return;
+	for(int i = 0; i < InventorySizeMax; i++){
+		if(IsValid(Inventory[i])){
+			Inventory[i]->Combine(Item);		
+		}
+		else{
+			Inventory[i] = Item;
+			Item = nullptr;
+		}
+		//all items added to inventory
+		if(!IsValid(Item))
+			break;
+	}
+}
 void AQuintPlayerController::BeginPlay(){
 	Super::BeginPlay();
 }

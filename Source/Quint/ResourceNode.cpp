@@ -3,6 +3,10 @@
 #include "ResourceNode.h"
 #include "Engine/World.h"
 #include "UnrealNetwork.h"
+#include "Avatar.h"
+#include "Item.h"
+#include "Item_World.h"
+#include "QuintPlayerController.h"
 #include "Components/BoxComponent.h"
 
 AResourceNode::AResourceNode()
@@ -23,10 +27,38 @@ AResourceNode::AResourceNode()
 void AResourceNode::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	DOREPLIFETIME(AResourceNode, Harvesters);
 }
-void AResourceNode::HarvestThis(AAvatar * Player){
+bool AResourceNode::CanPlayerHarvest(AAvatar * Player){
 	//TODO: Add can actually harvest this!
-	if(GetWorld())
+	return true;
+}
+void AResourceNode::HarvestThis(AAvatar * Player){
+	if(CanPlayerHarvest(Player) && GetWorld()){
 		Harvesters.Add(FPlayerHarvestedStruct(Player,GetWorld()->GetRealTimeSeconds()));
+		GivePlayerReward(Player);
+	}
+}
+
+void AResourceNode::GivePlayerReward(AAvatar * Player){
+	AQuintPlayerController* pc = Player->GetQuintController();
+	TArray<UItem*> Reward = GetPlayerReward(Player);
+	for(int i = 0; i < Reward.Num(); i++){
+		if(Reward.IsValidIndex(i)){
+			
+			pc->AddItemToInventory(Reward[i]);
+			if(IsValid((UObject*)Reward[i]) && Reward[i]->GetStackSize() > 0){
+				//if item still valid drop into world
+				AItem_World* newItem = GetWorld()->SpawnActor<AItem_World>(Player->GetActorLocation(),Player->GetActorRotation());
+				//TODO spawn object with default values,in this case Reward[i]
+			}
+		}
+	}
+}
+
+TArray<UItem*> AResourceNode::GetPlayerReward(AAvatar * Player){
+	TArray<UItem*> retVal = TArray<UItem*>();
+	retVal.Add(NewObject<UItem>());
+	retVal[0]->SetStackSize(1);
+	return retVal;
 }
 
 void AResourceNode::BeginPlay(){
@@ -53,6 +85,7 @@ void AResourceNode::Tick(float DeltaTime){
 		RemovePlayersFromHarvesters();
 	}
 }
+
 
 float AResourceNode::GetSize()
 {

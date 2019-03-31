@@ -37,7 +37,7 @@ protected:
 public:
 	virtual bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr){return (GetAvaliableTasks() & Task) == Task;}
 	//TODO: Prob use something other than the avatar class here
-	virtual UObject* UseThis(class AAvatar* Player, UObject* With) {return nullptr;}
+	virtual UObject* UseThis(UObject* With, UObject* Source = nullptr) {return nullptr;}
 	//Returns bitmask
 	virtual int32 GetAvaliableTasks() { return No_Interaction; }
 

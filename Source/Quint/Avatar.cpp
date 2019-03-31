@@ -93,6 +93,7 @@ void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifeti
 	DOREPLIFETIME(AAvatar, PercentTaskCompleted);
 	DOREPLIFETIME(AAvatar, IsDoingTask);
 	DOREPLIFETIME(AAvatar, TurnSpeed);
+	DOREPLIFETIME(AAvatar, IsInCombat);
 	
 }
 // Called to bind functionality to input
@@ -105,6 +106,7 @@ float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 {
 	if(!HasAuthority())
 		return 0.f;
+	SetIsInCombat(true);
 	DamageEvent.ClassID;
 	DamageEvent.DamageTypeClass;
 	int FinalHealthRemoved = (Health-DamageAmount) >= 0.f ? DamageAmount : Health;
@@ -177,6 +179,8 @@ void AAvatar::StartDoingTask(){
 	if(controller){
 		controller->StopMovement();
 	}
+	if(IsTaskCombatTask())
+		SetIsInCombat();
 	if(GetWorld())
 		GetWorldTimerManager().SetTimer(TaskTimer,this, &AAvatar::TaskCompleted,GetCurrentTaskDuration(),false);
 }
@@ -226,6 +230,11 @@ float AAvatar::GetCurrentTaskCoolDownDuration(){
 	default:
 		return 0.5;
 	}
+}
+
+AQuintPlayerController * AAvatar::GetQuintController()
+{
+	return Cast<AQuintPlayerController>(GetOwner());
 }
 
 void AAvatar::TaskCompleted(){
@@ -303,12 +312,27 @@ void AAvatar::HarvestTask(){
 	}
 }
 
+void AAvatar::SetIsInCombat(bool Combat){
+	if(!HasAuthority())
+		return;
+	IsInCombat = Combat;
+	if(IsInCombat && GetWorld())
+		GetWorldTimerManager().SetTimer(IsInCombatTimer,this, &AAvatar::EndOfCombat,CombatTimeOutSpeed,false);
+}
+
+void AAvatar::EndOfCombat(){
+	SetIsInCombat(false);
+}
+
+bool AAvatar::IsTaskCombatTask(){
+	return GoalAction == Attack;
+}
+
 bool AAvatar::ValidTask(){
 	return ValidGoal() || !GoalLocation.Equals(INVALID_LOCATION);
 }
 
-bool AAvatar::CanDoCurrentTask()
-{
+bool AAvatar::CanDoCurrentTask(){
 	IInteractable* task =  Cast<IInteractable>(GoalActor);
 	return IsValid((UObject*)task) ? task->IsValidTask(GoalAction,this) : true;
 }

@@ -19,6 +19,7 @@ protected:
 	FVector GoalLocation = INVALID_LOCATION;
 
 	FTimerHandle TaskCoolDownTimer;
+	FTimerHandle IsInCombatTimer;
 	
 	FTimerHandle TaskTimer;
 	UPROPERTY(Replicated)
@@ -34,7 +35,10 @@ protected:
 	UPROPERTY(Replicated)
 	float PercentTaskCompleted = 0.f;
 
-
+	
+	UPROPERTY(Replicated)
+	bool IsInCombat = false;
+	float CombatTimeOutSpeed = 5.0;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	//how close do we need to get to the goal
@@ -58,6 +62,9 @@ protected:
 	//Replication
 	UFUNCTION(NetMulticast,Unreliable)
 	void ReplicateDamageRecived(int Amount);
+	void SetIsInCombat(bool Combat = true);
+	void EndOfCombat();
+	bool IsTaskCombatTask();
 public:	
 	// Sets default values for this character's properties
 	AAvatar();
@@ -97,4 +104,7 @@ public:
 	bool GetIsDoingTask(){return IsDoingTask;}
 	UFUNCTION(BlueprintCallable)
 	float GetPercentTaskDone(){return PercentTaskCompleted;}
+	UFUNCTION(BlueprintCallable)
+	bool GetIsInCombat(){return IsInCombat;}
+	class AQuintPlayerController* GetQuintController();
 };

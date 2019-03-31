@@ -36,6 +36,7 @@ public:
 	bool SetPlayerAvatar(class AAvatar* avatar);
 	
 	void AddItemToInventory(class AItem_World* ItemWorld);
+	void AddItemToInventory(class UItem*& Item);
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 	int GetInventorySize(){return InventorySizeMax;}
 	UFUNCTION(BlueprintCallable,BlueprintPure)

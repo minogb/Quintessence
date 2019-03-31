@@ -15,7 +15,7 @@ class QUINT_API UItem : public UObject
 private:
 	UPROPERTY(Replicated)
 	int StackSize = 1;
-	int MaxStackSize = 5;
+	int MaxStackSize = 1;
 	int ItemId = 1;
 public:
 	UPROPERTY(Replicated)
@@ -31,7 +31,7 @@ public:
 
 	void Combine(UItem*& that);
 	virtual bool IsSupportedForNetworking() const override{return true;}
-	void SetStackSize(int Amount){StackSize = Amount;}
+	void SetStackSize(int Amount){StackSize = Amount <= MaxStackSize ? Amount : MaxStackSize;}
 };
 
 USTRUCT(BlueprintType)

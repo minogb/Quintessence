@@ -37,13 +37,15 @@ protected:
 	virtual void BeginPlay() override;
 	void RemovePlayersFromHarvesters();
 	float TimeToReset = 4;
+	void GivePlayerReward(class AAvatar* Player);
+	TArray<class UItem*> GetPlayerReward(class AAvatar* Player);
 public:	
 	// Sets default values for this actor's properties
 	AResourceNode();
 	virtual void HarvestThis(class AAvatar* Player);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
+	virtual bool CanPlayerHarvest(class AAvatar* Player);
 	virtual int32 GetAvaliableTasks() override{ return Harvest | Examine; }
 	virtual EInteractionType GetDefaultTask() override{ return Harvest; }
 	virtual float GetSize() override;
