@@ -32,6 +32,7 @@ public:
 	void Combine(UItem*& that);
 	virtual bool IsSupportedForNetworking() const override{return true;}
 	void SetStackSize(int Amount){StackSize = Amount <= MaxStackSize ? Amount : MaxStackSize;}
+	static UItem* CREATE_ITEM(AActor* Outer, TSubclassOf<UItem> SubClass, int Amount);
 };
 
 USTRUCT(BlueprintType)

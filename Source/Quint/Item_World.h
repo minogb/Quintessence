@@ -26,7 +26,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void CombineWith(class UItem*& item);
-	
+	void InitItem(class UItem* item);
 	virtual int32 GetAvaliableTasks() override{ return Pick_Up | Examine; }
 	virtual EInteractionType GetDefaultTask() override{ return Pick_Up; }
 	

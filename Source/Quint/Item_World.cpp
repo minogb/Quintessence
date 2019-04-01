@@ -19,7 +19,6 @@ AItem_World::AItem_World()
 		CapsuleComponent->SetVisibility(true);
 		CapsuleComponent->bHiddenInGame = false;
 	}
-	ItemReference = NewObject<UItem>();
 	this->SetReplicates(true);
 }
 
@@ -31,6 +30,11 @@ void AItem_World::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 void AItem_World::BeginPlay()
 {
 	Super::BeginPlay();
+	if(!HasAuthority())
+		return;
+	if(!IsValid(ItemReference)){
+		Destroy(true);
+	}
 	
 }
 
@@ -58,3 +62,9 @@ void AItem_World::CombineWith(UItem*& item){
 	}
 }
 
+void AItem_World::InitItem(UItem * item){
+	if(HasAuthority() && !IsValid(ItemReference)){
+		ItemReference = item;
+		//TODO: SET mesh here
+	}
+}

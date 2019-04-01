@@ -23,6 +23,9 @@ AResourceNode::AResourceNode()
 		BoxComponent->SetVisibility(true);
 		BoxComponent->bHiddenInGame = false;
 	}
+	//TODO: remove this
+	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,50));
+	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,100));
 }
 void AResourceNode::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	DOREPLIFETIME(AResourceNode, Harvesters);
@@ -43,23 +46,44 @@ void AResourceNode::GivePlayerReward(AAvatar * Player){
 	TArray<UItem*> Reward = GetPlayerReward(Player);
 	for(int i = 0; i < Reward.Num(); i++){
 		if(Reward.IsValidIndex(i)){
-			
 			pc->AddItemToInventory(Reward[i]);
 			if(IsValid((UObject*)Reward[i]) && Reward[i]->GetStackSize() > 0){
-				//if item still valid drop into world
-				AItem_World* newItem = GetWorld()->SpawnActor<AItem_World>(Player->GetActorLocation(),Player->GetActorRotation());
-				//TODO spawn object with default values,in this case Reward[i]
+				SpawnWorldItem(Reward[i], Player);
 			}
 		}
 	}
 }
 
+void AResourceNode::SpawnWorldItem(UItem * Item, AActor * Owner){
+	//if item still valid drop into world
+	FTransform actorTranform = Owner->GetActorTransform();
+	actorTranform.SetScale3D(FVector(1));
+	AItem_World* newItem = GetWorld()->SpawnActorDeferred<AItem_World>(AItem_World::StaticClass(),actorTranform,Owner);
+	newItem->InitItem(Item);
+	newItem->FinishSpawning(actorTranform);
+}
 TArray<UItem*> AResourceNode::GetPlayerReward(AAvatar * Player){
 	TArray<UItem*> retVal = TArray<UItem*>();
-	retVal.Add(NewObject<UItem>());
-	retVal[0]->SetStackSize(1);
+	//Generate item types/amount
+	for(int i =  0; i < Rewards.Num(); i++){
+		if(Rewards.IsValidIndex(i)){
+			int Result = FMath::FRandRange(0,100);
+			//TODO: add luck boost for chance and extra
+			if(Result <= Rewards[i].RewardChance){
+				retVal.Add(
+					UItem::CREATE_ITEM(
+						Player,UItem::StaticClass(),
+						FMath::FRandRange(
+							Rewards[i].MinCount,Rewards[i].MaxCount
+						)
+					)
+				);
+			}
+		}
+	}
 	return retVal;
 }
+
 
 void AResourceNode::BeginPlay(){
 	Super::BeginPlay();

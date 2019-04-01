@@ -3,6 +3,7 @@
 #include "Item.h"
 #include "UnrealNetwork.h"
 
+
 void UItem::Combine(UItem*& that){
 	if(that->GetID() != this->GetID())
 		return;
@@ -15,8 +16,19 @@ void UItem::Combine(UItem*& that){
 	
 }
 
+
+
 void UItem::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
 	DOREPLIFETIME(UItem, StackSize);
 	DOREPLIFETIME(UItem, bReplicatedFlag);
+}
+UItem * UItem::CREATE_ITEM(AActor* Outer, TSubclassOf<UItem> SubClass, int Amount)
+{
+	//ConstructObject
+	UItem* newObj = NewObject<UItem>(Outer,SubClass);
+	if(IsValid(newObj)){
+		newObj->SetStackSize(Amount);
+	}
+	return newObj;
 }

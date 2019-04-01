@@ -20,7 +20,27 @@ struct FPlayerHarvestedStruct{
 		Player= player;
 		TimeHarvested = time;
 	}
-	FPlayerHarvestedStruct(){}//check to see if the aggro record matches another aggro record by overloading the "==" operator.
+	FPlayerHarvestedStruct(){}
+};
+USTRUCT(BlueprintType)
+struct FResourceReward{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
+	TSubclassOf<UItem> ItemReward;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
+	int MaxCount;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
+	int MinCount;
+	//Chance is 0-100 %
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
+	int RewardChance;
+	FResourceReward(TSubclassOf<UItem> reward, int max, int min=1, int Chance = 100){
+		ItemReward = reward;
+		MaxCount = FMath::Clamp(max, 1,100);
+		MinCount = FMath::Clamp(min, 1,100);
+		RewardChance = FMath::Clamp(Chance, 0,100);
+	}
+	FResourceReward(){}
 };
 UCLASS(BlueprintType)
 class QUINT_API AResourceNode : public AActor, public IInteractable
@@ -33,12 +53,14 @@ protected:
 	class UBoxComponent* BoxComponent;
 	UPROPERTY(Replicated)
 	TArray<FPlayerHarvestedStruct>Harvesters; 
+	TArray<FResourceReward>Rewards;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void RemovePlayersFromHarvesters();
 	float TimeToReset = 4;
 	void GivePlayerReward(class AAvatar* Player);
 	TArray<class UItem*> GetPlayerReward(class AAvatar* Player);
+	void SpawnWorldItem(class UItem* Item, AActor* Owner);
 public:	
 	// Sets default values for this actor's properties
 	AResourceNode();
