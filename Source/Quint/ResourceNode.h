@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interactable.h"
+#include "HarvestTypeEnum.h"
 #include "ResourceNode.generated.h"
 
 
@@ -48,6 +49,8 @@ class QUINT_API AResourceNode : public AActor, public IInteractable
 	GENERATED_BODY()
 	
 protected:
+	EHarvestType HarvestType;
+	int HarvestLevel;
 	/** The CapsuleComponent being used for movement collision (by CharacterMovement). Always treated as being vertically aligned in simple collision check functions. */
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	class UBoxComponent* BoxComponent;

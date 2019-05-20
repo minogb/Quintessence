@@ -9,6 +9,7 @@
 #include "UnrealNetwork.h"
 #include "Item_World.h"
 #include "Item.h"
+#include "Tool.h"
 #include "Engine/ActorChannel.h"
 void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
@@ -91,6 +92,21 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 	}
 }
 
+int AQuintPlayerController::GetHighestToolLevelOfType(EHarvestType Type){
+	int highest = 0;
+	for (int i = 0; i < Inventory.Num(); i++) {
+		UTool* item = Cast<UTool>(Inventory[i]);
+		if (Inventory.IsValidIndex(highest)) {
+			if (IsValid(item)) {
+				int level = item->GetHarvestLevelOfType(Type);
+				if (highest < level) {
+					highest = level;
+				}
+			}
+		}
+	}
+	return highest;
+}
 bool AQuintPlayerController::IsValidLocation(FVector location){
 	return !location.Equals(FVector(0),1);
 }

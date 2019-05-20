@@ -12,7 +12,7 @@
 #include "Item.h"
 #include  "QuintPlayerController.h"
 #include "ResourceNode.h"
-
+#include "Tool.h"
 // Sets default values
 AAvatar::AAvatar(){
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -46,40 +46,34 @@ void AAvatar::Tick(float DeltaTime){
 	if(!HasAuthority())
 		return;
 	if(ValidTask()){
-		if(CanDoCurrentTask()){
-			//if !facing target face it
-			FVector Direction = ((ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation) - GetActorLocation());
-			Direction.Normalize();
-			float diffInYaw = Direction.Rotation().Yaw - GetActorRotation().Yaw;
-			if(diffInYaw > 3 || diffInYaw < -3){
-				diffInYaw = FMath::Clamp(diffInYaw,TurnSpeed*-1,TurnSpeed);
-				FRotator rotator = FRotator(0.f,diffInYaw,0.f);
-				AddActorWorldRotation(rotator);
-			}
-			//At goal
-			else if(IsAtGoal()){
-				if(!IsValid(GoalActor)){
-					Stop();
-				}
-				else if(!IsDoingTask && !IsTaskOnCoolDown){
-					StartDoingTask();
-				}
-				//if can't do task, do nothing
-			}
-			//Am I not doing anything? and am I 
-			else{
-				//Am I not at goal and doing a task?
-				if(IsDoingTask){
-					//stop doing task out of range
-					InteruptTask();
-				}
-				//If I am not at goal move to goal
-				MoveToLocationOrGoal();
-			}
+		//if !facing target face it
+		FVector Direction = ((ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation) - GetActorLocation());
+		Direction.Normalize();
+		float diffInYaw = Direction.Rotation().Yaw - GetActorRotation().Yaw;
+		if(diffInYaw > 3 || diffInYaw < -3){
+			diffInYaw = FMath::Clamp(diffInYaw,TurnSpeed*-1,TurnSpeed);
+			FRotator rotator = FRotator(0.f,diffInYaw,0.f);
+			AddActorWorldRotation(rotator);
 		}
+		//At goal
+		else if(IsAtGoal()){
+			if(!IsValid(GoalActor)){
+				Stop();
+			}
+			else if(!IsDoingTask && !IsTaskOnCoolDown){
+				StartDoingTask();
+			}
+			//if can't do task, do nothing
+		}
+		//Am I not doing anything? and am I 
 		else{
-			//TODO this stop is causing break after harvest
-			Stop();
+			//Am I not at goal and doing a task?
+			if(IsDoingTask){
+				//stop doing task out of range
+				InteruptTask();
+			}
+			//If I am not at goal move to goal
+			MoveToLocationOrGoal();
 		}
 	}
 	if(IsDoingTask){
@@ -171,15 +165,19 @@ void AAvatar::MoveToLocationOrGoal(){
 	}
 }
 
-void AAvatar::StartDoingTask(){
-	if(!HasAuthority())
+void AAvatar::StartDoingTask() {
+	if (!HasAuthority())
 		return;
+	if (!CanDoCurrentTask()) {
+		Stop();
+		return;
+	}
 	IsDoingTask = true;
 	AAvatarController* controller = Cast<AAvatarController>(GetController());
-	if(controller){
+	if (controller) {
 		controller->StopMovement();
 	}
-	if(IsTaskCombatTask())
+	if (IsTaskCombatTask())
 		SetIsInCombat();
 	if(GetWorld())
 		GetWorldTimerManager().SetTimer(TaskTimer,this, &AAvatar::TaskCompleted,GetCurrentTaskDuration(),false);
@@ -209,7 +207,7 @@ float AAvatar::GetCurrentTaskDuration(){
 	switch(GoalAction){
 	case Attack:
 		//Calculate based on weapon
-		return 2.f;
+		return .5;
 		break;
 	case Harvest:
 		//Calculate base on node
@@ -224,7 +222,7 @@ float AAvatar::GetCurrentTaskCoolDownDuration(){
 	switch(GoalAction){
 	case Attack:
 		//Calculate based on weapon
-		return 0.1;
+		return 1.f;
 	case Harvest:
 		return .4;
 	default:
@@ -335,6 +333,17 @@ bool AAvatar::ValidTask(){
 bool AAvatar::CanDoCurrentTask(){
 	IInteractable* task =  Cast<IInteractable>(GoalActor);
 	return IsValid((UObject*)task) ? task->IsValidTask(GoalAction,this) : true;
+}
+
+int AAvatar::GetHighestToolLevelOfType(EHarvestType Type)
+{
+	//Search Inventory
+
+	AQuintPlayerController* controller = GetQuintController();
+	if(IsValid(controller))
+		return controller->GetHighestToolLevelOfType(Type);
+	//TODO: check equiped weapon
+	return 0;
 }
 
 void AAvatar::ReplicateDamageRecived_Implementation(int Amount){

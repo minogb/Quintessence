@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interactable.h"
+#include "HarvestTypeEnum.h"
 #include "Avatar.generated.h"
 
 #define ECC_Interactable ECC_GameTraceChannel1
@@ -86,6 +87,8 @@ public:
 	bool ValidGoal(){ return IsValid(GoalActor);}
 
 	//GETS
+	UFUNCTION(BlueprintCallable)
+	int GetHighestToolLevelOfType(EHarvestType Type);
 	virtual int32 GetAvaliableTasks() override{ return Follow | Trade | Examine | Attack; }
 	virtual EInteractionType GetDefaultTask() override{ return Attack; }
 

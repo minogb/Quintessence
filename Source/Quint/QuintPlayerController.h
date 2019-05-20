@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Interactable.h"
+#include "HarvestTypeEnum.h"
 #include "QuintPlayerController.generated.h"
 #define ECC_Interactable ECC_GameTraceChannel1
 #define ECC_Floor ECC_GameTraceChannel2
@@ -34,7 +35,8 @@ public:
 	AQuintPlayerController();
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 	bool SetPlayerAvatar(class AAvatar* avatar);
-	
+
+	int GetHighestToolLevelOfType(EHarvestType Type);
 	void AddItemToInventory(class AItem_World* ItemWorld);
 	void AddItemToInventory(class UItem*& Item);
 	UFUNCTION(BlueprintCallable,BlueprintPure)

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Item_World.h"
-#include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Item.h"
 #include "UnrealNetwork.h"
 
@@ -10,14 +10,14 @@ AItem_World::AItem_World()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
-	if(CapsuleComponent){
-		CapsuleComponent->InitCapsuleSize(30.f, 30.f);
-		SetRootComponent(CapsuleComponent); 
-		CapsuleComponent->SetCollisionResponseToChannel(ECC_Interactable,ECR_Block);
-		CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
-		CapsuleComponent->SetVisibility(true);
-		CapsuleComponent->bHiddenInGame = false;
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
+	if(BoxComponent){
+		BoxComponent->InitBoxExtent(FVector(30.f));
+		SetRootComponent(BoxComponent); 
+		BoxComponent->SetCollisionResponseToChannel(ECC_Interactable,ECR_Block);
+		BoxComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+		BoxComponent->SetVisibility(true);
+		BoxComponent->bHiddenInGame = false;
 	}
 	this->SetReplicates(true);
 }
@@ -33,7 +33,8 @@ void AItem_World::BeginPlay()
 	if(!HasAuthority())
 		return;
 	if(!IsValid(ItemReference)){
-		Destroy(true);
+		//TODO uncomment
+		//Destroy(true);
 	}
 	
 }

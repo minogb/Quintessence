@@ -15,17 +15,18 @@ class QUINT_API AItem_World : public AActor, public IInteractable
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, Category = "Item", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UItem* ItemReference;
 	/** The CapsuleComponent being used for movement collision (by CharacterMovement). Always treated as being vertically aligned in simple collision check functions. */
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	class UCapsuleComponent* CapsuleComponent;
+	class UBoxComponent* BoxComponent;
 public:	
 	// Sets default values for this actor's properties
 	AItem_World();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void CombineWith(class UItem*& item);
+	UFUNCTION(BlueprintCallable)
 	void InitItem(class UItem* item);
 	virtual int32 GetAvaliableTasks() override{ return Pick_Up | Examine; }
 	virtual EInteractionType GetDefaultTask() override{ return Pick_Up; }

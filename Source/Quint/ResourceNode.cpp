@@ -26,13 +26,17 @@ AResourceNode::AResourceNode()
 	//TODO: remove this
 	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,50));
 	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,100));
+	HarvestLevel = 1;
+	HarvestType = EHarvestType::HT_MINING;
 }
 void AResourceNode::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	DOREPLIFETIME(AResourceNode, Harvesters);
 }
 bool AResourceNode::CanPlayerHarvest(AAvatar * Player){
-	//TODO: Add can actually harvest this!
-	return true;
+	if (IsValid(Player)) {
+		return Player->GetHighestToolLevelOfType(HarvestType) >= HarvestLevel;
+	}
+	return false;
 }
 void AResourceNode::HarvestThis(AAvatar * Player){
 	if(CanPlayerHarvest(Player) && GetWorld()){
@@ -117,6 +121,11 @@ float AResourceNode::GetSize()
 }
 
 bool AResourceNode::IsValidTask(EInteractionType Task, AAvatar * Player){
+	if (!IsValid(Player)) {
+		return false;
+	}
+	if (!CanPlayerHarvest(Player))
+		return false;
 	if((GetAvaliableTasks() & Task) == Task){
 		for(int i = 0; i < Harvesters.Num(); i++){
 			//has player already harvested?
