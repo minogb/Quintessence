@@ -58,11 +58,11 @@ void AResourceNode::GivePlayerReward(AAvatar * Player){
 	}
 }
 
-void AResourceNode::SpawnWorldItem(UItem * Item, AActor * Owner){
+void AResourceNode::SpawnWorldItem(UItem * Item, AActor * ToOwn){
 	//if item still valid drop into world
-	FTransform actorTranform = Owner->GetActorTransform();
+	FTransform actorTranform = ToOwn->GetActorTransform();
 	actorTranform.SetScale3D(FVector(1));
-	AItem_World* newItem = GetWorld()->SpawnActorDeferred<AItem_World>(AItem_World::StaticClass(),actorTranform,Owner);
+	AItem_World* newItem = GetWorld()->SpawnActorDeferred<AItem_World>(AItem_World::StaticClass(),actorTranform, ToOwn);
 	newItem->InitItem(Item);
 	newItem->FinishSpawning(actorTranform);
 }

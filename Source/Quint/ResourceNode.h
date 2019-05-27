@@ -63,7 +63,7 @@ protected:
 	float TimeToReset = 4;
 	void GivePlayerReward(class AAvatar* Player);
 	TArray<class UItem*> GetPlayerReward(class AAvatar* Player);
-	void SpawnWorldItem(class UItem* Item, AActor* Owner);
+	void SpawnWorldItem(class UItem* Item, AActor* ToOwn);
 public:	
 	// Sets default values for this actor's properties
 	AResourceNode();

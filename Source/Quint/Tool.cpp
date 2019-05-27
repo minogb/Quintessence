@@ -3,11 +3,8 @@
 
 #include "Tool.h"
 
-
-UTool::UTool() {
+int ITool::GetHarvestLevelOfType_Implementation(EHarvestType Type) {
+	TMap<EHarvestType, int>HarvestLevels;
 	HarvestLevels.Add(EHarvestType::HT_MINING, 1);
-}
-
-int UTool::GetHarvestLevelOfType(EHarvestType Type) {
 	return HarvestLevels.Contains(Type) ? HarvestLevels[Type] : 0;
 }

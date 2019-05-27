@@ -342,7 +342,6 @@ int AAvatar::GetHighestToolLevelOfType(EHarvestType Type)
 	AQuintPlayerController* controller = GetQuintController();
 	if(IsValid(controller))
 		return controller->GetHighestToolLevelOfType(Type);
-	//TODO: check equiped weapon
 	return 0;
 }
 

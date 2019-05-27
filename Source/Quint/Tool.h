@@ -3,20 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Equipment.h"
+#include "UObject/Interface.h"
 #include "HarvestTypeEnum.h"
 #include "Tool.generated.h"
 
 /**
  * 
  */
-UCLASS(Blueprintable)
-class QUINT_API UTool : public UEquipment{
+UINTERFACE(MinimalAPI)
+class UTool : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class QUINT_API ITool {
 
 	GENERATED_BODY()
 protected:
-	TMap<EHarvestType, int>HarvestLevels;
 public:
-	UTool();
+	UFUNCTION(BlueprintNativeEvent)
 	int GetHarvestLevelOfType(EHarvestType Type);
+
+	virtual int GetHarvestLevelOfType_Implementation(EHarvestType Type);
 };

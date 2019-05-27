@@ -2,6 +2,8 @@
 
 #include "Item.h"
 #include "UnrealNetwork.h"
+#include "ConstructorHelpers.h"
+#include "Engine/Texture2D.h"
 
 
 void UItem::Combine(UItem*& that){
@@ -16,7 +18,13 @@ void UItem::Combine(UItem*& that){
 	
 }
 
-
+UItem::UItem() {
+	ImageTexture = CreateDefaultSubobject<UTexture2D>("Image");
+	Actions = TArray<EItemAction>();
+	ConstructorHelpers::FObjectFinder<UTexture2D> TextureFinder(TEXT("/Game/UserInterface/Icons/axe.axe"));
+	if (TextureFinder.Succeeded())
+		ImageTexture = TextureFinder.Object;
+}
 
 void UItem::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );

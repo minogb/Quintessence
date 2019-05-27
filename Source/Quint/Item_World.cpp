@@ -33,19 +33,20 @@ void AItem_World::BeginPlay()
 	if(!HasAuthority())
 		return;
 	if(!IsValid(ItemReference)){
-		//TODO uncomment
-		//Destroy(true);
+		Destroy(true);
 	}
-	
+
+	//If we no longer have anything to give, destroy us
+	if (!IsValid(ItemReference)) {
+		this->Destroy(true);
+	}
 }
 
 // Called every frame
-void AItem_World::Tick(float DeltaTime)
-{
+void AItem_World::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
-
 }
-
+//Depricate
 void AItem_World::CombineWith(UItem*& item){
 	//if empty item slot passed, just give whole sale
 	if(!IsValid(item) || !item){

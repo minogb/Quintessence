@@ -9,24 +9,94 @@
 #include "UnrealNetwork.h"
 #include "Item_World.h"
 #include "Item.h"
+#include "Equipment.h"
 #include "Tool.h"
 #include "Engine/ActorChannel.h"
-void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
-	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
+void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AQuintPlayerController, PlayerAvatar);
 	DOREPLIFETIME(AQuintPlayerController, Inventory);
+	DOREPLIFETIME(AQuintPlayerController, Equipment);
 }
 bool AQuintPlayerController::ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags)
- {
+{
 	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-	for(int i = 0; i < InventorySizeMax;i++){
-		if(Inventory.IsValidIndex(i) && Inventory[i]){
+	for (int i = 0; i < InventorySizeMax; i++) {
+		if (Inventory.IsValidIndex(i) && Inventory[i]) {
 			WroteSomething |= Channel->ReplicateSubobject((UObject*)Inventory[i], *Bunch, *RepFlags);
 		}
 	}
- 
+
 	return WroteSomething;
- }
+}
+
+void AQuintPlayerController::DoItemAction(UItem* Item, EItemAction Action) {
+	switch (Action) {
+	case EItemAction::IA_EQUIP:
+		EquipItem(Item);
+		break;
+	case EItemAction::IA_UNEQUIP:
+		UnEquipItem(Item);
+		break;
+	case EItemAction::IA_DROP:
+		DropItem(Item);
+		break;
+	case EItemAction::IA_USE:
+		break;
+	default:
+		break;
+	}
+}
+
+void AQuintPlayerController::EquipItem(UItem * Item){
+	int index = GetIndexOfItem(Item);
+	if (index > -1)
+		EquipItem(index);
+}
+
+void AQuintPlayerController::EquipItem_Implementation(int Slot){
+	if (!Inventory.IsValidIndex(Slot))
+		return;
+	UEquipment* item = Cast<UEquipment>(Inventory[Slot]);
+	if (IsValid(item) && item->GetSlot() != EEquipmentType::ET_NONE) {
+		const EEquipmentType slot = item->GetSlot();
+		UnEquipItem(slot);
+		if (!IsValid(Equipment.Get(slot))) {
+			Inventory[Slot] = NULL;
+			Equipment.SetEquipment(item);
+		}
+	}
+}
+bool AQuintPlayerController::EquipItem_Validate(int Slot){
+	return true;
+}
+void AQuintPlayerController::UnEquipItem_Implementation(EEquipmentType Slot){
+	UItem* item = GetEquipment(Slot);
+	AddItemToInventory(item);
+	if (!IsValid(item)) {
+		Equipment.SetEquipment(NULL,Slot);
+	}
+
+}
+bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentType Slot)
+{
+	return true;
+}
+void AQuintPlayerController::UnEquipItem(UItem * Item){
+	UEquipment* item = Cast<UEquipment>(Item);
+	if (IsValid(item))
+		UnEquipItem(item->GetSlot());
+}
+int AQuintPlayerController::GetIndexOfItem(UItem * Item){
+	for (int index = 0; index < Inventory.Num(); index++) {
+		if (Inventory.IsValidIndex(index)) {
+			if (Inventory[index] == Item) {
+				return index;
+			}
+		}
+	}
+	return -1;
+}
 AQuintPlayerController::AQuintPlayerController(){
 	SetReplicates(true);
 	bShowMouseCursor = true;
@@ -43,14 +113,9 @@ bool AQuintPlayerController::SetPlayerAvatar(AAvatar * avatar){
 }
 
 void AQuintPlayerController::AddItemToInventory(AItem_World* ItemWorld){
-	if(!IsValid(ItemWorld))
-		return;
-	for(int i = 0; i < InventorySizeMax; i++){
-		ItemWorld->CombineWith(Inventory[i]);
-		//all items added to inventory
-		if(!IsValid(ItemWorld))
-			break;
-	}
+	AddItemToInventory(ItemWorld->ItemReference);
+	if (!IsValid(ItemWorld->ItemReference))
+		ItemWorld->Destroy(true);
 }
 
 void AQuintPlayerController::AddItemToInventory(UItem*& Item){
@@ -79,6 +144,7 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 	if(GetHitResultUnderCursor(ECC_Interactable, false, Hit)){
 		AActor* hitActor = Hit.GetActor();
 		if(IsValid(PlayerAvatar) && IsValid(hitActor) && hitActor != PlayerAvatar){
+			//TODO: UPDATE INTERFACE CALL TO WORK WITH BLUEPRINT SEE GET HIGHEST TOOL LEVEL/TOOL INTERFACE
 			IInteractable* goal = Cast<IInteractable>(hitActor);
 			if(goal){
 				Server_SetGoalAndAction(hitActor,goal->GetDefaultTask());
@@ -92,20 +158,75 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 	}
 }
 
+void AQuintPlayerController::DropItem_Implementation(int Slot) {
+	if (Inventory.IsValidIndex(Slot) && IsValid(Inventory[Slot]) && IsValid(GetPlayerAvatar())) {
+		FTransform actorTranform = GetPlayerAvatar()->GetActorTransform();
+		actorTranform.SetScale3D(FVector(1));
+		AItem_World* newItem = GetWorld()->SpawnActorDeferred<AItem_World>(AItem_World::StaticClass(), actorTranform, this);
+		newItem->InitItem(Inventory[Slot]);
+		Inventory[Slot] = NULL;
+		newItem->FinishSpawning(actorTranform);
+
+	}
+
+}
+
+bool AQuintPlayerController::DropItem_Validate(int Slot){
+	return true;
+}
+
+void AQuintPlayerController::DropItem(UItem * Item){
+	int index = GetIndexOfItem(Item);
+	if(index > -1)
+		DropItem(index);
+}
+
+//TODO: check equiped weapon
 int AQuintPlayerController::GetHighestToolLevelOfType(EHarvestType Type){
 	int highest = 0;
+	highest = GetEquipmentToolLevelOfType(Type);
+	if (highest > 0)
+		return highest;
 	for (int i = 0; i < Inventory.Num(); i++) {
-		UTool* item = Cast<UTool>(Inventory[i]);
-		if (Inventory.IsValidIndex(highest)) {
-			if (IsValid(item)) {
-				int level = item->GetHarvestLevelOfType(Type);
+		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i])) {
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt(i));
+			if (Inventory[i]->GetClass()->ImplementsInterface(UTool::StaticClass())) {
+				int level = ITool::Execute_GetHarvestLevelOfType(Inventory[i], Type);
 				if (highest < level) {
 					highest = level;
 				}
+
+				
 			}
 		}
 	}
 	return highest;
+}
+int AQuintPlayerController::GetEquipmentToolLevelOfType(EHarvestType Type) {
+
+	UEquipment* item = NULL;
+	if (IsValid(item = GetEquipment(EEquipmentType::ET_WEAPON))) {
+		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
+			return ITool::Execute_GetHarvestLevelOfType(item, Type);
+	}
+	if (IsValid(item = GetEquipment(EEquipmentType::ET_SHEILD))) {
+		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
+			return ITool::Execute_GetHarvestLevelOfType(item, Type);
+	}
+	if (IsValid(item = GetEquipment(EEquipmentType::ET_RING))) {
+		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
+			return ITool::Execute_GetHarvestLevelOfType(item, Type);
+	}
+	if (IsValid(item = GetEquipment(EEquipmentType::ET_GLOVES))) {
+		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
+			return ITool::Execute_GetHarvestLevelOfType(item, Type);
+	}
+	return 0;
+}
+UEquipment * AQuintPlayerController::GetEquipment(EEquipmentType Type)
+{
+	return Equipment.Get(Type);
 }
 bool AQuintPlayerController::IsValidLocation(FVector location){
 	return !location.Equals(FVector(0),1);
