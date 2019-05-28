@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interactable.h"
-#include "HarvestTypeEnum.h"
+#include "Enumerations.h"
 #include "Avatar.generated.h"
 
 #define ECC_Interactable ECC_GameTraceChannel1

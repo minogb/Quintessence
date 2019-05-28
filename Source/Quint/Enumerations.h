@@ -17,3 +17,8 @@ enum class EItemAction : uint8 {
 	IA_DROP UMETA(DisplayName = "Drop"),
 	IA_USE UMETA(DisplayName = "Use")
 };
+
+UENUM(BlueprintType, Meta = (Bitflags))
+enum class ESkillType : uint8 {
+	ST_NONE UMETA(DisplayName = "None")
+};

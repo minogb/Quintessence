@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "HarvestTypeEnum.h"
+#include "Enumerations.h"
 #include "Tool.generated.h"
 
 /**

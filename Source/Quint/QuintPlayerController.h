@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Interactable.h"
-#include "HarvestTypeEnum.h"
+#include "Enumerations.h"
 #include "EquipmentStructure.h"
 #include "QuintPlayerController.generated.h"
 #define ECC_Interactable ECC_GameTraceChannel1

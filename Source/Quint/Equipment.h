@@ -6,7 +6,7 @@
 #include "Item.h"
 #include "EquipmentStructure.h"
 #include "Equipment.generated.h"
-
+class UEquipmentComponent;
 UCLASS()
 class QUINT_API UEquipment : public UItem
 {
@@ -15,6 +15,6 @@ class QUINT_API UEquipment : public UItem
 public:
 	UEquipment();
 	virtual void Use(AActor* On) {};
-	virtual TArray<bool> GetComponents() {return TArray<bool>();};
+	virtual TArray<UEquipmentComponent> GetComponents();
 	EEquipmentType GetSlot() { return Slot; }
 };

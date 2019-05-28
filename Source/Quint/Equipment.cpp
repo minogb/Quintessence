@@ -2,7 +2,7 @@
 
 #include "Equipment.h"
 #include "ConstructorHelpers.h"
-
+#include "EquipmentComponent.h"
 
 
 
@@ -12,4 +12,9 @@ UEquipment::UEquipment() {
 		ImageTexture = TextureFinder.Object;
 	ItemId = 2;
 	MaxStackSize = 1;
+}
+
+TArray<UEquipmentComponent> UEquipment::GetComponents()
+{
+	return TArray<UEquipmentComponent>();
 }

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "HarvestTypeEnum.h"
+#include "Enumerations.h"
 #include "Item.generated.h"
 
 
