@@ -14,7 +14,24 @@ UEquipment::UEquipment() {
 	MaxStackSize = 1;
 }
 
-TArray<UEquipmentComponent> UEquipment::GetComponents()
-{
-	return TArray<UEquipmentComponent>();
+TArray<EEquipmentComponentType> UEquipment::GetRequiredComponentTypes(){
+	TArray<EEquipmentComponentType> retVal = TArray<EEquipmentComponentType>();
+	Components.GetKeys(retVal);
+	return retVal;
+}
+
+bool UEquipment::InitComponents(TMap<EEquipmentComponentType, UEquipmentComponent*>& InitComponents){
+	bool success = false;
+	for (const auto& current : InitComponents) {
+		if (!Components.Contains(current.Key)) {
+			success = false;
+		}
+	}
+	if (success) {
+		for (const auto& current : InitComponents) {
+			Components[current.Key] = current.Value;
+		}
+		InitComponents.Empty();
+	}
+	return success;
 }

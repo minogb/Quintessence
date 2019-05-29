@@ -67,7 +67,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetEquipmentToolLevelOfType(EHarvestType Type);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UEquipment* GetEquipment(EEquipmentType Type);
+	UEquipment* GetEquipment(EEquipmentType EquipmentType);
 	void AddItemToInventory(class AItem_World* ItemWorld);
 	void AddItemToInventory(class UItem*& Item);
 	UFUNCTION(BlueprintCallable,BlueprintPure)

@@ -4,20 +4,20 @@
 #include "EquipmentComponent.h"
 
 
-void UEquipmentComponent::OnUse(UObject * on)
+void UEquipmentComponent::OnUse_Implementation(UObject * on)
 {
 }
 
-void UEquipmentComponent::OnConstruct(UEquipment * Equipment)
+void UEquipmentComponent::OnConstruct_Implementation(UEquipment * Equipment)
 {
 }
 
-void UEquipmentComponent::OnDamageComponent(int & Amount)
+void UEquipmentComponent::OnDamageComponent_Implementation(int & Amount)
 {
 }
 
-int UEquipmentComponent::GetMapOfSkill(TMap<ESkillType, int> Map, ESkillType Type) {
-	if (Map.Contains(Type))
-		return Map[Type];
+int UEquipmentComponent::GetMapOfSkill(TMap<ESkillType, int> Map, ESkillType SkillType) {
+	if (Map.Contains(SkillType))
+		return Map[SkillType];
 	return 0;
 }

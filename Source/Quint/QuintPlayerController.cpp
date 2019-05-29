@@ -224,9 +224,9 @@ int AQuintPlayerController::GetEquipmentToolLevelOfType(EHarvestType Type) {
 	}
 	return 0;
 }
-UEquipment * AQuintPlayerController::GetEquipment(EEquipmentType Type)
+UEquipment * AQuintPlayerController::GetEquipment(EEquipmentType EquipmentType)
 {
-	return Equipment.Get(Type);
+	return Equipment.Get(EquipmentType);
 }
 bool AQuintPlayerController::IsValidLocation(FVector location){
 	return !location.Equals(FVector(0),1);
