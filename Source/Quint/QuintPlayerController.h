@@ -48,9 +48,9 @@ public:
 
 	void EquipItem(UItem* Item);
 	UFUNCTION(Server, Reliable, WithValidation,BlueprintCallable)
-	void UnEquipItem(EEquipmentType Slot);
-	void UnEquipItem_Implementation(EEquipmentType Slot);
-	bool UnEquipItem_Validate(EEquipmentType Slot);
+	void UnEquipItem(EEquipmentSlot Slot);
+	void UnEquipItem_Implementation(EEquipmentSlot Slot);
+	bool UnEquipItem_Validate(EEquipmentSlot Slot);
 
 	void UnEquipItem(UItem* Item);
 
@@ -67,7 +67,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetEquipmentToolLevelOfType(EHarvestType Type);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UEquipment* GetEquipment(EEquipmentType EquipmentType);
+	UEquipment* GetEquipment(EEquipmentSlot EquipmentType);
 	void AddItemToInventory(class AItem_World* ItemWorld);
 	void AddItemToInventory(class UItem*& Item);
 	UFUNCTION(BlueprintCallable,BlueprintPure)

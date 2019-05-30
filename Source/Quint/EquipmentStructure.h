@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "EquipmentStructure.generated.h"
 
 /**
@@ -10,20 +11,20 @@
  */
 class UEquipment;
 UENUM(BlueprintType, Meta = (Bitflags))
-enum class EEquipmentType : uint8 {
-	ET_NONE UMETA(DisplayName = "None"),
-	ET_HELM UMETA(DisplayName = "Helm"),
-	ET_CHEST UMETA(DisplayName = "Chest"),
-	ET_LEGGINGS UMETA(DisplayName = "Leggings"),
-	ET_BOOTS UMETA(DisplayName = "Boots"),
-	ET_GLOVES UMETA(DisplayName = "Gloves"),
-	ET_QUIVER UMETA(DisplayName = "Quiver"),
-	ET_SHEILD UMETA(DisplayName = "Sheild"),
-	ET_RING UMETA(DisplayName = "Ring"),
-	ET_WEAPON UMETA(DisplayName = "Weapon")
+enum class EEquipmentSlot : uint8 {
+	ES_NONE UMETA(DisplayName = "None"),
+	ES_HELM UMETA(DisplayName = "Helm"),
+	ES_CHEST UMETA(DisplayName = "Chest"),
+	ES_LEGGINGS UMETA(DisplayName = "Leggings"),
+	ES_BOOTS UMETA(DisplayName = "Boots"),
+	ES_GLOVES UMETA(DisplayName = "Gloves"),
+	ES_QUIVER UMETA(DisplayName = "Quiver"),
+	ES_SHEILD UMETA(DisplayName = "Sheild"),
+	ES_RING UMETA(DisplayName = "Ring"),
+	ES_WEAPON UMETA(DisplayName = "Weapon")
 };
 USTRUCT(BlueprintType)
-struct FEquipmentStruct {
+struct FEquipmentStruct  {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Helm")
@@ -44,6 +45,6 @@ struct FEquipmentStruct {
 	UEquipment* Quiver;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ring")
 	UEquipment* Ring;
-	UEquipment* SetEquipment(UEquipment* Equipment, EEquipmentType Slot = EEquipmentType::ET_NONE);
-	UEquipment* Get(EEquipmentType Slot);
+	UEquipment* SetEquipment(UEquipment* Equipment, EEquipmentSlot Slot = EEquipmentSlot::ES_NONE);
+	UEquipment* Get(EEquipmentSlot Slot);
 };

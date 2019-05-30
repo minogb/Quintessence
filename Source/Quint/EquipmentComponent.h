@@ -33,6 +33,8 @@ protected:
 	//The amount to modify the required use level by
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Setup", meta = (AllowPrivateAccess = "true"))
 	TMap<ESkillType, int> UseLevelModifier;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	TMap<EHarvestType, int> HarvestLevels;
 	//How this component affects the color of the equipment
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Setup", meta = (AllowPrivateAccess = "true"))
 	FColor ColorModifier;
@@ -58,4 +60,6 @@ public:
 	int GetCraftLevelModifier(ESkillType Skill) { return GetMapOfSkill(CraftLevelModifier, Skill); };
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetUseLevelModifier(ESkillType Skill) { return GetMapOfSkill(UseLevelModifier, Skill); };
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetHarvestLevel(EHarvestType Type) { return HarvestLevels.Contains(Type) ? HarvestLevels[Type] : 0; };
 };

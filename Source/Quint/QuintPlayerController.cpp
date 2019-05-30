@@ -58,8 +58,8 @@ void AQuintPlayerController::EquipItem_Implementation(int Slot){
 	if (!Inventory.IsValidIndex(Slot))
 		return;
 	UEquipment* item = Cast<UEquipment>(Inventory[Slot]);
-	if (IsValid(item) && item->GetSlot() != EEquipmentType::ET_NONE) {
-		const EEquipmentType slot = item->GetSlot();
+	if (IsValid(item) && item->GetSlot() != EEquipmentSlot::ES_NONE) {
+		const EEquipmentSlot slot = item->GetSlot();
 		UnEquipItem(slot);
 		if (!IsValid(Equipment.Get(slot))) {
 			Inventory[Slot] = NULL;
@@ -70,7 +70,7 @@ void AQuintPlayerController::EquipItem_Implementation(int Slot){
 bool AQuintPlayerController::EquipItem_Validate(int Slot){
 	return true;
 }
-void AQuintPlayerController::UnEquipItem_Implementation(EEquipmentType Slot){
+void AQuintPlayerController::UnEquipItem_Implementation(EEquipmentSlot Slot){
 	UItem* item = GetEquipment(Slot);
 	AddItemToInventory(item);
 	if (!IsValid(item)) {
@@ -78,7 +78,7 @@ void AQuintPlayerController::UnEquipItem_Implementation(EEquipmentType Slot){
 	}
 
 }
-bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentType Slot)
+bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentSlot Slot)
 {
 	return true;
 }
@@ -206,25 +206,25 @@ int AQuintPlayerController::GetHighestToolLevelOfType(EHarvestType Type){
 int AQuintPlayerController::GetEquipmentToolLevelOfType(EHarvestType Type) {
 
 	UEquipment* item = NULL;
-	if (IsValid(item = GetEquipment(EEquipmentType::ET_WEAPON))) {
+	if (IsValid(item = GetEquipment(EEquipmentSlot::ES_WEAPON))) {
 		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
 			return ITool::Execute_GetHarvestLevelOfType(item, Type);
 	}
-	if (IsValid(item = GetEquipment(EEquipmentType::ET_SHEILD))) {
+	if (IsValid(item = GetEquipment(EEquipmentSlot::ES_SHEILD))) {
 		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
 			return ITool::Execute_GetHarvestLevelOfType(item, Type);
 	}
-	if (IsValid(item = GetEquipment(EEquipmentType::ET_RING))) {
+	if (IsValid(item = GetEquipment(EEquipmentSlot::ES_RING))) {
 		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
 			return ITool::Execute_GetHarvestLevelOfType(item, Type);
 	}
-	if (IsValid(item = GetEquipment(EEquipmentType::ET_GLOVES))) {
+	if (IsValid(item = GetEquipment(EEquipmentSlot::ES_GLOVES))) {
 		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
 			return ITool::Execute_GetHarvestLevelOfType(item, Type);
 	}
 	return 0;
 }
-UEquipment * AQuintPlayerController::GetEquipment(EEquipmentType EquipmentType)
+UEquipment * AQuintPlayerController::GetEquipment(EEquipmentSlot EquipmentType)
 {
 	return Equipment.Get(EquipmentType);
 }

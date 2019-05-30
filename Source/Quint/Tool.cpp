@@ -8,3 +8,7 @@ int ITool::GetHarvestLevelOfType_Implementation(EHarvestType Type) {
 	HarvestLevels.Add(EHarvestType::HT_MINING, 1);
 	return HarvestLevels.Contains(Type) ? HarvestLevels[Type] : 0;
 }
+
+int ITool::GetRequiredUseLevel_Implementation(EHarvestType Type){
+	return -1;
+}
