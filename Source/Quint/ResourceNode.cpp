@@ -73,7 +73,7 @@ TArray<UItem*> AResourceNode::GetPlayerReward(AAvatar * Player){
 		if(Rewards.IsValidIndex(i)){
 			int Result = FMath::FRandRange(0,100);
 			//TODO: add luck boost for chance and extra
-			if(Result <= Rewards[i].RewardChance){
+			if(Result <= Rewards[i].RewardChance){/*
 				retVal.Add(
 					UItem::CREATE_ITEM(
 						Player,UItem::StaticClass(),
@@ -81,7 +81,8 @@ TArray<UItem*> AResourceNode::GetPlayerReward(AAvatar * Player){
 							Rewards[i].MinCount,Rewards[i].MaxCount
 						)
 					)
-				);
+				);*/
+				retVal.Add(NewObject<UItem>(Player, Rewards[i].ItemReward));
 			}
 		}
 	}

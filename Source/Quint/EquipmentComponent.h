@@ -12,7 +12,7 @@
  * 
  */
 class UEquipment;
-UCLASS()
+UCLASS(Blueprintable)
 class QUINT_API UEquipmentComponent : public UItem {
 	GENERATED_BODY()
 protected:

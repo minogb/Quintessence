@@ -32,7 +32,7 @@ struct FResourceReward{
 	int MaxCount;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
 	int MinCount;
-	//Chance is 0-100 %
+	//Chance is 0-100
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
 	int RewardChance;
 	FResourceReward(TSubclassOf<UItem> reward, int max, int min=1, int Chance = 100){
@@ -55,7 +55,8 @@ protected:
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	class UBoxComponent* BoxComponent;
 	UPROPERTY(Replicated)
-	TArray<FPlayerHarvestedStruct>Harvesters; 
+	TArray<FPlayerHarvestedStruct>Harvesters;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	TArray<FResourceReward>Rewards;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -16,7 +16,9 @@ class QUINT_API UItem : public UObject
 protected:
 	UPROPERTY(Replicated)
 	int StackSize = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
 	int MaxStackSize = 2;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
 	int ItemId = 1;
 	TArray<EItemAction> Actions;
 public:
