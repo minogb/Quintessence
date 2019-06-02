@@ -21,7 +21,8 @@ public:
 	//To be called after initial creation
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool InitComponents(TMap<EEquipmentComponentType, UEquipmentComponent*> InitComponents);
-	virtual bool InitComponents_Implementation(TMap<EEquipmentComponentType, UEquipmentComponent*> InitComponents);	EEquipmentSlot GetSlot() { return Slot; }
+	virtual bool InitComponents_Implementation(TMap<EEquipmentComponentType, UEquipmentComponent*> InitComponents);	
+	EEquipmentSlot GetSlot() { return Slot; }
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TMap<EEquipmentComponentType, UEquipmentComponent*> GetComponents();
 	TMap<EEquipmentComponentType, UEquipmentComponent*> GetComponents_Implementation();
