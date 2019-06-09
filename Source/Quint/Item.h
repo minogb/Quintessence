@@ -14,19 +14,24 @@ class QUINT_API UItem : public UObject
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	int StackSize = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
 	int MaxStackSize = 2;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
-	int ItemId = 1;
+	int ItemTypeId = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	int UniqueItemId = 1;
 	TArray<EItemAction> Actions;
 public:
 	UItem();
 	UPROPERTY(Replicated)
 	uint32 bReplicatedFlag:1;
 	UFUNCTION(BlueprintCallable)
-	int GetID(){return ItemId;}
+	int GetTypeID(){return ItemTypeId;}
+	UFUNCTION(BlueprintCallable)
+	int GetUniqueID() { return UniqueItemId; }
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rendering")
 	class UTexture2D* ImageTexture;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rendering")

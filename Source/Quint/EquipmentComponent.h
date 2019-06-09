@@ -62,4 +62,6 @@ public:
 	int GetUseLevelModifier(ESkillType Skill) { return GetMapOfSkill(UseLevelModifier, Skill); };
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetHarvestLevel(EHarvestType Type) { return HarvestLevels.Contains(Type) ? HarvestLevels[Type] : 0; };
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	EEquipmentComponentType GetComponentType() { return ComponentType; };
 };

@@ -9,8 +9,7 @@
 #include "QuintPlayerController.h"
 #include "Components/BoxComponent.h"
 
-AResourceNode::AResourceNode()
-{
+AResourceNode::AResourceNode(){
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1;
 	SetReplicates(true);
@@ -19,10 +18,11 @@ AResourceNode::AResourceNode()
 		BoxComponent->InitBoxExtent(FVector(64.f));
 		SetRootComponent(BoxComponent); 
 		BoxComponent->SetCollisionResponseToChannel(ECC_Interactable,ECR_Block);
-		BoxComponent->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+		BoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 		BoxComponent->SetVisibility(true);
 		BoxComponent->bHiddenInGame = false;
 	}
+	bNetLoadOnClient = false;
 	//TODO: remove this
 	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,50));
 	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,100));
