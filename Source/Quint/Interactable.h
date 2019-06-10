@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Enumerations.h"
 #include "Interactable.generated.h"
 
 #define ECC_Interactable ECC_GameTraceChannel1
@@ -11,12 +12,12 @@
  * 
  */
 UINTERFACE(MinimalAPI)
-class UInteractable : public UInterface
+class  UInteractable : public UInterface
 {
 	GENERATED_BODY()
 };
 UENUM(BlueprintType, Meta = (Bitflags))
-enum EInteractionType {
+enum class EInteractionType : uint8 {
 	No_Interaction UMETA(DisplayName = "None"),
 	Move_Here UMETA(DisplayName = "Walk Here"),
 	Examine UMETA(DisplayName = "Examine"),
@@ -33,14 +34,25 @@ class QUINT_API IInteractable {
 	GENERATED_BODY()
 protected:
 	//Get the rewards from a loot table. Should be called internally only
-	TArray<class UItem*> GetLootRewards(TArray<struct FLootStruct>LootTable);
+	TArray<UItem*> GetLootRewards(TArray<FLootStruct>LootTable);
 public:
-	virtual bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr){return (GetAvaliableTasks() & Task) == Task;}
+	UFUNCTION(BlueprintNativeEvent)
+	bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr);
+	virtual bool IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, class AAvatar* Player = nullptr);
 	//TODO: Prob use something other than the avatar class here
-	virtual UObject* UseThis(UObject* With, UObject* Source = nullptr) {return nullptr;}
+	//bool IInteractable::IsValidTask(EInteractionType Task, AAvatar* Player)
+	UFUNCTION(BlueprintNativeEvent)
+	UObject* UseThis(UObject* With, UObject* Source = nullptr);
+	virtual UObject* UseThis_Implementation(UObject* With, UObject* Source = nullptr) { return nullptr; }
 	//Returns bitmask
-	virtual int32 GetAvaliableTasks() { return No_Interaction; }
+	UFUNCTION(BlueprintNativeEvent)
+	uint8 GetAvaliableTasks();
+	virtual uint8 GetAvaliableTasks_Implementation() { return (uint8)EInteractionType::No_Interaction; }
 
-	virtual EInteractionType GetDefaultTask() { return No_Interaction; }
-	virtual float GetSize(){return 32.f;}
+	UFUNCTION(BlueprintNativeEvent)
+	EInteractionType GetDefaultTask();
+	virtual EInteractionType GetDefaultTask_Implementation() { return EInteractionType::No_Interaction; }
+	UFUNCTION(BlueprintNativeEvent)
+	float GetSize();
+	virtual float GetSize_Implementation();
 };

@@ -15,7 +15,7 @@ class QUINT_API AAvatar : public ACharacter, public IInteractable {
 
 protected:
 	AActor* GoalActor = nullptr;
-	EInteractionType GoalAction = No_Interaction;
+	EInteractionType GoalAction = EInteractionType::No_Interaction;
 	const FVector INVALID_LOCATION = FVector(-1000);
 	FVector GoalLocation = INVALID_LOCATION;
 
@@ -89,8 +89,8 @@ public:
 	//GETS
 	UFUNCTION(BlueprintCallable)
 	int GetHighestToolLevelOfType(EHarvestType Type);
-	virtual int32 GetAvaliableTasks() override{ return Follow | Trade | Examine | Attack; }
-	virtual EInteractionType GetDefaultTask() override{ return Attack; }
+	virtual uint8 GetAvaliableTasks_Implementation() override{ return (uint8)EInteractionType::Follow | (uint8)EInteractionType::Trade | (uint8)EInteractionType::Examine | (uint8)EInteractionType::Attack; }
+	virtual EInteractionType GetDefaultTask_Implementation() override{ return EInteractionType::Attack; }
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealth(){ return Health; }

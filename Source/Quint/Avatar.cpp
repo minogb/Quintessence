@@ -69,7 +69,7 @@ void AAvatar::Tick(float DeltaTime){
 		else{
 			//Am I not at goal and doing a task?
 			if(IsDoingTask){
-				//stop doing task out of range
+				//stop doing task 
 				InteruptTask();
 			}
 			//If I am not at goal move to goal
@@ -130,10 +130,14 @@ void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action){
 }
 
 float AAvatar::GetGoalDistance(){
-	IInteractable* goal = Cast<IInteractable>(GoalActor);
-	float bonusDistance = IsValid((UObject*)goal) ? goal->GetSize() : 0;
+
+	float bonusDistance = 0;
+	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+
+		bonusDistance=  IInteractable::Execute_GetSize(GoalActor);
+	}
 	switch(GoalAction){
-	case Attack:
+	case EInteractionType::Attack:
 		//Calculate based on weapon
 		return bonusDistance + 80.f;
 	default:
@@ -188,7 +192,7 @@ void AAvatar::Stop(){
 		return;
 	InteruptTask();
 	GoalActor = nullptr;
-	GoalAction = No_Interaction;
+	GoalAction = EInteractionType::No_Interaction;
 	GoalLocation = INVALID_LOCATION;
 }
 
@@ -205,11 +209,11 @@ void AAvatar::InteruptTask(){
 
 float AAvatar::GetCurrentTaskDuration(){
 	switch(GoalAction){
-	case Attack:
+	case EInteractionType::Attack:
 		//Calculate based on weapon
 		return .5;
 		break;
-	case Harvest:
+	case EInteractionType::Harvest:
 		//Calculate base on node
 		return 1.f;
 	default:
@@ -220,10 +224,10 @@ float AAvatar::GetCurrentTaskDuration(){
 
 float AAvatar::GetCurrentTaskCoolDownDuration(){
 	switch(GoalAction){
-	case Attack:
+	case EInteractionType::Attack:
 		//Calculate based on weapon
 		return 1.f;
-	case Harvest:
+	case EInteractionType::Harvest:
 		return .4;
 	default:
 		return 0.5;
@@ -252,7 +256,9 @@ void AAvatar::TaskCompleted(){
 		GetWorldTimerManager().SetTimer(TaskCoolDownTimer,this, &AAvatar::EndTaskCooldown,GetCurrentTaskCoolDownDuration(),false);
 	
 	switch(GoalAction){
-	case Attack:
+	case EInteractionType::Attack:
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("v"));
 		//Attack
 		if(ValidGoal()){
 			FDamageEvent dmgEvent = FDamageEvent();
@@ -264,19 +270,29 @@ void AAvatar::TaskCompleted(){
 			Stop();
 		}
 		break;
-	case Follow:
+	case EInteractionType::Follow:
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vv"));
 		break;
-	case Pick_Up:
+	case EInteractionType::Pick_Up:
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvv"));
 		PickUpTask();
 		Stop();
 		break;
-	case Harvest:
+	case EInteractionType::Harvest:
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvvv"));
 		HarvestTask();
 		break;
 	default:
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvvvv"));
 		Stop();
 		break;
 	}
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvvvvv"));
 	if(GEngine)
       GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Task Completed")); 
 }
@@ -323,7 +339,7 @@ void AAvatar::EndOfCombat(){
 }
 
 bool AAvatar::IsTaskCombatTask(){
-	return GoalAction == Attack;
+	return GoalAction == EInteractionType::Attack;
 }
 
 bool AAvatar::ValidTask(){
@@ -331,8 +347,11 @@ bool AAvatar::ValidTask(){
 }
 
 bool AAvatar::CanDoCurrentTask(){
-	IInteractable* task =  Cast<IInteractable>(GoalActor);
-	return IsValid((UObject*)task) ? task->IsValidTask(GoalAction,this) : true;
+	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+
+		return IInteractable::Execute_IsValidTask(GoalActor,GoalAction,this);
+	}
+	return !IsValid(GoalActor);
 }
 
 int AAvatar::GetHighestToolLevelOfType(EHarvestType Type)

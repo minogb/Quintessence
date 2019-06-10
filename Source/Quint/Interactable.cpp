@@ -2,6 +2,7 @@
 
 #include "Interactable.h"
 #include "Item.h"
+#include "Avatar.h"
 TArray<UItem*> IInteractable::GetLootRewards(TArray<FLootStruct>LootTable){
 	TArray<UItem*> Rewards;
 	for(int i = 0; i <LootTable.Num(); i++){
@@ -13,4 +14,12 @@ TArray<UItem*> IInteractable::GetLootRewards(TArray<FLootStruct>LootTable){
 		}
 	}
 	return Rewards;
+}
+
+float IInteractable::GetSize_Implementation()
+{
+	return 32.f;
+}
+bool IInteractable::IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, AAvatar* Player) {
+	return (GetAvaliableTasks_Implementation() & (uint8)Task.GetValue()) == (uint8)Task.GetValue();
 }

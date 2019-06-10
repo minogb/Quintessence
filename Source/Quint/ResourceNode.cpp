@@ -116,18 +116,19 @@ void AResourceNode::Tick(float DeltaTime){
 }
 
 
-float AResourceNode::GetSize()
+float AResourceNode::GetSize_Implementation()
 {
 	return BoxComponent->GetScaledBoxExtent().X;
 }
 
-bool AResourceNode::IsValidTask(EInteractionType Task, AAvatar * Player){
+bool AResourceNode::IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, AAvatar * Player){
 	if (!IsValid(Player)) {
 		return false;
 	}
 	if (!CanPlayerHarvest(Player))
 		return false;
-	if((GetAvaliableTasks() & Task) == Task){
+
+	if(IInteractable::IsValidTask_Implementation(Task,Player)){
 		for(int i = 0; i < Harvesters.Num(); i++){
 			//has player already harvested?
 			if(Harvesters.IsValidIndex(i) && Harvesters[i].Player == Player)

@@ -28,7 +28,7 @@ public:
 	virtual void CombineWith(class UItem*& item);
 	UFUNCTION(BlueprintCallable)
 	void InitItem(class UItem* item);
-	virtual int32 GetAvaliableTasks() override{ return Pick_Up | Examine; }
-	virtual EInteractionType GetDefaultTask() override{ return Pick_Up; }
+	virtual uint8 GetAvaliableTasks_Implementation() override{ return (uint8)EInteractionType::Pick_Up | (uint8)EInteractionType::Examine; }
+	virtual EInteractionType GetDefaultTask_Implementation() override{ return EInteractionType::Pick_Up; }
 	
 };

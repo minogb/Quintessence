@@ -145,9 +145,10 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 		AActor* hitActor = Hit.GetActor();
 		if(IsValid(PlayerAvatar) && IsValid(hitActor) && hitActor != PlayerAvatar){
 			//TODO: UPDATE INTERFACE CALL TO WORK WITH BLUEPRINT SEE GET HIGHEST TOOL LEVEL/TOOL INTERFACE
-			IInteractable* goal = Cast<IInteractable>(hitActor);
-			if(goal){
-				Server_SetGoalAndAction(hitActor,goal->GetDefaultTask());
+			
+			if (IsValid(hitActor) && hitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+
+				Server_SetGoalAndAction(hitActor,(EInteractionType)IInteractable::Execute_GetDefaultTask(hitActor));
 				GotGoal = true;
 			}
 		}

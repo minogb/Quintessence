@@ -72,10 +72,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual bool CanPlayerHarvest(class AAvatar* Player);
-	virtual int32 GetAvaliableTasks() override{ return Harvest | Examine; }
-	virtual EInteractionType GetDefaultTask() override{ return Harvest; }
-	virtual float GetSize() override;
+	virtual uint8 GetAvaliableTasks_Implementation() override{ return (uint8)EInteractionType::Harvest | (uint8)EInteractionType::Examine; }
+	virtual EInteractionType GetDefaultTask_Implementation() override{ return EInteractionType::Harvest; }
+	virtual float GetSize_Implementation() override;
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 	TArray<FPlayerHarvestedStruct> GetHarvesters(){return Harvesters;}
-	virtual bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr);
+	virtual bool IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, class AAvatar* Player = nullptr);
 };
