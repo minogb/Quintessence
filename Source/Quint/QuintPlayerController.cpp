@@ -11,6 +11,7 @@
 #include "Item.h"
 #include "Equipment.h"
 #include "Tool.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/ActorChannel.h"
 void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -144,10 +145,7 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 	if(GetHitResultUnderCursor(ECC_Interactable, false, Hit)){
 		AActor* hitActor = Hit.GetActor();
 		if(IsValid(PlayerAvatar) && IsValid(hitActor) && hitActor != PlayerAvatar){
-			//TODO: UPDATE INTERFACE CALL TO WORK WITH BLUEPRINT SEE GET HIGHEST TOOL LEVEL/TOOL INTERFACE
-			
 			if (IsValid(hitActor) && hitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-
 				Server_SetGoalAndAction(hitActor,(EInteractionType)IInteractable::Execute_GetDefaultTask(hitActor));
 				GotGoal = true;
 			}
@@ -156,6 +154,10 @@ void AQuintPlayerController::SetDestinationOrGoal(){
 	if (!GotGoal && GetHitResultUnderCursor(ECC_Floor, false, Hit)){
 		float const Distance = FVector::Dist(Hit.Location, GetPawn()->GetActorLocation());
 		Server_SetDestination(Hit.ImpactPoint);
+		GotGoal = true;
+	}
+	if (GotGoal) {
+		DisplayUI(NULL);
 	}
 }
 
@@ -176,6 +178,25 @@ bool AQuintPlayerController::DropItem_Validate(int Slot){
 	return true;
 }
 
+void AQuintPlayerController::DisplayUI_Implementation(TSubclassOf<UUserWidget> WidgetClass){
+
+	if (IsValid(ActiveWidget)) {
+		UUserWidget::Dismi
+		ActiveWidget->RemoveFromParent();
+		ActiveWidget = NULL;
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Removed"));
+	}
+	if(IsValid(WidgetClass))
+		ActiveWidget = CreateWidget<UUserWidget>(this, WidgetClass);
+	if (IsValid(ActiveWidget)) {
+		ActiveWidget->AddToViewport();
+	}
+}
+
+void AQuintPlayerController::Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass){
+	DisplayUI(WidgetClass);
+}
 void AQuintPlayerController::DropItem(UItem * Item){
 	int index = GetIndexOfItem(Item);
 	if(index > -1)

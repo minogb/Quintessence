@@ -49,15 +49,17 @@ class QUINT_API AResourceNode : public AActor, public IInteractable
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	EHarvestType HarvestType;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	int HarvestLevel;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	TArray<FResourceReward>Rewards;
 	/** The CapsuleComponent being used for movement collision (by CharacterMovement). Always treated as being vertically aligned in simple collision check functions. */
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	class UBoxComponent* BoxComponent;
 	UPROPERTY(Replicated)
 	TArray<FPlayerHarvestedStruct>Harvesters;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	TArray<FResourceReward>Rewards;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void RemovePlayersFromHarvesters();
@@ -77,5 +79,5 @@ public:
 	virtual float GetSize_Implementation() override;
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 	TArray<FPlayerHarvestedStruct> GetHarvesters(){return Harvesters;}
-	virtual bool IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, class AAvatar* Player = nullptr);
+	virtual bool IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, class AAvatar* Player = nullptr) override;
 };

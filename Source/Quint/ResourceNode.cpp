@@ -23,11 +23,6 @@ AResourceNode::AResourceNode(){
 		BoxComponent->bHiddenInGame = false;
 	}
 	bNetLoadOnClient = false;
-	//TODO: remove this
-	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,50));
-	Rewards.Add(FResourceReward(UItem::StaticClass(),1,1,100));
-	HarvestLevel = 1;
-	HarvestType = EHarvestType::HT_MINING;
 }
 void AResourceNode::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	DOREPLIFETIME(AResourceNode, Harvesters);

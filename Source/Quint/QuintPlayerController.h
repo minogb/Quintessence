@@ -23,16 +23,23 @@ protected:
 	FEquipmentStruct Equipment;
 	UPROPERTY(Replicated)
 	class AAvatar* PlayerAvatar;
+	UUserWidget* ActiveWidget;
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	bool IsValidLocation(FVector location);
+
 	//Player input needs to be passed to server
 	void SetDestinationOrGoal();
-	bool IsValidLocation(FVector location);
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_SetDestination(FVector Location);
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_SetGoalAndAction(AActor* Goal, EInteractionType Action);
+
 	int GetIndexOfItem(UItem* Item);
+
+	void DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass);
+
+	void Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass);
 public:
 	AQuintPlayerController();
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
@@ -54,6 +61,11 @@ public:
 
 	void UnEquipItem(UItem* Item);
 
+	UFUNCTION(Client, Unreliable, BlueprintCallable)
+	void Client_DisplayUI(TSubclassOf<class UUserWidget> WidgetClass);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void DisplayUI(TSubclassOf<class UUserWidget> WidgetClass);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void DropItem(int Slot);

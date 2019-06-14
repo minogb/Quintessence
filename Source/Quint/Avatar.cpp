@@ -256,43 +256,33 @@ void AAvatar::TaskCompleted(){
 		GetWorldTimerManager().SetTimer(TaskCoolDownTimer,this, &AAvatar::EndTaskCooldown,GetCurrentTaskCoolDownDuration(),false);
 	
 	switch(GoalAction){
+	case EInteractionType::Use:
+		UseTask();
+		Stop();
+		break;
 	case EInteractionType::Attack:
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("v"));
 		//Attack
 		if(ValidGoal()){
 			FDamageEvent dmgEvent = FDamageEvent();
 			GoalActor->TakeDamage(5.f,dmgEvent,GetController(),this);
-			if(GEngine)
-			  GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Damage Delt")); 
 		}
 		else{
 			Stop();
 		}
 		break;
 	case EInteractionType::Follow:
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vv"));
 		break;
 	case EInteractionType::Pick_Up:
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvv"));
 		PickUpTask();
 		Stop();
 		break;
 	case EInteractionType::Harvest:
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvvv"));
 		HarvestTask();
 		break;
 	default:
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvvvv"));
 		Stop();
 		break;
 	}
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("vvvvvv"));
 	if(GEngine)
       GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Task Completed")); 
 }
@@ -323,6 +313,21 @@ void AAvatar::HarvestTask(){
 	AResourceNode* node = Cast<AResourceNode>(GoalActor);
 	if(IsValid(node)){
 		node->HarvestThis(this);
+	}
+}
+
+void AAvatar::UseTask(){
+	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+		if (IInteractable::Execute_UseThis(GoalActor, NULL, this)) {
+			//TODO: Nothing happend
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Something Happend"));
+		}
+		else {
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Nothing Happend"));
+
+		}
 	}
 }
 

@@ -42,8 +42,8 @@ public:
 	//TODO: Prob use something other than the avatar class here
 	//bool IInteractable::IsValidTask(EInteractionType Task, AAvatar* Player)
 	UFUNCTION(BlueprintNativeEvent)
-	UObject* UseThis(UObject* With, UObject* Source = nullptr);
-	virtual UObject* UseThis_Implementation(UObject* With, UObject* Source = nullptr) { return nullptr; }
+	bool UseThis(UObject* With, UObject* Source = nullptr);
+	virtual bool UseThis_Implementation(UObject* With, UObject* Source = nullptr) { return false; }
 	//Returns bitmask
 	UFUNCTION(BlueprintNativeEvent)
 	uint8 GetAvaliableTasks();

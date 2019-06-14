@@ -16,8 +16,7 @@ TArray<UItem*> IInteractable::GetLootRewards(TArray<FLootStruct>LootTable){
 	return Rewards;
 }
 
-float IInteractable::GetSize_Implementation()
-{
+float IInteractable::GetSize_Implementation(){
 	return 32.f;
 }
 bool IInteractable::IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, AAvatar* Player) {

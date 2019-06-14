@@ -60,6 +60,7 @@ protected:
 	void EndTaskCooldown();
 	void PickUpTask();
 	void HarvestTask();
+	void UseTask();
 	//Replication
 	UFUNCTION(NetMulticast,Unreliable)
 	void ReplicateDamageRecived(int Amount);
