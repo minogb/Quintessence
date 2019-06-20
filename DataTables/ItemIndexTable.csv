@@ -1,0 +1,10 @@
+---,ItemName,ItemClass,ImageTexture
+1,Cast Iron',BlueprintGeneratedClass'/Game/Recources/Materials/Iron/CastIron.CastIron_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+2,Iron Ore',BlueprintGeneratedClass'/Game/Recources/Materials/Iron/IronOre.IronOre_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+3,Iron Ore Proper',BlueprintGeneratedClass'/Game/Recources/Materials/Iron/IronOreProper.IronOreProper_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+4,Oak Log',BlueprintGeneratedClass'/Game/Recources/Materials/Lumber/OakLog.OakLog_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+5,Oak Pickaxe Head',BlueprintGeneratedClass'/Game/Equipment/Components/PickaxeHead/OakPickaxeHead.OakPickaxeHead_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+6,Oak Timber',BlueprintGeneratedClass'/Game/Recources/Materials/Lumber/OakTimber.OakTimber_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+7,Pig Iron',BlueprintGeneratedClass'/Game/Recources/Materials/Iron/PigIron.PigIron_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+8,Steel',BlueprintGeneratedClass'/Game/Recources/Materials/Iron/Steel.Steel_C',Texture2D'/Game/UserInterface/Icons/axe.axe'
+9,Wrought Iron',BlueprintGeneratedClass'/Game/Recources/Materials/Iron/WroughtIron.WroughtIron_C',Texture2D'/Game/UserInterface/Icons/axe.axe'

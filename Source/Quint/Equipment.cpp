@@ -9,7 +9,7 @@ UEquipment::UEquipment() {
 	ConstructorHelpers::FObjectFinder<UTexture2D> TextureFinder(TEXT("/Game/UserInterface/Icons/axe.axe"));
 	if (TextureFinder.Succeeded())
 		ImageTexture = TextureFinder.Object;
-	ItemTypeId = 2;
+	IndexId = 2;
 	MaxStackSize = 1;
 }
 

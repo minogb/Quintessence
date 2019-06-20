@@ -18,7 +18,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<class UUserWidget> WidgetClass;
 public:	
-	/** The CapsuleComponent being used for movement collision (by CharacterMovement). Always treated as being vertically aligned in simple collision check functions. */
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* BoxComponent;
 	// Called every frame

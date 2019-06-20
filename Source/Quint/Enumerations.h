@@ -33,7 +33,8 @@ enum class ECraftingToolType : uint8 {
 };
 UENUM(BlueprintType, Meta = (Bitflags))
 enum class ECraftingStationType : uint8 {
-	CST_NONE UMETA(DisplayName = "None")
+	CST_NONE UMETA(DisplayName = "None"),
+	CST_SMELTING UMETA(DisplayName = "Smeltery")
 };
 
 USTRUCT(BlueprintType)
@@ -45,6 +46,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Count = 1;
 };
+
 USTRUCT(BlueprintType)
 struct FCraftingStruct : public FTableRowBase {
 	GENERATED_BODY()

@@ -1,3 +1,4 @@
+#include "QuintGameMode.h"
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "QuintGameMode.h"
@@ -8,11 +9,26 @@
 #include "PlayerVessel.h"
 #include "Engine/GameEngine.h"
 #include "QuintPlayerController.h"
+#include "ConstructorHelpers.h"
 AQuintGameMode::AQuintGameMode(){
 
 	//PlayerControllerClass = AWorldController::StaticClass();
 	DefaultPawnClass = APlayerVessel::StaticClass();
 	PlayerControllerClass  = AQuintPlayerController::StaticClass();
+	static ConstructorHelpers::FObjectFinder<UDataTable> Recepies(TEXT("/Game/Crafting/CraftingRecipies.CraftingRecipies"));
+	if (Recepies.Succeeded()){
+		RecipeTable = Recepies.Object;
+	}
+}
+
+bool AQuintGameMode::GetOutputofRecipe(FName Row, FCraftingStruct & Output){
+	static const FString ContextString(TEXT("Recipe"));
+	FCraftingStruct* OutputRow = RecipeTable->FindRow<FCraftingStruct>(Row, ContextString);
+	if (OutputRow) {
+		Output = *OutputRow;
+		return true;
+	}
+	return false;
 }
 
 void AQuintGameMode::PostLogin(APlayerController * NewPlayer){

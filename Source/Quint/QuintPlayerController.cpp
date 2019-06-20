@@ -13,6 +13,7 @@
 #include "Tool.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/ActorChannel.h"
+#include "QuintGameMode.h"
 void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AQuintPlayerController, PlayerAvatar);
@@ -135,6 +136,11 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item){
 			break;
 	}
 }
+void AQuintPlayerController::AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity){
+	UItem* item = NewObject<UItem>(this,ItemClass);
+	item->SetStackSize(Quantity);
+	AddItemToInventory(item);
+}
 void AQuintPlayerController::BeginPlay(){
 	Super::BeginPlay();
 }
@@ -181,7 +187,6 @@ bool AQuintPlayerController::DropItem_Validate(int Slot){
 void AQuintPlayerController::DisplayUI_Implementation(TSubclassOf<UUserWidget> WidgetClass){
 
 	if (IsValid(ActiveWidget)) {
-		UUserWidget::Dismi
 		ActiveWidget->RemoveFromParent();
 		ActiveWidget = NULL;
 		if (GEngine)
@@ -196,6 +201,80 @@ void AQuintPlayerController::DisplayUI_Implementation(TSubclassOf<UUserWidget> W
 
 void AQuintPlayerController::Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass){
 	DisplayUI(WidgetClass);
+}
+bool AQuintPlayerController::CanCraftRecipe(TArray<FItemCraftingStruct> Recipe) {
+	for (FItemCraftingStruct &current : Recipe) {
+		if (!HasItem(current.Item, current.Count))
+			return false;
+	}
+	return true;
+}
+bool AQuintPlayerController::HasItem(TSubclassOf<UItem> Item, int Quantity){
+	for (UItem*current : Inventory) {
+		if (IsValid(current) && current->IsA(Item)) {
+			Quantity -= current->GetStackSize();
+		}
+		if (Quantity <= 0)
+			return true;
+	}
+	return false;
+}
+bool AQuintPlayerController::ConsumeItem(TSubclassOf<UItem> Item, int Quantity, bool FullConsumption) {
+	TArray<int> Indexs;
+	int currentQuantity = Quantity;
+	for (int i = 0; i < Inventory.Num(); i++) {
+		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i]) && Inventory[i]->IsA(Item)) {
+			Indexs.Add(i);
+			currentQuantity -= Inventory[i]->GetStackSize();
+			if (currentQuantity <= 0)
+				break;
+		}
+	}
+	if (FullConsumption && currentQuantity > 0)
+		return false;
+	currentQuantity = Quantity;
+	for (int current : Indexs) {
+		if (Quantity - Inventory[current]->GetStackSize() >= 0) {
+			Quantity -= Inventory[current]->GetStackSize();
+			Inventory[current] = NULL;
+		}
+		else {
+			Quantity -= Inventory[current]->GetStackSize();
+			Inventory[current]->SetStackSize(Quantity*-1);
+			return true;
+		}
+	}
+	return false;
+
+}
+void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTableRowName){
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, RecipeTableRowName.ToString());
+	//TODO  check if by a crafting area 
+	//TODO check if has room for output
+	//TODO check if has requried tool
+	AQuintGameMode* gm = Cast<AQuintGameMode>(GetWorld()->GetAuthGameMode());
+	if (IsValid(gm)) {
+		FCraftingStruct recipe;
+		if (gm->GetOutputofRecipe(RecipeTableRowName, recipe)) {
+			if (CanCraftRecipe(recipe.Input)) {
+				for (FItemCraftingStruct &current : recipe.Input) {
+					ConsumeItem(current.Item, current.Count, true);
+					if (GEngine)
+						GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Consumed"));
+				}
+				AddItemToInventory(recipe.Output.Item, recipe.Output.Count);
+				if (GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Added"));
+			}
+			else {
+
+				if (GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Cannot Craft"));
+			}
+		}
+		
+	}
 }
 void AQuintPlayerController::DropItem(UItem * Item){
 	int index = GetIndexOfItem(Item);
@@ -218,8 +297,6 @@ int AQuintPlayerController::GetHighestToolLevelOfType(EHarvestType Type){
 				if (highest < level) {
 					highest = level;
 				}
-
-				
 			}
 		}
 	}

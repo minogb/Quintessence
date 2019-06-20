@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Enumerations.h"
 #include "QuintGameMode.generated.h"
 
 /**
@@ -17,6 +18,8 @@ public:
 	AQuintGameMode();
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AAvatar> PlayerAvatarClass;
+	class UDataTable* RecipeTable;
+	bool GetOutputofRecipe(FName Row, FCraftingStruct& Output);
 protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

@@ -40,6 +40,16 @@ protected:
 	void DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass);
 
 	void Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass);
+	UFUNCTION(BlueprintCallable)
+	bool CanCraftRecipe(TArray<FItemCraftingStruct> Recipe);
+	UFUNCTION(BlueprintCallable)
+	bool HasItem(TSubclassOf<UItem> Item, int Quantity = 1);
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void Server_CraftRecipe(FName RecipeTableRowName);
+	void Server_CraftRecipe_Implementation(FName RecipeTableRowName);
+	bool Server_CraftRecipe_Validate(FName RecipeTableRowName) { return true; };
+
+	bool ConsumeItem(TSubclassOf<UItem> Item, int Quantity = 1, bool FullConsumption = true);
 public:
 	AQuintPlayerController();
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
@@ -82,6 +92,7 @@ public:
 	UEquipment* GetEquipment(EEquipmentSlot EquipmentType);
 	void AddItemToInventory(class AItem_World* ItemWorld);
 	void AddItemToInventory(class UItem*& Item);
+	void AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity);
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 	int GetInventorySize(){return InventorySizeMax;}
 	UFUNCTION(BlueprintCallable,BlueprintPure)
