@@ -127,13 +127,17 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item){
 		if(IsValid(Inventory[i])){
 			Inventory[i]->Combine(Item);		
 		}
-		else{
-			Inventory[i] = Item;
-			Item = nullptr;
-		}
 		//all items added to inventory
 		if(!IsValid(Item))
 			break;
+	}
+
+	for (int i = 0; IsValid(Item) && Item->GetStackSize() > 0 && i < InventorySizeMax; i++) {
+		if (!IsValid(Inventory[i])) {
+			Inventory[i] = Item;
+			Item = nullptr;
+			break;
+		}
 	}
 }
 void AQuintPlayerController::AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity){

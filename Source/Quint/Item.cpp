@@ -7,7 +7,7 @@
 #include "Engine/GameEngine.h"
 
 void UItem::Combine(UItem*& that){
-	if(that && this->IsA(that->GetClass()))
+	if(that && !this->IsA(that->GetClass()))
 		return;
 	int Amount = FMath::Clamp(StackSize+that->StackSize,0,MaxStackSize);
 	that->StackSize -= Amount - StackSize;
