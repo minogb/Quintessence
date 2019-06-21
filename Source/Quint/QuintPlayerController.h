@@ -41,7 +41,7 @@ protected:
 
 	void Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass);
 	UFUNCTION(BlueprintCallable)
-	bool CanCraftRecipe(TArray<FItemCraftingStruct> Recipe);
+	bool CanCraftRecipe(FCraftingStruct Recipe);
 	UFUNCTION(BlueprintCallable)
 	bool HasItem(TSubclassOf<UItem> Item, int Quantity = 1);
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
@@ -57,6 +57,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DoItemAction(UItem* Item, EItemAction Action);
+
+	bool HasRoom(UItem* Item);
+	bool HasRoom(TSubclassOf<UItem> Item, int Quantity);
 
 	UFUNCTION(Server, Reliable, WithValidation,BlueprintCallable)
 	void EquipItem(int Slot);

@@ -206,12 +206,12 @@ void AQuintPlayerController::DisplayUI_Implementation(TSubclassOf<UUserWidget> W
 void AQuintPlayerController::Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass){
 	DisplayUI(WidgetClass);
 }
-bool AQuintPlayerController::CanCraftRecipe(TArray<FItemCraftingStruct> Recipe) {
-	for (FItemCraftingStruct &current : Recipe) {
+bool AQuintPlayerController::CanCraftRecipe(FCraftingStruct Recipe) {
+	for (FItemCraftingStruct &current : Recipe.Input) {
 		if (!HasItem(current.Item, current.Count))
 			return false;
 	}
-	return true;
+	return HasRoom(Recipe.Output.Item,Recipe.Output.Count);
 }
 bool AQuintPlayerController::HasItem(TSubclassOf<UItem> Item, int Quantity){
 	for (UItem*current : Inventory) {
@@ -251,6 +251,21 @@ bool AQuintPlayerController::ConsumeItem(TSubclassOf<UItem> Item, int Quantity, 
 	return false;
 
 }
+bool AQuintPlayerController::HasRoom(UItem * Item){
+	return IsValid(Item) && HasRoom(Item->GetClass(),Item->GetStackSize());
+}
+bool AQuintPlayerController::HasRoom(TSubclassOf<UItem> Item, int Quantity){
+	for (UItem* current : Inventory) {
+		if (!IsValid(current))
+			return true;
+		else if(current->IsA(Item)){
+			Quantity -= current->GetStackSize() - current->GetMaxStackSize();
+			if (Quantity <= 0)
+				return true;
+		}
+	}
+	return false;
+}
 void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTableRowName){
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, RecipeTableRowName.ToString());
@@ -261,7 +276,7 @@ void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTable
 	if (IsValid(gm)) {
 		FCraftingStruct recipe;
 		if (gm->GetOutputofRecipe(RecipeTableRowName, recipe)) {
-			if (CanCraftRecipe(recipe.Input)) {
+			if (CanCraftRecipe(recipe)) {
 				for (FItemCraftingStruct &current : recipe.Input) {
 					ConsumeItem(current.Item, current.Count, true);
 					if (GEngine)
