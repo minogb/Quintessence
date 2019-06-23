@@ -6,6 +6,8 @@
 #include "QuintPlayerController.h"
 #include "Avatar.h"
 #include "Blueprint/UserWidget.h"
+#include "CraftingInfo.h"
+#include "Engine/GameEngine.h"
 // Sets default values
 ACraftingStation::ACraftingStation(){
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -27,6 +29,7 @@ ACraftingStation::ACraftingStation(){
 }
 
 bool ACraftingStation::UseThis_Implementation(UObject * With, UObject * Source){
+	UCraftingInfo* cInfo = Cast<UCraftingInfo>(With);
 	AAvatar* PlayerAvatar = Cast<AAvatar>(Source);
 	AQuintPlayerController* Player = NULL;
 	if (IsValid(PlayerAvatar)) {
@@ -34,7 +37,18 @@ bool ACraftingStation::UseThis_Implementation(UObject * With, UObject * Source){
 		Player = PlayerAvatar->GetQuintController();
 	}
 	if (IsValid(Player)) {
-		Player->Client_DisplayUI(WidgetClass);
+		if (IsValid(cInfo)) {
+			//TODO validate recipe
+			if (cInfo->GetCraftingAmount() > 0 && Player->CraftRecipe(cInfo->GetCraftingRecipe())) {
+				cInfo->DecrimentCraftingAmount();
+				return cInfo->GetCraftingAmount() > 0 && Player->CraftRecipe(cInfo->GetCraftingRecipe());
+			}
+			else
+				return false;
+		}
+		else {
+			Player->Client_DisplayUI(WidgetClass, this);
+		}
 		return true;
 	}
 	return false;

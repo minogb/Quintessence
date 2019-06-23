@@ -23,6 +23,7 @@ protected:
 	FEquipmentStruct Equipment;
 	UPROPERTY(Replicated)
 	class AAvatar* PlayerAvatar;
+	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* ActiveWidget;
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -33,13 +34,13 @@ protected:
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_SetDestination(FVector Location);
 	UFUNCTION(Server, Unreliable, WithValidation)
-	void Server_SetGoalAndAction(AActor* Goal, EInteractionType Action);
+	void Server_SetGoalAndAction(AActor* Goal, EInteractionType Action, UObject* UseThis = nullptr);
 
 	int GetIndexOfItem(UItem* Item);
 
-	void DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass);
+	void DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 
-	void Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass);
+	void Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 	UFUNCTION(BlueprintCallable)
 	bool CanCraftRecipe(FCraftingStruct Recipe);
 	UFUNCTION(BlueprintCallable)
@@ -49,9 +50,14 @@ protected:
 	void Server_CraftRecipe_Implementation(FName RecipeTableRowName);
 	bool Server_CraftRecipe_Validate(FName RecipeTableRowName) { return true; };
 
+
 	bool ConsumeItem(TSubclassOf<UItem> Item, int Quantity = 1, bool FullConsumption = true);
 public:
 	AQuintPlayerController();
+
+	UFUNCTION(BlueprintCallable)
+	bool CraftRecipe(FCraftingStruct Recipe);
+
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 	bool SetPlayerAvatar(class AAvatar* avatar);
 
@@ -71,14 +77,19 @@ public:
 	void UnEquipItem(EEquipmentSlot Slot);
 	void UnEquipItem_Implementation(EEquipmentSlot Slot);
 	bool UnEquipItem_Validate(EEquipmentSlot Slot);
-
 	void UnEquipItem(UItem* Item);
 
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void StartCraftingItem(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount);
+	void StartCraftingItem_Implementation(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount);
+	bool StartCraftingItem_Validate(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount) { return true; }
+
 	UFUNCTION(Client, Unreliable, BlueprintCallable)
-	void Client_DisplayUI(TSubclassOf<class UUserWidget> WidgetClass);
+	void Client_DisplayUI(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void DisplayUI(TSubclassOf<class UUserWidget> WidgetClass);
+	void DisplayUI(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void DropItem(int Slot);

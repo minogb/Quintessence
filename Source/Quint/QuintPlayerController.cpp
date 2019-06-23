@@ -14,6 +14,9 @@
 #include "Blueprint/UserWidget.h"
 #include "Engine/ActorChannel.h"
 #include "QuintGameMode.h"
+#include "CraftingInfo.h"
+#include "CraftingWidgetInterface.h"
+
 void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AQuintPlayerController, PlayerAvatar);
@@ -89,6 +92,11 @@ void AQuintPlayerController::UnEquipItem(UItem * Item){
 	if (IsValid(item))
 		UnEquipItem(item->GetSlot());
 }
+void AQuintPlayerController::StartCraftingItem_Implementation(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount){
+	UCraftingInfo* info = NewObject<UCraftingInfo>();
+	info->InitObject(Recipe, CraftingAmount);
+	Server_SetGoalAndAction(AtLocation, EInteractionType::Use, info);
+}//here
 int AQuintPlayerController::GetIndexOfItem(UItem * Item){
 	for (int index = 0; index < Inventory.Num(); index++) {
 		if (Inventory.IsValidIndex(index)) {
@@ -188,23 +196,24 @@ bool AQuintPlayerController::DropItem_Validate(int Slot){
 	return true;
 }
 
-void AQuintPlayerController::DisplayUI_Implementation(TSubclassOf<UUserWidget> WidgetClass){
+void AQuintPlayerController::DisplayUI_Implementation(TSubclassOf<UUserWidget> WidgetClass, AActor* WorldReference){
 
 	if (IsValid(ActiveWidget)) {
 		ActiveWidget->RemoveFromParent();
 		ActiveWidget = NULL;
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Removed"));
 	}
 	if(IsValid(WidgetClass))
 		ActiveWidget = CreateWidget<UUserWidget>(this, WidgetClass);
 	if (IsValid(ActiveWidget)) {
 		ActiveWidget->AddToViewport();
 	}
+	if (IsValid(ActiveWidget) && ActiveWidget->GetClass()->ImplementsInterface(UCraftingWidgetInterface::StaticClass())) {
+		ICraftingWidgetInterface::Execute_SetWorldReference(ActiveWidget, WorldReference); 
+	}
 }
 
-void AQuintPlayerController::Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass){
-	DisplayUI(WidgetClass);
+void AQuintPlayerController::Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference){
+	DisplayUI(WidgetClass, WorldReference);
 }
 bool AQuintPlayerController::CanCraftRecipe(FCraftingStruct Recipe) {
 	for (FItemCraftingStruct &current : Recipe.Input) {
@@ -267,8 +276,6 @@ bool AQuintPlayerController::HasRoom(TSubclassOf<UItem> Item, int Quantity){
 	return false;
 }
 void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTableRowName){
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, RecipeTableRowName.ToString());
 	//TODO  check if by a crafting area 
 	//TODO check if has room for output
 	//TODO check if has requried tool
@@ -279,21 +286,25 @@ void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTable
 			if (CanCraftRecipe(recipe)) {
 				for (FItemCraftingStruct &current : recipe.Input) {
 					ConsumeItem(current.Item, current.Count, true);
-					if (GEngine)
-						GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Consumed"));
 				}
 				AddItemToInventory(recipe.Output.Item, recipe.Output.Count);
-				if (GEngine)
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Added"));
 			}
 			else {
-
-				if (GEngine)
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Cannot Craft"));
 			}
 		}
 		
 	}
+}
+bool AQuintPlayerController::CraftRecipe(FCraftingStruct Recipe){
+	if (HasAuthority() && CanCraftRecipe(Recipe)) {
+		for (FItemCraftingStruct &current : Recipe.Input) {
+			ConsumeItem(current.Item, current.Count, true);
+		}
+		AddItemToInventory(Recipe.Output.Item, Recipe.Output.Count);
+		return true;
+	}
+	return false;
+
 }
 void AQuintPlayerController::DropItem(UItem * Item){
 	int index = GetIndexOfItem(Item);
@@ -309,8 +320,6 @@ int AQuintPlayerController::GetHighestToolLevelOfType(EHarvestType Type){
 		return highest;
 	for (int i = 0; i < Inventory.Num(); i++) {
 		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i])) {
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt(i));
 			if (Inventory[i]->GetClass()->ImplementsInterface(UTool::StaticClass())) {
 				int level = ITool::Execute_GetHarvestLevelOfType(Inventory[i], Type);
 				if (highest < level) {
@@ -355,17 +364,17 @@ void AQuintPlayerController::Server_SetDestination_Implementation  (FVector Loca
 		PlayerAvatar->SetLocationGoal(Location);
 	}
 }
-void AQuintPlayerController::Server_SetGoalAndAction_Implementation  (AActor * Goal, EInteractionType Action){
+void AQuintPlayerController::Server_SetGoalAndAction_Implementation (AActor * Goal, EInteractionType Action, UObject* UseThis){
 	
 	if(PlayerAvatar && HasAuthority() && Goal){
-		PlayerAvatar->SetGoalAndAction(Goal, Action);
+		PlayerAvatar->SetGoalAndAction(Goal, Action, UseThis);
 	}
 }
 
 bool AQuintPlayerController::Server_SetDestination_Validate (FVector Location){
 	return true;
 }
-bool AQuintPlayerController::Server_SetGoalAndAction_Validate (AActor * Goal, EInteractionType Action){
+bool AQuintPlayerController::Server_SetGoalAndAction_Validate (AActor * Goal, EInteractionType Action, UObject* UseThis){
 	return true;
 }
 

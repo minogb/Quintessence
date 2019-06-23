@@ -13,6 +13,7 @@
 #include  "QuintPlayerController.h"
 #include "ResourceNode.h"
 #include "Tool.h"
+#include "CraftingInfo.h"
 // Sets default values
 AAvatar::AAvatar(){
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -36,7 +37,6 @@ AAvatar::AAvatar(){
 // Called when the game starts or when spawned
 void AAvatar::BeginPlay(){
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -96,8 +96,7 @@ void AAvatar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){
 
 }
 
-float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
-{
+float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser){
 	if(!HasAuthority())
 		return 0.f;
 	SetIsInCombat(true);
@@ -121,12 +120,13 @@ void AAvatar::SetLocationGoal(FVector Location){
 	}
 }
 
-void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action){ 
+void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action, UObject* UsingThis){
 	if(!HasAuthority())
 		return;
 	Stop();
 	GoalActor = Goal;
 	GoalAction = Action;
+	UseObject = UsingThis;
 }
 
 float AAvatar::GetGoalDistance(){
@@ -194,6 +194,7 @@ void AAvatar::Stop(){
 	GoalActor = nullptr;
 	GoalAction = EInteractionType::No_Interaction;
 	GoalLocation = INVALID_LOCATION;
+	UseObject = nullptr;
 }
 
 void AAvatar::InteruptTask(){
@@ -216,12 +217,13 @@ float AAvatar::GetCurrentTaskDuration(){
 	case EInteractionType::Harvest:
 		//Calculate base on node
 		return 1.f;
+	case EInteractionType::Use:
+		return !Cast<UCraftingInfo>(UseObject) ? 0.1 : Cast<UCraftingInfo>(UseObject)->GetCraftTime();
 	default:
 		return 0.1;
 		break;
 	}
 }
-
 float AAvatar::GetCurrentTaskCoolDownDuration(){
 	switch(GoalAction){
 	case EInteractionType::Attack:
@@ -229,6 +231,8 @@ float AAvatar::GetCurrentTaskCoolDownDuration(){
 		return 1.f;
 	case EInteractionType::Harvest:
 		return .4;
+	case EInteractionType::Use:
+		return !Cast<UCraftingInfo>(UseObject) ? 0.1 : 0.5;
 	default:
 		return 0.5;
 	}
@@ -258,7 +262,8 @@ void AAvatar::TaskCompleted(){
 	switch(GoalAction){
 	case EInteractionType::Use:
 		UseTask();
-		Stop();
+		if (!Cast<UCraftingInfo>(UseObject) || Cast<UCraftingInfo>(UseObject)->GetCraftingAmount() <= 0)
+			Stop();
 		break;
 	case EInteractionType::Attack:
 		//Attack
@@ -283,8 +288,6 @@ void AAvatar::TaskCompleted(){
 		Stop();
 		break;
 	}
-	if(GEngine)
-      GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Task Completed")); 
 }
 
 void AAvatar::EndTaskCooldown(){
@@ -318,15 +321,12 @@ void AAvatar::HarvestTask(){
 
 void AAvatar::UseTask(){
 	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-		if (IInteractable::Execute_UseThis(GoalActor, NULL, this)) {
-			//TODO: Nothing happend
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Something Happend"));
+		
+		if (IInteractable::Execute_UseThis(GoalActor, UseObject, this)) {
+
 		}
 		else {
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Nothing Happend"));
-
+			Stop();
 		}
 	}
 }
@@ -370,6 +370,4 @@ int AAvatar::GetHighestToolLevelOfType(EHarvestType Type)
 }
 
 void AAvatar::ReplicateDamageRecived_Implementation(int Amount){
-	if(GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, *FString::FromInt(Amount)); 
 }

@@ -46,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Count = 1;
 };
-
+//TODO: Add ?XP reward info?, add Craft time?
 USTRUCT(BlueprintType)
 struct FCraftingStruct : public FTableRowBase {
 	GENERATED_BODY()

@@ -15,6 +15,7 @@ class QUINT_API AAvatar : public ACharacter, public IInteractable {
 
 protected:
 	AActor* GoalActor = nullptr;
+	UObject* UseObject = nullptr;
 	EInteractionType GoalAction = EInteractionType::No_Interaction;
 	const FVector INVALID_LOCATION = FVector(-1000);
 	FVector GoalLocation = INVALID_LOCATION;
@@ -73,7 +74,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void SetLocationGoal(FVector Location);
-	void SetGoalAndAction(AActor* Goal, EInteractionType Action);
+	void SetGoalAndAction(AActor* Goal, EInteractionType Action, UObject* UsingThis = nullptr);
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;

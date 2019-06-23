@@ -113,7 +113,7 @@ void AResourceNode::Tick(float DeltaTime){
 
 float AResourceNode::GetSize_Implementation()
 {
-	return BoxComponent->GetScaledBoxExtent().X;
+	return BoxComponent->GetScaledBoxExtent().X + 12.f;
 }
 
 bool AResourceNode::IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, AAvatar * Player){
