@@ -12,15 +12,28 @@
 ACraftingStation::ACraftingStation(){
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
-	if (BoxComponent) {
-		BoxComponent->InitBoxExtent(FVector(64.f));
-		SetRootComponent(BoxComponent);
-		BoxComponent->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-		BoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-		BoxComponent->SetVisibility(true);
-		BoxComponent->bHiddenInGame = false;
+	NavigationHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Navigation Hit Box"));
+	if (NavigationHitBox) {
+		NavigationHitBox->InitBoxExtent(FVector(WorldSize*.75, WorldSize*.75, WorldSize));
+		NavigationHitBox->SetCollisionResponseToAllChannels(ECR_Block);
+		NavigationHitBox->SetVisibility(true);
+		NavigationHitBox->bHiddenInGame = false;
+		NavigationHitBox->SetCanEverAffectNavigation(true);
+		SetRootComponent(NavigationHitBox);
+
 	}
+	ClickBox = CreateDefaultSubobject<UBoxComponent>(TEXT("ClickBox"));
+	if (ClickBox) {
+		ClickBox->InitBoxExtent(FVector(WorldSize*1.1));
+		ClickBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+		ClickBox->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+		ClickBox->SetVisibility(true);
+		ClickBox->bHiddenInGame = false;
+		ClickBox->SetCanEverAffectNavigation(false);
+		FAttachmentTransformRules rules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, true);
+		ClickBox->AttachToComponent(NavigationHitBox, rules);
+	}
+	bNetLoadOnClient = false;
 	bNetLoadOnClient = false;
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1;
@@ -55,7 +68,7 @@ bool ACraftingStation::UseThis_Implementation(UObject * With, UObject * Source){
 }
 
 float ACraftingStation::GetSize_Implementation(){
-	return BoxComponent->GetScaledBoxExtent().X;
+	return WorldSize;
 }
 EInteractionType ACraftingStation::GetDefaultTask_Implementation()
 {

@@ -17,9 +17,12 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<class UUserWidget> WidgetClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	int WorldSize = 64;
+	class UBoxComponent* NavigationHitBox;
+	class UBoxComponent* ClickBox;
 public:	
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* BoxComponent;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	// Sets default values for this actor's properties

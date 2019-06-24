@@ -14,6 +14,7 @@
 #include "ResourceNode.h"
 #include "Tool.h"
 #include "CraftingInfo.h"
+#include "Kismet/KismetMathLibrary.h"
 // Sets default values
 AAvatar::AAvatar(){
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -46,21 +47,17 @@ void AAvatar::Tick(float DeltaTime){
 	if(!HasAuthority())
 		return;
 	if(ValidTask()){
-		//if !facing target face it
-		FVector Direction = ((ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation) - GetActorLocation());
-		Direction.Normalize();
-		float diffInYaw = Direction.Rotation().Yaw - GetActorRotation().Yaw;
-		if(diffInYaw > 3 || diffInYaw < -3){
-			diffInYaw = FMath::Clamp(diffInYaw,TurnSpeed*-1,TurnSpeed);
-			FRotator rotator = FRotator(0.f,diffInYaw,0.f);
-			AddActorWorldRotation(rotator);
-		}
+		FRotator lookAt = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation);
+		lookAt = FRotator(0, lookAt.Yaw, 0);
+		
+		SetActorRotation(FMath::RInterpTo(GetActorRotation(), lookAt, DeltaTime, TurnSpeed));
+		//AddActorWorldRotation(rotator);
 		//At goal
-		else if(IsAtGoal()){
+		if(IsAtGoal()){
 			if(!IsValid(GoalActor)){
 				Stop();
 			}
-			else if(!IsDoingTask && !IsTaskOnCoolDown){
+			else if(lookAt.Equals(GetActorRotation(), 10) && !IsDoingTask && !IsTaskOnCoolDown){
 				StartDoingTask();
 			}
 			//if can't do task, do nothing
@@ -161,7 +158,20 @@ void AAvatar::MoveToLocationOrGoal(){
 	AAvatarController* controller = Cast<AAvatarController>(GetController());
 	if(controller){
 		if(ValidGoal()){
-			controller->MoveToActor(GoalActor);
+			switch (controller->MoveToLocation(GoalActor->GetActorLocation(), GetGoalDistance()/2)) {
+			case EPathFollowingRequestResult::Type::RequestSuccessful:
+				if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Succersss"));
+				break;
+			case EPathFollowingRequestResult::Type::AlreadyAtGoal:
+				if (GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("At goal"));
+				break;
+			case EPathFollowingRequestResult::Type::Failed:
+				if (GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Cannot Navigate"));
+				break;
+			}
 		}
 		else{
 			controller->MoveToLocation(GoalLocation);
@@ -312,7 +322,6 @@ void AAvatar::PickUpTask(){
 }
 
 void AAvatar::HarvestTask(){
-	//TODO GET REWAREDS
 	AResourceNode* node = Cast<AResourceNode>(GoalActor);
 	if(IsValid(node)){
 		node->HarvestThis(this);
@@ -353,16 +362,12 @@ bool AAvatar::ValidTask(){
 
 bool AAvatar::CanDoCurrentTask(){
 	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-
 		return IInteractable::Execute_IsValidTask(GoalActor,GoalAction,this);
 	}
 	return !IsValid(GoalActor);
 }
 
-int AAvatar::GetHighestToolLevelOfType(EHarvestType Type)
-{
-	//Search Inventory
-
+int AAvatar::GetHighestToolLevelOfType(EHarvestType Type){
 	AQuintPlayerController* controller = GetQuintController();
 	if(IsValid(controller))
 		return controller->GetHighestToolLevelOfType(Type);

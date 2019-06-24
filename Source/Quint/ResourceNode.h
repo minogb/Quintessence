@@ -55,9 +55,10 @@ protected:
 	int HarvestLevel;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	TArray<FResourceReward>Rewards;
-	/** The CapsuleComponent being used for movement collision (by CharacterMovement). Always treated as being vertically aligned in simple collision check functions. */
-	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	class UBoxComponent* BoxComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	int WorldSize = 64;
+	class UBoxComponent* ClickBox;
+	class UBoxComponent* NavigationHitBox;
 	UPROPERTY(Replicated)
 	TArray<FPlayerHarvestedStruct>Harvesters;
 	// Called when the game starts or when spawned

@@ -92,7 +92,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int GetHighestToolLevelOfType(EHarvestType Type);
 	virtual uint8 GetAvaliableTasks_Implementation() override{ return (uint8)EInteractionType::Follow | (uint8)EInteractionType::Trade | (uint8)EInteractionType::Examine | (uint8)EInteractionType::Attack; }
-	virtual EInteractionType GetDefaultTask_Implementation() override{ return EInteractionType::Attack; }
+	virtual EInteractionType GetDefaultTask_Implementation() override{ return EInteractionType::Follow; }
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealth(){ return Health; }
