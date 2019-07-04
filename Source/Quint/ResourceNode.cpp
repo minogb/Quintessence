@@ -52,6 +52,10 @@ void AResourceNode::HarvestThis(AAvatar * Player){
 	}
 }
 
+float AResourceNode::GetHarvestSpeed(){
+	return 1.f;
+}
+
 void AResourceNode::GivePlayerReward(AAvatar * Player){
 	AQuintPlayerController* pc = Player->GetQuintController();
 	TArray<UItem*> Reward = GetPlayerReward(Player);

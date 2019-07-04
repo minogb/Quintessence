@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interactable.h"
+#include "Enumerations.h"
 #include "CraftingStation.generated.h"
 
 UCLASS()
@@ -17,6 +18,8 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<class UUserWidget> WidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	ECraftingStationType CraftingStationType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	int WorldSize = 64;
 	class UBoxComponent* NavigationHitBox;

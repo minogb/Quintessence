@@ -160,16 +160,10 @@ void AAvatar::MoveToLocationOrGoal(){
 		if(ValidGoal()){
 			switch (controller->MoveToLocation(GoalActor->GetActorLocation(), GetGoalDistance()/2)) {
 			case EPathFollowingRequestResult::Type::RequestSuccessful:
-				if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Succersss"));
 				break;
 			case EPathFollowingRequestResult::Type::AlreadyAtGoal:
-				if (GEngine)
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("At goal"));
 				break;
 			case EPathFollowingRequestResult::Type::Failed:
-				if (GEngine)
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Cannot Navigate"));
 				break;
 			}
 		}

@@ -12,3 +12,7 @@ int ITool::GetHarvestLevelOfType_Implementation(EHarvestType Type) {
 int ITool::GetRequiredUseLevel_Implementation(EHarvestType Type){
 	return -1;
 }
+
+float ITool::GetHarvestSpeedMultiplier_Implementation(EHarvestType Type){
+	return 1.f;
+}

@@ -43,7 +43,7 @@ struct FItemCraftingStruct {
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UItem> Item;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
 	int Count = 1;
 };
 //TODO: Add ?XP reward info?, add Craft time?

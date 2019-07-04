@@ -42,21 +42,24 @@ protected:
 
 	void Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 	UFUNCTION(BlueprintCallable)
-	bool CanCraftRecipe(FCraftingStruct Recipe);
-	UFUNCTION(BlueprintCallable)
 	bool HasItem(TSubclassOf<UItem> Item, int Quantity = 1);
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void Server_CraftRecipe(FName RecipeTableRowName);
 	void Server_CraftRecipe_Implementation(FName RecipeTableRowName);
 	bool Server_CraftRecipe_Validate(FName RecipeTableRowName) { return true; };
-
+	
 
 	bool ConsumeItem(TSubclassOf<UItem> Item, int Quantity = 1, bool FullConsumption = true);
 public:
 	AQuintPlayerController();
 
 	UFUNCTION(BlueprintCallable)
+	bool CanCraftRecipe(FCraftingStruct Recipe);
+
+	UFUNCTION(BlueprintCallable)
 	bool CraftRecipe(FCraftingStruct Recipe);
+	UFUNCTION(BlueprintCallable)
+	bool CraftRecipeWithInfo(class UCraftingInfo* CraftingInfo);
 
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 	bool SetPlayerAvatar(class AAvatar* avatar);

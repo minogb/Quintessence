@@ -52,9 +52,8 @@ bool ACraftingStation::UseThis_Implementation(UObject * With, UObject * Source){
 	if (IsValid(Player)) {
 		if (IsValid(cInfo)) {
 			//TODO validate recipe
-			if (cInfo->GetCraftingAmount() > 0 && Player->CraftRecipe(cInfo->GetCraftingRecipe())) {
-				cInfo->DecrimentCraftingAmount();
-				return cInfo->GetCraftingAmount() > 0 && Player->CraftRecipe(cInfo->GetCraftingRecipe());
+			if (Player->CraftRecipeWithInfo(cInfo)){
+				return cInfo->GetCraftingAmount() > 0 && Player->CanCraftRecipe(cInfo->GetCraftingRecipe());
 			}
 			else
 				return false;

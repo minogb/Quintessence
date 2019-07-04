@@ -306,6 +306,13 @@ bool AQuintPlayerController::CraftRecipe(FCraftingStruct Recipe){
 	return false;
 
 }
+bool AQuintPlayerController::CraftRecipeWithInfo(UCraftingInfo* CraftingInfo) {
+	if (IsValid(CraftingInfo) && CraftingInfo->GetCraftingAmount() > 0 && CraftRecipe(CraftingInfo->GetCraftingRecipe())) {
+		CraftingInfo->DecrimentCraftingAmount();
+		return true;
+	}
+	return false;
+}
 void AQuintPlayerController::DropItem(UItem * Item){
 	int index = GetIndexOfItem(Item);
 	if(index > -1)

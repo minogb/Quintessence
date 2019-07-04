@@ -72,8 +72,10 @@ public:
 	// Sets default values for this actor's properties
 	AResourceNode();
 	virtual void HarvestThis(class AAvatar* Player);
+	virtual float GetHarvestSpeed();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 	virtual bool CanPlayerHarvest(class AAvatar* Player);
 	virtual uint8 GetAvaliableTasks_Implementation() override{ return (uint8)EInteractionType::Harvest | (uint8)EInteractionType::Examine; }
 	virtual EInteractionType GetDefaultTask_Implementation() override{ return EInteractionType::Harvest; }

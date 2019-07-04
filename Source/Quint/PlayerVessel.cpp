@@ -51,7 +51,7 @@ void APlayerVessel::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 void APlayerVessel::SetPlayerAvater(AAvatar * avatar, APlayerController * controller){
 	if(HasAuthority()){
 		//Todo:Do I really need this?
-		if(controller && controller == GetController()){
+		if(avatar){
 			PlayerAvatar = avatar;
 			AttachToAvatar();
 		}
@@ -71,7 +71,7 @@ void APlayerVessel::AttachToAvatar(){
 	if(PlayerAvatar && PlayerAvatar->IsValidLowLevel()){
 		if(!this->IsAttachedTo(PlayerAvatar)){
 			FAttachmentTransformRules rules = FAttachmentTransformRules(
-				EAttachmentRule::SnapToTarget,EAttachmentRule::KeepRelative,EAttachmentRule::KeepRelative,true);
+				EAttachmentRule::SnapToTarget,EAttachmentRule::KeepWorld,EAttachmentRule::KeepRelative,true);
 			this->AttachToActor(PlayerAvatar, rules);
 		}
 	}

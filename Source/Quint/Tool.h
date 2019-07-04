@@ -25,7 +25,10 @@ public:
 	int GetHarvestLevelOfType(EHarvestType Type);
 	UFUNCTION(BlueprintNativeEvent)
 	int GetRequiredUseLevel(EHarvestType Type);
+	UFUNCTION(BlueprintNativeEvent)
+	float GetHarvestSpeedMultiplier(EHarvestType Type);
 
 	virtual int GetHarvestLevelOfType_Implementation(EHarvestType Type);
 	virtual int GetRequiredUseLevel_Implementation(EHarvestType Type);
+	virtual float GetHarvestSpeedMultiplier_Implementation(EHarvestType Type);
 };
