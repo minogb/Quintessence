@@ -4,7 +4,7 @@
 #include "ConstructorHelpers.h"
 #include "EquipmentComponent.h"
 #include "Item.h"
-
+/*
 UEquipment::UEquipment() {
 	ConstructorHelpers::FObjectFinder<UTexture2D> TextureFinder(TEXT("/Game/UserInterface/Icons/axe.axe"));
 	if (TextureFinder.Succeeded())
@@ -54,3 +54,4 @@ int UEquipment::GetRequiredUseLevel_Implementation(EHarvestType Type)
 {
 	return 0;
 }
+*/

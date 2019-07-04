@@ -3,10 +3,11 @@
 
 #include "EquipmentStructure.h"
 #include "Equipment.h"
-UEquipment * FEquipmentStruct::SetEquipment(UEquipment * Equipment, EEquipmentSlot Slot){
-	UEquipment* retVal = NULL;
-	if (IsValid(Equipment)) {
-		Slot = Equipment->GetSlot();
+#include "Item.h"
+UItem * FEquipmentStruct::SetEquipment(UItem * Equipment, EEquipmentSlot Slot){
+	UItem* retVal = NULL;
+	if (IsValid(Equipment) && Equipment->GetClass()->ImplementsInterface(UEquipmentInterface::StaticClass())) {
+		Slot = IEquipmentInterface::Execute_GetEquipmentSlot(Equipment);
 	}
 	switch (Slot) {
 	case EEquipmentSlot::ES_HELM:
@@ -49,7 +50,7 @@ UEquipment * FEquipmentStruct::SetEquipment(UEquipment * Equipment, EEquipmentSl
 	return retVal;
 }
 
-UEquipment * FEquipmentStruct::Get(EEquipmentSlot Slot){
+UItem * FEquipmentStruct::Get(EEquipmentSlot Slot){
 	switch (Slot) {
 	case EEquipmentSlot::ES_HELM:
 		return Helm;

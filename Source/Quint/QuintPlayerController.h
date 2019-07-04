@@ -159,7 +159,7 @@ public:
 
 	//Get equipment reference of type
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UEquipment* GetEquipment(EEquipmentSlot EquipmentType);
+	UItem* GetEquipment(EEquipmentSlot EquipmentType);
 
 	//Equip item from invneotry
 	UFUNCTION(Server, Reliable, WithValidation,BlueprintCallable)

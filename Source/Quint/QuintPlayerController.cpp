@@ -379,7 +379,7 @@ int AQuintPlayerController::GetHighestToolLevelOfType(EHarvestType Type) {
 //--------------------------------------------------------
 int AQuintPlayerController::GetEquipmentToolLevelOfType(EHarvestType Type) {
 
-	UEquipment* item = NULL;
+	UItem* item = NULL;
 	if (IsValid(item = GetEquipment(EEquipmentSlot::ES_WEAPON))) {
 		if (item->GetClass()->ImplementsInterface(UTool::StaticClass()))
 			return ITool::Execute_GetHarvestLevelOfType(item, Type);
@@ -400,8 +400,7 @@ int AQuintPlayerController::GetEquipmentToolLevelOfType(EHarvestType Type) {
 }
 //--------------------------------------------------------
 //---------------------GET EQUIPMENT----------------------
-UEquipment * AQuintPlayerController::GetEquipment(EEquipmentSlot EquipmentType)
-{
+UItem * AQuintPlayerController::GetEquipment(EEquipmentSlot EquipmentType){
 	return Equipment.Get(EquipmentType);
 }
 //--------------------------------------------------------
@@ -415,13 +414,16 @@ void AQuintPlayerController::EquipItem(UItem * Item) {
 void AQuintPlayerController::EquipItem_Implementation(int Slot) {
 	if (!Inventory.IsValidIndex(Slot))
 		return;
-	UEquipment* item = Cast<UEquipment>(Inventory[Slot]);
-	if (IsValid(item) && item->GetSlot() != EEquipmentSlot::ES_NONE) {
-		const EEquipmentSlot slot = item->GetSlot();
-		UnEquipItem(slot);
-		if (!IsValid(Equipment.Get(slot))) {
-			Inventory[Slot] = NULL;
-			Equipment.SetEquipment(item);
+	UItem* item = Inventory[Slot];
+
+	if (IsValid(item) && item->GetClass()->ImplementsInterface(UEquipmentInterface::StaticClass())) {
+		const EEquipmentSlot slot = IEquipmentInterface::Execute_GetEquipmentSlot(item);
+		if (slot != EEquipmentSlot::ES_NONE) {
+			UnEquipItem(slot);
+			if (!IsValid(Equipment.Get(slot))) {
+				Inventory[Slot] = NULL;
+				Equipment.SetEquipment(item);
+			}
 		}
 	}
 }
@@ -432,9 +434,12 @@ bool AQuintPlayerController::EquipItem_Validate(int Slot) {
 //--------------------------------------------------------
 //------------------------UNEQUIP-------------------------
 void AQuintPlayerController::UnEquipItem(UItem * Item) {
-	UEquipment* item = Cast<UEquipment>(Item);
-	if (IsValid(item))
-		UnEquipItem(item->GetSlot());
+	if (IsValid(Item) && Item->GetClass()->ImplementsInterface(UEquipmentInterface::StaticClass())) {
+		const EEquipmentSlot slot = IEquipmentInterface::Execute_GetEquipmentSlot(Item);
+		if (slot != EEquipmentSlot::ES_NONE) {
+			UnEquipItem(slot);
+		}
+	}
 }
 //--------------------------------------------------------
 void AQuintPlayerController::UnEquipItem_Implementation(EEquipmentSlot Slot) {

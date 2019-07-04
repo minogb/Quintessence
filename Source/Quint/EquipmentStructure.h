@@ -6,10 +6,10 @@
 #include "Engine/DataTable.h"
 #include "EquipmentStructure.generated.h"
 
+class UItem;
 /**
  * 
  */
-class UEquipment;
 UENUM(BlueprintType, Meta = (Bitflags))
 enum class EEquipmentSlot : uint8 {
 	ES_NONE UMETA(DisplayName = "None"),
@@ -28,23 +28,23 @@ struct FEquipmentStruct  {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Helm")
-	UEquipment* Helm;
+	UItem* Helm;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chest")
-	UEquipment* Chest;
+	UItem* Chest;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Leggings")
-	UEquipment* Leggings;
+	UItem* Leggings;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boots")
-	UEquipment* Boots;
+	UItem* Boots;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gloves")
-	UEquipment* Gloves;
+	UItem* Gloves;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	UEquipment* Weapon;
+	UItem* Weapon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sheild")
-	UEquipment* Sheild;
+	UItem* Sheild;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quiver")
-	UEquipment* Quiver;
+	UItem* Quiver;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ring")
-	UEquipment* Ring;
-	UEquipment* SetEquipment(UEquipment* Equipment, EEquipmentSlot Slot = EEquipmentSlot::ES_NONE);
-	UEquipment* Get(EEquipmentSlot Slot);
+	UItem* Ring;
+	UItem* SetEquipment(UItem* Equipment, EEquipmentSlot Slot = EEquipmentSlot::ES_NONE);
+	UItem* Get(EEquipmentSlot Slot);
 };

@@ -8,7 +8,7 @@ void UEquipmentComponent::OnUse_Implementation(UObject * on)
 {
 }
 
-void UEquipmentComponent::OnConstruct_Implementation(UEquipment * Equipment)
+void UEquipmentComponent::OnConstruct_Implementation(UObject * Equipment)
 {
 }
 

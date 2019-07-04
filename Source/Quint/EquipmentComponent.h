@@ -11,7 +11,6 @@
 /**
  * 
  */
-class UEquipment;
 UCLASS(Blueprintable)
 class QUINT_API UEquipmentComponent : public UItem {
 	GENERATED_BODY()
@@ -46,8 +45,8 @@ public:
 	virtual void OnUse_Implementation(UObject* on);
 	//When this item is constructed - may remove
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnConstruct(UEquipment* Equipment);
-	virtual void OnConstruct_Implementation(UEquipment* Equipment);
+	void OnConstruct(UObject* Equipment);
+	virtual void OnConstruct_Implementation(UObject* Equipment);
 	//When this component recives damage _Implementation
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnDamageComponent(int& Amount);
