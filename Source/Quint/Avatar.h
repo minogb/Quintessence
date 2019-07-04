@@ -14,41 +14,66 @@ class QUINT_API AAvatar : public ACharacter, public IInteractable {
 	GENERATED_BODY()
 
 protected:
-	AActor* GoalActor = nullptr;
-	UObject* UseObject = nullptr;
-	EInteractionType GoalAction = EInteractionType::No_Interaction;
+	//invalid location for use
 	const FVector INVALID_LOCATION = FVector(-1000);
-	FVector GoalLocation = INVALID_LOCATION;
 
-	FTimerHandle TaskCoolDownTimer;
-	FTimerHandle IsInCombatTimer;
-	
-	FTimerHandle TaskTimer;
-	UPROPERTY(Replicated)
-	bool IsDoingTask = false;
-	bool IsTaskOnCoolDown = false;
-
+	//how fast our character should turn
 	UPROPERTY(Replicated)
 	float TurnSpeed = 5.f;
-
+	//Character Health
 	UPROPERTY(Replicated)
 	float Health = 10.f;
-	
+
+	//What our actor is after
+	AActor* GoalActor = nullptr;
+	//What our actor should use
+	UObject* UseObject = nullptr;
+	//How our actor should act
+	EInteractionType GoalAction = EInteractionType::No_Interaction;
+	//Where our actor should be
+	FVector GoalLocation = INVALID_LOCATION;
+	//Timer: How long action should take
+	FTimerHandle TaskTimer;
+	//Timer: How long inbetween actions
+	FTimerHandle TaskCoolDownTimer;
+	//Timer: Are we in combat?
+	FTimerHandle IsInCombatTimer;
+	//Are in in the middle of a task
+	UPROPERTY(Replicated)
+	bool IsDoingTask = false;
+	//Are we inbtween doing tasks?
+	bool IsTaskOnCoolDown = false;
+	//Percent of task completed: usufull for UI
 	UPROPERTY(Replicated)
 	float PercentTaskCompleted = 0.f;
-
-	
+	//Are we in combat
 	UPROPERTY(Replicated)
 	bool IsInCombat = false;
+	//How long we should be in combat after init it
 	float CombatTimeOutSpeed = 5.0;
+
+	//--------------------------------------------------------
+	//------------------------FUNCTIONS-----------------------
+	//--------------------------------------------------------
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	//--------------------------------------------------------
+	//---------------------------GOAL-------------------------
+	//--------------------------------------------------------
+
 	//how close do we need to get to the goal
 	float GetGoalDistance();
 	//are we are the goal
 	bool IsAtGoal();
 	//Move to the desired goal
 	void MoveToLocationOrGoal();
+
+	//--------------------------------------------------------
+	//---------------------------TASK-------------------------
+	//--------------------------------------------------------
+
 	//Start task timer
 	void StartDoingTask();
 	//Stop all takss and movement
@@ -59,57 +84,103 @@ protected:
 	void TaskCompleted();
 	//The time between tasks has been completed
 	void EndTaskCooldown();
+	//Function for picking up goal
 	void PickUpTask();
+	//Function for harvesting goal
 	void HarvestTask();
+	//Function for using goal with use object
 	void UseTask();
-	//Replication
+
+	//--------------------------------------------------------
+	//-------------------------COMBAT-------------------------
+	//--------------------------------------------------------
+
+	//Client:Recivie damage notification
 	UFUNCTION(NetMulticast,Unreliable)
 	void ReplicateDamageRecived(int Amount);
+	//Set if we are in combat
 	void SetIsInCombat(bool Combat = true);
+	//End combat timer
 	void EndOfCombat();
+	//Is our task combat related? Attacking? Casting?
 	bool IsTaskCombatTask();
 public:	
 	// Sets default values for this character's properties
 	AAvatar();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void SetLocationGoal(FVector Location);
-	void SetGoalAndAction(AActor* Goal, EInteractionType Action, UObject* UsingThis = nullptr);
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
-	//Valids
 
+	//Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	//Get controller
+	class AQuintPlayerController* GetQuintController();
+
+	//--------------------------------------------------------
+	//---------------------------TASK-------------------------
+	//--------------------------------------------------------
+	//Set our goal as lokcation
+	void SetLocationGoal(FVector Location);
+	//Set our goal as actor and action
+	void SetGoalAndAction(AActor* Goal, EInteractionType Action, UObject* UsingThis = nullptr);
+	
 	//Do we have a current task
 	UFUNCTION(BlueprintCallable)
 	bool ValidTask();
+
+	//Do we have a valid goal
+	UFUNCTION(BlueprintCallable)
+	bool ValidGoal() { return IsValid(GoalActor); }
+
+	//Can we do the asigned task?
 	UFUNCTION(Blueprintable)
 	bool CanDoCurrentTask();
-	UFUNCTION(BlueprintCallable)
-	bool ValidGoal(){ return IsValid(GoalActor);}
 
-	//GETS
-	UFUNCTION(BlueprintCallable)
-	int GetHighestToolLevelOfType(EHarvestType Type);
-	virtual uint8 GetAvaliableTasks_Implementation() override{ return (uint8)EInteractionType::Follow | (uint8)EInteractionType::Trade | (uint8)EInteractionType::Examine | (uint8)EInteractionType::Attack; }
-	virtual EInteractionType GetDefaultTask_Implementation() override{ return EInteractionType::Follow; }
-
-	UFUNCTION(BlueprintCallable)
-	float GetHealth(){ return Health; }
-	UFUNCTION(BlueprintCallable)
-	float GetHealthPercent(){ return Health / 10; }
+	//--------------------------GETS--------------------------
 	//how long does current task take to be completed
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentTaskDuration();
+
 	//how long between tasks
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentTaskCoolDownDuration();
 
+	//Are we doing a task?
 	UFUNCTION(BlueprintCallable)
-	bool GetIsDoingTask(){return IsDoingTask;}
+	bool GetIsDoingTask() { return IsDoingTask; }
+
+	//Percentage of task completed
 	UFUNCTION(BlueprintCallable)
-	float GetPercentTaskDone(){return PercentTaskCompleted;}
+	float GetPercentTaskDone() { return PercentTaskCompleted; }
+
+	//Get the highest tool level of harvest type
 	UFUNCTION(BlueprintCallable)
-	bool GetIsInCombat(){return IsInCombat;}
-	class AQuintPlayerController* GetQuintController();
+	int GetHighestToolLevelOfType(EHarvestType Type);
+
+	//--------------------------------------------------------
+	//-------------------------COMBAT-------------------------
+	//--------------------------------------------------------
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
+
+	//--------------------------GETS--------------------------
+
+	//Are we in combat?
+	UFUNCTION(BlueprintCallable)
+	bool GetIsInCombat() { return IsInCombat; }
+
+	//Get our current health
+	UFUNCTION(BlueprintCallable)
+	float GetHealth() { return Health; }
+
+	//Get our health as a percent
+	UFUNCTION(BlueprintCallable)
+	float GetHealthPercent() { return Health / 10; }
+
+
+	//--------------------------------------------------------
+	//-----------------INTERACTABLE INTERFACE-----------------
+	//--------------------------------------------------------
+	virtual uint8 GetAvaliableTasks_Implementation() override { return (uint8)EInteractionType::Follow | (uint8)EInteractionType::Trade | (uint8)EInteractionType::Examine | (uint8)EInteractionType::Attack; }
+	virtual EInteractionType GetDefaultTask_Implementation() override { return EInteractionType::Follow; }
 };
