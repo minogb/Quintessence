@@ -15,6 +15,255 @@
 #include "Tool.h"
 #include "CraftingInfo.h"
 #include "Kismet/KismetMathLibrary.h"
+
+/*
+-------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------PRIVATE---------------------------------------------------------------------------------
+--------------------------------------------------FUNCTIONS--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
+// Called when the game starts or when spawned
+void AAvatar::BeginPlay() {
+	Super::BeginPlay();
+}
+
+//--------------------------------------------------------
+//---------------------------GOAL-------------------------
+//--------------------------------------------------------
+
+//--------------------------------------------------------
+//-------------------GET GOAL DISTANCE--------------------
+float AAvatar::GetGoalDistance() {
+
+	float bonusDistance = 0;
+	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+
+		bonusDistance = IInteractable::Execute_GetSize(GoalActor);
+	}
+	switch (GoalAction) {
+	case EInteractionType::Attack:
+		//Calculate based on weapon
+		return bonusDistance + 80.f;
+	default:
+		return bonusDistance + 80.f;
+	}
+}
+
+//--------------------------------------------------------
+//----------------------IS AT GOAL------------------------
+bool AAvatar::IsAtGoal() {
+	if (ValidGoal()) {
+		return this->GetActorLocation().Equals(GoalActor->GetActorLocation(), GetGoalDistance());
+	}
+	else {
+		//If invalid location we are always at goal, otherwise use calculated distance
+		return GoalLocation.Equals(INVALID_LOCATION) || this->GetActorLocation().Equals(GoalLocation, GetGoalDistance());
+	}
+}
+
+//--------------------------------------------------------
+//---------------MOVE TO LOCATION OR GOAL-----------------
+void AAvatar::MoveToLocationOrGoal() {
+	if (!HasAuthority())
+		return;
+	AAvatarController* controller = Cast<AAvatarController>(GetController());
+	if (controller) {
+		if (ValidGoal()) {
+			switch (controller->MoveToLocation(GoalActor->GetActorLocation(), GetGoalDistance() / 2)) {
+			case EPathFollowingRequestResult::Type::RequestSuccessful:
+				break;
+			case EPathFollowingRequestResult::Type::AlreadyAtGoal:
+				break;
+			case EPathFollowingRequestResult::Type::Failed:
+				break;
+			}
+		}
+		else {
+			controller->MoveToLocation(GoalLocation);
+		}
+	}
+}
+
+//--------------------------------------------------------
+//------------------START DOING TASK----------------------
+void AAvatar::StartDoingTask() {
+	if (!HasAuthority())
+		return;
+	if (!CanDoCurrentTask()) {
+		Stop();
+		return;
+	}
+	IsDoingTask = true;
+	AAvatarController* controller = Cast<AAvatarController>(GetController());
+	if (controller) {
+		controller->StopMovement();
+	}
+	if (IsTaskCombatTask())
+		SetIsInCombat();
+	if (GetWorld())
+		GetWorldTimerManager().SetTimer(TaskTimer, this, &AAvatar::TaskCompleted, GetCurrentTaskDuration(), false);
+}
+
+//--------------------------------------------------------
+//-------------------------STOP---------------------------
+void AAvatar::Stop() {
+	if (!HasAuthority())
+		return;
+	InteruptTask();
+	GoalActor = nullptr;
+	GoalAction = EInteractionType::No_Interaction;
+	GoalLocation = INVALID_LOCATION;
+	UseObject = nullptr;
+}
+
+//--------------------------------------------------------
+//-------------------INTERUPT TASK------------------------
+void AAvatar::InteruptTask() {
+	if (!HasAuthority())
+		return;
+	IsDoingTask = false;
+	GetWorldTimerManager().ClearTimer(TaskTimer);
+	AAvatarController* controller = Cast<AAvatarController>(GetController());
+	if (controller) {
+		controller->StopMovement();
+	}
+}
+
+//--------------------------------------------------------
+//-------------------TASK COMPLETED-----------------------
+void AAvatar::TaskCompleted() {
+	GetWorldTimerManager().ClearTimer(TaskTimer);
+	if (!HasAuthority())
+		return;
+
+	if (!IsValid(GoalActor) || !GoalActor) {
+		Stop();
+	}
+	//Once we are done we are no longer working on the task
+	IsDoingTask = false;
+	//Every task has a cool down period to prevent future tasks
+	IsTaskOnCoolDown = true;
+	//Set how long we are on cool down for
+	if (GetWorld())
+		GetWorldTimerManager().SetTimer(TaskCoolDownTimer, this, &AAvatar::EndTaskCooldown, GetCurrentTaskCoolDownDuration(), false);
+
+	switch (GoalAction) {
+	case EInteractionType::Use:
+		UseTask();
+		if (!Cast<UCraftingInfo>(UseObject) || Cast<UCraftingInfo>(UseObject)->GetCraftingAmount() <= 0)
+			Stop();
+		break;
+	case EInteractionType::Attack:
+		//Attack
+		if (ValidGoal()) {
+			FDamageEvent dmgEvent = FDamageEvent();
+			GoalActor->TakeDamage(5.f, dmgEvent, GetController(), this);
+		}
+		else {
+			Stop();
+		}
+		break;
+	case EInteractionType::Follow:
+		break;
+	case EInteractionType::Pick_Up:
+		PickUpTask();
+		Stop();
+		break;
+	case EInteractionType::Harvest:
+		HarvestTask();
+		break;
+	default:
+		Stop();
+		break;
+	}
+}
+
+//--------------------------------------------------------
+//-------------------END TASK COOLDOWN--------------------
+void AAvatar::EndTaskCooldown() {
+	if (!HasAuthority())
+		return;
+	IsTaskOnCoolDown = false;
+}
+
+//--------------------------------------------------------
+//---------------------PICK UP TASK-----------------------
+void AAvatar::PickUpTask() {
+	if (!HasAuthority())
+		return;
+	AItem_World* goal = Cast<AItem_World>(GoalActor);
+	if (!IsValid(goal)) {
+		Stop();
+	}
+	else {
+		AQuintPlayerController* owner = Cast<AQuintPlayerController>(GetOwner());
+		if (owner) {
+			owner->AddItemToInventory(goal);
+		}
+	}
+}
+
+//--------------------------------------------------------
+//----------------------HARVEST TASK----------------------
+void AAvatar::HarvestTask() {
+	AResourceNode* node = Cast<AResourceNode>(GoalActor);
+	if (IsValid(node)) {
+		node->HarvestThis(this);
+	}
+}
+
+//--------------------------------------------------------
+//------------------------USE TASK------------------------
+void AAvatar::UseTask() {
+	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+
+		if (IInteractable::Execute_UseThis(GoalActor, UseObject, this)) {
+
+		}
+		else {
+			Stop();
+		}
+	}
+}
+
+//--------------------------------------------------------
+//-------------------------COMBAT-------------------------
+//--------------------------------------------------------
+
+//--------------------------------------------------------
+//------------------REP. DAMAGE RECIVED-------------------
+void AAvatar::ReplicateDamageRecived_Implementation(int Amount) {
+}
+
+//--------------------------------------------------------
+//--------------------SET: IN COMBAT----------------------
+void AAvatar::SetIsInCombat(bool Combat) {
+	if (!HasAuthority())
+		return;
+	IsInCombat = Combat;
+	if (IsInCombat && GetWorld())
+		GetWorldTimerManager().SetTimer(IsInCombatTimer, this, &AAvatar::EndOfCombat, CombatTimeOutSpeed, false);
+}
+
+//--------------------------------------------------------
+//-------------------END OF COMBAT------------------------
+void AAvatar::EndOfCombat() {
+	SetIsInCombat(false);
+}
+
+//--------------------------------------------------------
+//---------------IS TASK COMBAT RELATED-------------------
+bool AAvatar::IsTaskCombatTask() {
+	return GoalAction == EInteractionType::Attack;
+}
+
+/*
+-------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------PUBLIC----------------------------------------------------------------------------------
+--------------------------------------------------FUNCTIONS--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+*/
 // Sets default values
 AAvatar::AAvatar(){
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -33,11 +282,6 @@ AAvatar::AAvatar(){
 	GetArrowComponent()->SetVisibility(true);
 	GetArrowComponent()->bHiddenInGame = false;
 	SetReplicates(true);
-}
-
-// Called when the game starts or when spawned
-void AAvatar::BeginPlay(){
-	Super::BeginPlay();
 }
 
 // Called every frame
@@ -87,38 +331,37 @@ void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifeti
 	DOREPLIFETIME(AAvatar, IsInCombat);
 	
 }
+
+AQuintPlayerController * AAvatar::GetQuintController()
+{
+	return Cast<AQuintPlayerController>(GetOwner());
+}
+
 // Called to bind functionality to input
 void AAvatar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
-float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser){
-	if(!HasAuthority())
-		return 0.f;
-	SetIsInCombat(true);
-	DamageEvent.ClassID;
-	DamageEvent.DamageTypeClass;
-	int FinalHealthRemoved = (Health-DamageAmount) >= 0.f ? DamageAmount : Health;
-	Health -= FinalHealthRemoved;
-	if(Health<= 0.f){ 
-		Destroy(true);
-	}
-	return FinalHealthRemoved;
-}
+//--------------------------------------------------------
+//--------------------------TASK--------------------------
+//--------------------------------------------------------
 
-
-void AAvatar::SetLocationGoal(FVector Location){
-	if(!HasAuthority())
+//--------------------------------------------------------
+//--------------------SET GOAL LOCATION-------------------
+void AAvatar::SetLocationGoal(FVector Location) {
+	if (!HasAuthority())
 		return;
-	if(HasAuthority()){
+	if (HasAuthority()) {
 		Stop();
 		GoalLocation = Location;
 	}
 }
 
-void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action, UObject* UsingThis){
-	if(!HasAuthority())
+//--------------------------------------------------------
+//-------------------SET GOAL ACTOR/ACTION----------------
+void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action, UObject* UsingThis) {
+	if (!HasAuthority())
 		return;
 	Stop();
 	GoalActor = Goal;
@@ -126,94 +369,25 @@ void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action, UObject* 
 	UseObject = UsingThis;
 }
 
-float AAvatar::GetGoalDistance(){
+//--------------------------------------------------------
+//-----------------------VALID TASK-----------------------
+bool AAvatar::ValidTask() {
+	return ValidGoal() || !GoalLocation.Equals(INVALID_LOCATION);
+}
 
-	float bonusDistance = 0;
+//--------------------------------------------------------
+//-----------------CAN DO CURRENT TASK--------------------
+bool AAvatar::CanDoCurrentTask() {
 	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-
-		bonusDistance=  IInteractable::Execute_GetSize(GoalActor);
+		return IInteractable::Execute_IsValidTask(GoalActor, GoalAction, this);
 	}
-	switch(GoalAction){
-	case EInteractionType::Attack:
-		//Calculate based on weapon
-		return bonusDistance + 80.f;
-	default:
-		return bonusDistance + 80.f;
-	}
+	return !IsValid(GoalActor);
 }
 
-bool AAvatar::IsAtGoal(){
-	if(ValidGoal()){
-		return this->GetActorLocation().Equals(GoalActor->GetActorLocation(),GetGoalDistance());
-	}
-	else{
-		//If invalid location we are always at goal, otherwise use calculated distance
-		return GoalLocation.Equals(INVALID_LOCATION) || this->GetActorLocation().Equals(GoalLocation,GetGoalDistance());
-	}
-}
-
-void AAvatar::MoveToLocationOrGoal(){
-	if(!HasAuthority())
-		return;
-	AAvatarController* controller = Cast<AAvatarController>(GetController());
-	if(controller){
-		if(ValidGoal()){
-			switch (controller->MoveToLocation(GoalActor->GetActorLocation(), GetGoalDistance()/2)) {
-			case EPathFollowingRequestResult::Type::RequestSuccessful:
-				break;
-			case EPathFollowingRequestResult::Type::AlreadyAtGoal:
-				break;
-			case EPathFollowingRequestResult::Type::Failed:
-				break;
-			}
-		}
-		else{
-			controller->MoveToLocation(GoalLocation);
-		}
-	}
-}
-
-void AAvatar::StartDoingTask() {
-	if (!HasAuthority())
-		return;
-	if (!CanDoCurrentTask()) {
-		Stop();
-		return;
-	}
-	IsDoingTask = true;
-	AAvatarController* controller = Cast<AAvatarController>(GetController());
-	if (controller) {
-		controller->StopMovement();
-	}
-	if (IsTaskCombatTask())
-		SetIsInCombat();
-	if(GetWorld())
-		GetWorldTimerManager().SetTimer(TaskTimer,this, &AAvatar::TaskCompleted,GetCurrentTaskDuration(),false);
-}
-
-void AAvatar::Stop(){
-	if(!HasAuthority())
-		return;
-	InteruptTask();
-	GoalActor = nullptr;
-	GoalAction = EInteractionType::No_Interaction;
-	GoalLocation = INVALID_LOCATION;
-	UseObject = nullptr;
-}
-
-void AAvatar::InteruptTask(){
-	if(!HasAuthority())
-		return;
-	IsDoingTask= false;
-	GetWorldTimerManager().ClearTimer(TaskTimer);
-	AAvatarController* controller = Cast<AAvatarController>(GetController());
-	if(controller){
-		controller->StopMovement();
-	}
-}
-
-float AAvatar::GetCurrentTaskDuration(){
-	switch(GoalAction){
+//--------------------------------------------------------
+//-------------------GET TASK DURATION--------------------
+float AAvatar::GetCurrentTaskDuration() {
+	switch (GoalAction) {
 	case EInteractionType::Attack:
 		//Calculate based on weapon
 		return .5;
@@ -228,8 +402,11 @@ float AAvatar::GetCurrentTaskDuration(){
 		break;
 	}
 }
-float AAvatar::GetCurrentTaskCoolDownDuration(){
-	switch(GoalAction){
+
+//--------------------------------------------------------
+//------------------TASK COOL DOWN TIME-------------------
+float AAvatar::GetCurrentTaskCoolDownDuration() {
+	switch (GoalAction) {
 	case EInteractionType::Attack:
 		//Calculate based on weapon
 		return 1.f;
@@ -242,131 +419,32 @@ float AAvatar::GetCurrentTaskCoolDownDuration(){
 	}
 }
 
-AQuintPlayerController * AAvatar::GetQuintController()
-{
-	return Cast<AQuintPlayerController>(GetOwner());
-}
-
-void AAvatar::TaskCompleted(){
-	GetWorldTimerManager().ClearTimer(TaskTimer);
-	if(!HasAuthority())
-		return;
-	
-	if(!IsValid(GoalActor) || !GoalActor){
-		Stop();
-	}
-	//Once we are done we are no longer working on the task
-	IsDoingTask = false;
-	//Every task has a cool down period to prevent future tasks
-	IsTaskOnCoolDown = true;
-	//Set how long we are on cool down for
-	if(GetWorld())
-		GetWorldTimerManager().SetTimer(TaskCoolDownTimer,this, &AAvatar::EndTaskCooldown,GetCurrentTaskCoolDownDuration(),false);
-	
-	switch(GoalAction){
-	case EInteractionType::Use:
-		UseTask();
-		if (!Cast<UCraftingInfo>(UseObject) || Cast<UCraftingInfo>(UseObject)->GetCraftingAmount() <= 0)
-			Stop();
-		break;
-	case EInteractionType::Attack:
-		//Attack
-		if(ValidGoal()){
-			FDamageEvent dmgEvent = FDamageEvent();
-			GoalActor->TakeDamage(5.f,dmgEvent,GetController(),this);
-		}
-		else{
-			Stop();
-		}
-		break;
-	case EInteractionType::Follow:
-		break;
-	case EInteractionType::Pick_Up:
-		PickUpTask();
-		Stop();
-		break;
-	case EInteractionType::Harvest:
-		HarvestTask();
-		break;
-	default:
-		Stop();
-		break;
-	}
-}
-
-void AAvatar::EndTaskCooldown(){
-	if(!HasAuthority())
-		return;
-	IsTaskOnCoolDown = false;
-}
-
-void AAvatar::PickUpTask(){
-	if(!HasAuthority())
-		return;
-		AItem_World* goal = Cast<AItem_World>(GoalActor);
-		if(!IsValid(goal)){
-			Stop();
-		}
-		else{
-			AQuintPlayerController* owner = Cast<AQuintPlayerController>(GetOwner());
-			if(owner){
-				owner->AddItemToInventory(goal);
-			}
-		}
-}
-
-void AAvatar::HarvestTask(){
-	AResourceNode* node = Cast<AResourceNode>(GoalActor);
-	if(IsValid(node)){
-		node->HarvestThis(this);
-	}
-}
-
-void AAvatar::UseTask(){
-	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-		
-		if (IInteractable::Execute_UseThis(GoalActor, UseObject, this)) {
-
-		}
-		else {
-			Stop();
-		}
-	}
-}
-
-void AAvatar::SetIsInCombat(bool Combat){
-	if(!HasAuthority())
-		return;
-	IsInCombat = Combat;
-	if(IsInCombat && GetWorld())
-		GetWorldTimerManager().SetTimer(IsInCombatTimer,this, &AAvatar::EndOfCombat,CombatTimeOutSpeed,false);
-}
-
-void AAvatar::EndOfCombat(){
-	SetIsInCombat(false);
-}
-
-bool AAvatar::IsTaskCombatTask(){
-	return GoalAction == EInteractionType::Attack;
-}
-
-bool AAvatar::ValidTask(){
-	return ValidGoal() || !GoalLocation.Equals(INVALID_LOCATION);
-}
-
-bool AAvatar::CanDoCurrentTask(){
-	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-		return IInteractable::Execute_IsValidTask(GoalActor,GoalAction,this);
-	}
-	return !IsValid(GoalActor);
-}
-
-int AAvatar::GetHighestToolLevelOfType(EHarvestType Type){
+//--------------------------------------------------------
+//-----------------HIGHEST TOOL LEVEL OF TYPE-------------
+int AAvatar::GetHighestToolLevelOfType(EHarvestType Type) {
 	AQuintPlayerController* controller = GetQuintController();
-	if(IsValid(controller))
+	if (IsValid(controller))
 		return controller->GetHighestToolLevelOfType(Type);
 	return 0;
 }
 
-void AAvatar::ReplicateDamageRecived_Implementation(int Amount){
+//--------------------------------------------------------
+//------------------------COMBAT--------------------------
+//--------------------------------------------------------
+
+//--------------------------------------------------------
+//----------------------TAKE DAMAGE-----------------------
+float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser){
+	if(!HasAuthority())
+		return 0.f;
+	SetIsInCombat(true);
+	DamageEvent.ClassID;
+	DamageEvent.DamageTypeClass;
+	int FinalHealthRemoved = (Health-DamageAmount) >= 0.f ? DamageAmount : Health;
+	Health -= FinalHealthRemoved;
+	if(Health<= 0.f){ 
+		Destroy(true);
+	}
+	return FinalHealthRemoved;
 }
+
