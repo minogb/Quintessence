@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -31,7 +29,7 @@ protected:
 	//The currently displayed widget: does not count
 	//always active widgets
 	UPROPERTY(BlueprintReadWrite)
-		UUserWidget* ActiveWidget;
+	UUserWidget* ActiveWidget;
 	//--------------------------------------------------------
 	//------------------------FUNCTIONS-----------------------
 	//--------------------------------------------------------
@@ -112,14 +110,14 @@ public:
 
 	//---------------------Manipulation-----------------------
 
+	//Drop item based on reference, finds slot then drops based on slot
+	void DropItem(UItem* Item);
+
 	//Drop item in slot of inventory
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void DropItem(int Slot);
 	void DropItem_Implementation(int Slot);
 	bool DropItem_Validate(int Slot);
-
-	//Drop item based on reference, finds slot then drops based on slot
-	void DropItem(UItem* Item);
 
 	//Add An item to the inventory - from world
 	void AddItemToInventory(class AItem_World* ItemWorld);
@@ -128,14 +126,13 @@ public:
 	//Add An item to the inventory - from item class
 	void AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity);
 
+	//------------------------Crafting------------------------
+
 	//Craft Recipe at location and number of times to do so
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void StartCraftingItem(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount);
 	void StartCraftingItem_Implementation(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount);
 	bool StartCraftingItem_Validate(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount) { return true; }
-	
-	
-	//------------------------Crafting------------------------
 	
 	//Do we have the items/reqruiments for the recipe?
 	UFUNCTION(BlueprintCallable)
