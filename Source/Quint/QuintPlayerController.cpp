@@ -137,7 +137,7 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item){
 		}
 		//all items added to inventory
 		if(!IsValid(Item))
-			break;
+			break; 
 	}
 
 	for (int i = 0; IsValid(Item) && Item->GetStackSize() > 0 && i < InventorySizeMax; i++) {
