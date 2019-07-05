@@ -2,7 +2,7 @@
 
 
 #include "EquipmentStructure.h"
-#include "Equipment.h"
+#include "Interfaces/Equipment.h"
 #include "Item.h"
 UItem * FEquipmentStruct::SetEquipment(UItem * Equipment, EEquipmentSlot Slot){
 	UItem* retVal = NULL;

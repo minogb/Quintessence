@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Interactable.h"
 #include "AvatarController.generated.h"
 /**
  * 

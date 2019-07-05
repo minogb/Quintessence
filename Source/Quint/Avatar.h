@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Interactable.h"
+#include "Interfaces/Interactable.h"
 #include "Enumerations.h"
 #include "Avatar.generated.h"
 

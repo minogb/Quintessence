@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "Interactable.h"
+#include "Interfaces/Interactable.h"
 #include "Enumerations.h"
 #include "EquipmentStructure.h"
 #include "QuintPlayerController.generated.h"

@@ -12,7 +12,7 @@
 #include "Item.h"
 #include  "QuintPlayerController.h"
 #include "ResourceNode.h"
-#include "Tool.h"
+#include "Interfaces/Tool.h"
 #include "CraftingInfo.h"
 #include "Kismet/KismetMathLibrary.h"
 

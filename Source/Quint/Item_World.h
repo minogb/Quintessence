@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interactable.h"
+#include "Interfaces/Interactable.h"
 #include "Item_World.generated.h"
-
 
 UCLASS()
 class QUINT_API AItem_World : public AActor, public IInteractable
