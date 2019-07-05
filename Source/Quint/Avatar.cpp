@@ -70,7 +70,8 @@ void AAvatar::MoveToLocationOrGoal() {
 	AAvatarController* controller = Cast<AAvatarController>(GetController());
 	if (controller) {
 		if (ValidGoal()) {
-			switch (controller->MoveToLocation(GoalActor->GetActorLocation(), GetGoalDistance() / 2)) {
+			//Note: Pathfinding turned of for move to actor as it seems a bit buggy
+			switch (controller->MoveToActor(GoalActor, GetGoalDistance() / 2,false,false,true,0,true)) {
 			case EPathFollowingRequestResult::Type::RequestSuccessful:
 				break;
 			case EPathFollowingRequestResult::Type::AlreadyAtGoal:

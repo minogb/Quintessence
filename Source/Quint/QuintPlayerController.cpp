@@ -266,7 +266,9 @@ void AQuintPlayerController::DropItem(UItem * Item) {
 }
 //--------------------------------------------------------
 void AQuintPlayerController::DropItem_Implementation(int Slot) {
-	if (Inventory.IsValidIndex(Slot) && IsValid(Inventory[Slot]) && IsValid(GetPlayerAvatar())) {
+	if (HasAuthority() && Inventory.IsValidIndex(Slot) && IsValid(Inventory[Slot]) && IsValid(GetPlayerAvatar())) {
+		if(PlayerAvatar)
+			PlayerAvatar->SetGoalAndAction(nullptr, EInteractionType::No_Interaction);
 		FTransform actorTranform = GetPlayerAvatar()->GetActorTransform();
 		actorTranform.SetScale3D(FVector(1));
 		AItem_World* newItem = GetWorld()->SpawnActorDeferred<AItem_World>(AItem_World::StaticClass(), actorTranform, this);
@@ -455,11 +457,6 @@ bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentSlot Slot)
 {
 	return true;
 }
-
-//--------------------------------------------------------
-//---------------------GET EQUIPMENT----------------------
-
-
 
 //--------------------------------------------------------
 //-----------------------INVENTORY------------------------
