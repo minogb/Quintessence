@@ -39,11 +39,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr);
 	virtual bool IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, class AAvatar* Player = nullptr);
-	//TODO: Prob use something other than the avatar class here
-	//bool IInteractable::IsValidTask(EInteractionType Task, AAvatar* Player)
+
 	UFUNCTION(BlueprintNativeEvent)
 	bool UseThis(UObject* With, UObject* Source = nullptr);
 	virtual bool UseThis_Implementation(UObject* With, UObject* Source = nullptr) { return false; }
+
 	//Returns bitmask
 	UFUNCTION(BlueprintNativeEvent)
 	uint8 GetAvaliableTasks();
@@ -52,7 +52,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	EInteractionType GetDefaultTask();
 	virtual EInteractionType GetDefaultTask_Implementation() { return EInteractionType::No_Interaction; }
+
 	UFUNCTION(BlueprintNativeEvent)
 	float GetSize();
 	virtual float GetSize_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void ApplyDamage(FDamageStruct Damage, UObject* DamageCauser, AController* CauserController = nullptr);
+	virtual void ApplyDamage_Implementation(FDamageStruct Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
 };

@@ -22,7 +22,10 @@ protected:
 	float TurnSpeed = 5.f;
 	//Character Health
 	UPROPERTY(Replicated)
-	float Health = 10.f;
+	float Health = 100.f;
+
+	UPROPERTY(Replicated)
+	float MaxHealth = 100.f;
 
 	//What our actor is after
 	AActor* GoalActor = nullptr;
@@ -104,6 +107,21 @@ protected:
 	void EndOfCombat();
 	//Is our task combat related? Attacking? Casting?
 	bool IsTaskCombatTask();
+
+	//--------------------------------------------------------
+	//-------------------------Effects------------------------
+	//--------------------------------------------------------
+	//Get Effects - including equipment
+	TArray<UObject*> GetEffects() { return TArray<UObject*>(); }
+	//Incoming damage
+	void DelegateOnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	//Damage Taken
+	void DelegateOnDamageTaken(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	//Damge outgoing
+	void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	//Damage delt
+	void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+
 public:	
 	// Sets default values for this character's properties
 	AAvatar();
@@ -163,7 +181,27 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
+
+	//Get the attack speed of the current weapon
+	UFUNCTION(BlueprintCallable)
+	float CalculateAttackTime();
+
+	//Get the cool down of the current weapon
+	UFUNCTION(BlueprintCallable)
+	float CalculateAttackCooldownTime();
+
+	//TODO: update with get damage type ? Get the damage of the current weapon
+	UFUNCTION(BlueprintCallable)
+	FDamageStruct CalculateAttackDamage();
+
+	//Get the range of the current weapon
+	UFUNCTION(BlueprintCallable)
+	float CalculateWeaponRange();
 	//--------------------------GETS--------------------------
+
+	//Get our current weapon
+	UFUNCTION(BlueprintCallable)
+	UItem* GetWeapon();
 
 	//Are we in combat?
 	UFUNCTION(BlueprintCallable)
@@ -175,12 +213,13 @@ public:
 
 	//Get our health as a percent
 	UFUNCTION(BlueprintCallable)
-	float GetHealthPercent() { return Health / 10; }
+	float GetHealthPercent() { return Health / MaxHealth; }
 
 
 	//--------------------------------------------------------
 	//-----------------INTERACTABLE INTERFACE-----------------
 	//--------------------------------------------------------
 	virtual uint8 GetAvaliableTasks_Implementation() override { return (uint8)EInteractionType::Follow | (uint8)EInteractionType::Trade | (uint8)EInteractionType::Examine | (uint8)EInteractionType::Attack; }
-	virtual EInteractionType GetDefaultTask_Implementation() override { return EInteractionType::Follow; }
+	virtual EInteractionType GetDefaultTask_Implementation() override { return EInteractionType::Attack; }
+	virtual void ApplyDamage_Implementation(FDamageStruct Damage, UObject* DamageCauser, AController* CauserController = nullptr) override;
 };

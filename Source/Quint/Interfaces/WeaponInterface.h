@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Engine/DataTable.h"
+#include "Enumerations.h"
 #include "WeaponInterface.generated.h"
 
 /**
@@ -19,6 +21,10 @@ class QUINT_API IWeaponInterface {
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
+	bool SetWeaponMode(int Mode = 0);
+	bool SetWeaponMode_Implementation(int Mode = 0) { return false; };
+
+	UFUNCTION(BlueprintNativeEvent)
 	float GetWeaponRange();
 	float GetWeaponRange_Implementation() { return 32.f; };
 
@@ -29,4 +35,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	float GetWeaponAttackCooldown();
 	float GetWeaponAttackCooldown_Implementation() { return 0.25; };
+
+	UFUNCTION(BlueprintNativeEvent)
+	void GetDamageStruct(FDamageStruct& Damage);
+	void GetDamageStruct_Implementation(FDamageStruct& Damage) {};
+
 };

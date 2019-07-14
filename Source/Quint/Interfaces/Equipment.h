@@ -8,6 +8,7 @@
 #include "EquipmentStructure.h"
 #include "ComponentStructure.h"
 #include "UObject/Interface.h"
+#include "Enumerations.h"
 #include "Equipment.generated.h"
 class UEquipmentComponent;
 

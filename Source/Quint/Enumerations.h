@@ -6,6 +6,54 @@
 #include "Engine/DataTable.h"
 #include "Enumerations.generated.h"
 
+UENUM(BlueprintType)
+enum class EDamageType : uint8 {
+	DT_NONE UMETA(DisplayName = "NONE"),
+	//Physical
+	DT_DULL UMETA(DisplayName = "DULL"),
+	DT_BLUNT UMETA(DisplayName = "BLUNT"),
+	DT_CLEAVE UMETA(DisplayName = "CLEAVE"),
+	DT_PEIRCING UMETA(DisplayName = "PEIRCING"),
+	//Magical
+	DT_ELECTRICAL UMETA(DisplayName = "ELECTRICAL"),
+	DT_FIRE UMETA(DisplayName = "FIRE"),
+	DT_WATER UMETA(DisplayName = "WATER"),
+	DT_EARTH UMETA(DisplayName = "EARTH"),
+	DT_WIND UMETA(DisplayName = "WIND")
+};
+
+#define DT_PHYSICAL EDamageType::DT_DULL | EDamageType::DT_BLUNT | EDamageType::DT_CLEAVE | EDamageType::DT_PEIRCING
+#define DT_MAGIC EDamageType::DT_ELECTRICAL | EDamageType::DT_FIRE | EDamageType::DT_WATER | EDamageType::DT_EARTH | EDamageType::DT_WIND
+
+USTRUCT(BlueprintType)
+struct FDamageStruct : public FTableRowBase {
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DamageAmount = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EDamageType DamageType;
+	//0-1% chance of glancing
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GlanceChance = 0;
+	//0-1% minimum value to reduce damage by
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GlanceMultiplierFloor = 0.25;
+	//0-1% maximum value to reduce damage by
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GlanceMultiplierCeiling = 0.5;
+	//0-1% chance of criting
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CritChance = 0;
+	//Minimum amount damage should be multiplyed by after crit
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CritMultiplierFloor = 2;
+	//Minimum amount damage should be multiplyed by after crit
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CritMultiplierCeiling = 2;
+	//Calculate damage after glance/crits. Chance will be 1 or 0 for respective values
+	void CollapseProbility();
+};
 class UItem;
 UENUM(BlueprintType)
 enum class EHarvestType : uint8 {

@@ -13,9 +13,12 @@
 #include  "QuintPlayerController.h"
 #include "ResourceNode.h"
 #include "Interfaces/Tool.h"
+#include "Interfaces/WeaponInterface.h"
+#include "Interfaces/EffectInterface.h"
 #include "CraftingInfo.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------PRIVATE---------------------------------------------------------------------------------
@@ -36,17 +39,17 @@ void AAvatar::BeginPlay() {
 //-------------------GET GOAL DISTANCE--------------------
 float AAvatar::GetGoalDistance() {
 
-	float bonusDistance = 0;
+	float bonusDistance = 32.f;
 	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
 
-		bonusDistance = IInteractable::Execute_GetSize(GoalActor);
+		bonusDistance += IInteractable::Execute_GetSize(GoalActor);
 	}
 	switch (GoalAction) {
 	case EInteractionType::Attack:
 		//Calculate based on weapon
-		return bonusDistance + 80.f;
+		return bonusDistance + CalculateWeaponRange();
 	default:
-		return bonusDistance + 80.f;
+		return bonusDistance + 32.f;
 	}
 }
 
@@ -158,8 +161,17 @@ void AAvatar::TaskCompleted() {
 	case EInteractionType::Attack:
 		//Attack
 		if (ValidGoal()) {
-			FDamageEvent dmgEvent = FDamageEvent();
-			GoalActor->TakeDamage(5.f, dmgEvent, GetController(), this);
+			//GoalActor->TakeDamage(Damage.DamageAmount, dmgEvent, GetQuintController(), this);
+			if (GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+				FDamageEvent dmgEvent = FDamageEvent();
+				FDamageStruct Damage = CalculateAttackDamage();
+				IInteractable::Execute_ApplyDamage(GoalActor, Damage, this, GetQuintController());
+				//TODO: result from attack effects
+			}
+			else {
+				Stop();
+				return;
+			}
 		}
 		else {
 			Stop();
@@ -259,6 +271,53 @@ bool AAvatar::IsTaskCombatTask() {
 	return GoalAction == EInteractionType::Attack;
 }
 
+//--------------------------------------------------------
+//-------------------------Effects------------------------
+//--------------------------------------------------------
+
+//--------------------------------------------------------
+//------------------On Incoming Damage--------------------
+void AAvatar::DelegateOnIncomingDamage(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+	for (UObject*current : GetEffects()) {
+		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			IEffectInterface::Execute_OnIncomingDamage(current, Damage, DamageCauser, CauserController);
+		}
+	}
+}
+
+//--------------------------------------------------------
+//---------------------On Damage Taken--------------------
+void AAvatar::DelegateOnDamageTaken(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+	for (UObject*current : GetEffects()) {
+		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			IEffectInterface::Execute_OnDamageTaken(current, Damage, DamageCauser, CauserController);
+		}
+	}
+
+}
+
+//--------------------------------------------------------
+//------------------On Outgoing Damage--------------------
+void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+	for (UObject*current : GetEffects()) {
+		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			IEffectInterface::Execute_OnOutgoingDamage(current, Damage, DamageCauser, CauserController);
+		}
+	}
+
+}
+
+//--------------------------------------------------------
+//----------------------On Damage Delt--------------------
+void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+	for (UObject*current : GetEffects()) {
+		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			IEffectInterface::Execute_OnDamageDelt(current, Damage, DamageCauser, CauserController);
+		}
+	}
+
+}
+
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------PUBLIC----------------------------------------------------------------------------------
@@ -326,6 +385,7 @@ void AAvatar::Tick(float DeltaTime){
 void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
 	DOREPLIFETIME(AAvatar, Health);
+	DOREPLIFETIME(AAvatar, MaxHealth);
 	DOREPLIFETIME(AAvatar, PercentTaskCompleted);
 	DOREPLIFETIME(AAvatar, IsDoingTask);
 	DOREPLIFETIME(AAvatar, TurnSpeed);
@@ -390,8 +450,7 @@ bool AAvatar::CanDoCurrentTask() {
 float AAvatar::GetCurrentTaskDuration() {
 	switch (GoalAction) {
 	case EInteractionType::Attack:
-		//Calculate based on weapon
-		return .5;
+		return CalculateAttackTime();
 		break;
 	case EInteractionType::Harvest:
 		//Calculate base on node
@@ -409,8 +468,7 @@ float AAvatar::GetCurrentTaskDuration() {
 float AAvatar::GetCurrentTaskCoolDownDuration() {
 	switch (GoalAction) {
 	case EInteractionType::Attack:
-		//Calculate based on weapon
-		return 1.f;
+		return CalculateAttackCooldownTime();
 	case EInteractionType::Harvest:
 		return .4;
 	case EInteractionType::Use:
@@ -449,3 +507,89 @@ float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 	return FinalHealthRemoved;
 }
 
+//--------------------------------------------------------
+//------------------CALC WEAPON SPEED---------------------
+float AAvatar::CalculateAttackTime(){
+	float retVal = 0.f;
+	if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
+		retVal = IWeaponInterface::Execute_GetWeaponAttackDuration(GetWeapon());
+	}
+	//Calculate Unarmed
+	if (retVal <= 0.f) {
+		retVal = .5;
+	}
+	//TODO:
+	//Calculate Bonus
+	return retVal;
+}
+
+//--------------------------------------------------------
+//----------------CALC WEAPON COOLDOWN--------------------
+float AAvatar::CalculateAttackCooldownTime(){
+	float retVal = 0.f;
+	if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
+		retVal = IWeaponInterface::Execute_GetWeaponAttackCooldown(GetWeapon());
+	}
+	//Calculate Unarmed
+	if (retVal <= 0.f) {
+		retVal = .5;
+	}
+	//TODO:
+	//Calculate Bonus
+	return retVal;
+}
+
+//--------------------------------------------------------
+//-----------------CALC WEAPON DAMAGE---------------------
+FDamageStruct AAvatar::CalculateAttackDamage() {
+	FDamageStruct retVal;
+	if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
+		IWeaponInterface::Execute_GetDamageStruct(GetWeapon(),retVal);
+	}
+	//TODO:
+	//Calculate Unarmed
+	else{
+		retVal.DamageAmount = 1.f;
+		retVal.DamageType = EDamageType::DT_DULL;
+	}
+	//TODO:
+	//Calculate Bonus
+	return retVal;
+}
+
+//--------------------------------------------------------
+//------------------CALC WEAPON RANGE---------------------
+float AAvatar::CalculateWeaponRange() {
+	float retVal = 0.f;
+	if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
+		//TODO:
+		//retVal = IWeaponInterface::Execute_GetWeaponAttackCooldown(GetWeapon());
+	}
+	//Calculate Unarmed
+	if (retVal <= 0.f) {
+		retVal = 32.f;
+	}
+	//TODO:
+	//Calculate Bonus
+	return retVal;
+}
+
+//--------------------------------------------------------
+//-----------------GET CURRENT WEAPON---------------------
+UItem* AAvatar::GetWeapon() {
+	return IsValid(GetQuintController()) ? GetQuintController()->GetEquipment(EEquipmentSlot::ES_WEAPON) : nullptr;
+}
+
+void AAvatar::ApplyDamage_Implementation(FDamageStruct Damage, UObject * DamageCauser, AController * CauserController){
+	if (!HasAuthority())
+		return;
+	SetIsInCombat(true);
+	//TODO OntakeDamageEvent
+	Damage.CollapseProbility();
+	Damage.DamageAmount = (Health - Damage.DamageAmount) >= 0.f ? Damage.DamageAmount : Health;
+	Health -= Damage.DamageAmount;
+	if (Health <= 0.f) {
+		Destroy(true);
+	}
+	//TODO Replicate to clients damagestruct
+}
