@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnApply(AActor* ToActor);
 	void OnApply_Implementation(AActor* ToActor) {}
+	UFUNCTION(BlueprintNativeEvent)
+	void OnRemove(AActor* FromActor);
+	void OnRemove_Implementation(AActor* FromActor) {}
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
@@ -32,10 +35,27 @@ public:
 	virtual void OnDamageTaken_Implementation(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnOutgoingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
-	virtual void OnOutgoingDamage_Implementation(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
+	void OnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
+	virtual void OnOutgoingDamage_Implementation(FDamageStruct& Damage, UObject* DamageTarget) {}
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnDamageDelt(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
-	virtual void OnDamageDelt_Implementation(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
+	void OnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
+	virtual void OnDamageDelt_Implementation(FDamageStruct& Damage, UObject* DamageTarget) {}
+
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnAttackSpeedCalculation(float& Speed);
+	virtual void OnWeaponSpeedCalculation_Implementation(float& Speed) {}
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnAttackCoolDownCalculation(float& Speed);
+	virtual void OnAttackCoolDownCalculation_Implementation(float& Duration) {}
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnActionSpeedCalculate(float& Speed);
+	virtual void OnActionSpeedCalculate_Implementation(float& Speed) {}
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnActionCoolDownCalculation(float& Speed);
+	virtual void OnActionCoolDownCalculation_Implementation(float& Duration) {}
 };

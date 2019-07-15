@@ -179,6 +179,8 @@ public:
 	//unequip item by reference
 	void UnEquipItem(UItem* Item);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<UItem*> GetEquipmentAsList();
 	//--------------------------------------------------------
 	//-----------------------INTERFACE------------------------
 	//--------------------------------------------------------
@@ -188,9 +190,19 @@ public:
 	void Client_DisplayUI(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 	void Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 
+	//Tell the client to display a UI and link it to a world reference
+	UFUNCTION(Client, Unreliable, BlueprintCallable)
+	void Client_DisplayUIReference(UUserWidget* WidgetReference, AActor* WorldReference = nullptr);
+	void Client_DisplayUIReference_Implementation(UUserWidget* WidgetReference, AActor* WorldReference = nullptr);
+
 	//Display UI, called from server
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void DisplayUI(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 	void DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference = nullptr);
 
+
+	//Display UI, called from server
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void DisplayUIReference(UUserWidget* WidgetReference, AActor* WorldReference = nullptr);
+	void DisplayUIReference_Implementation(UUserWidget* WidgetReference, AActor* WorldReference = nullptr);
 };

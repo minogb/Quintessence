@@ -47,4 +47,5 @@ struct FEquipmentStruct  {
 	UItem* Ring;
 	UItem* SetEquipment(UItem* Equipment, EEquipmentSlot Slot = EEquipmentSlot::ES_NONE);
 	UItem* Get(EEquipmentSlot Slot);
+	TArray<UItem*> GetAsList();
 };

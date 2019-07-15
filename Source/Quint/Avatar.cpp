@@ -165,8 +165,10 @@ void AAvatar::TaskCompleted() {
 			if (GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
 				FDamageEvent dmgEvent = FDamageEvent();
 				FDamageStruct Damage = CalculateAttackDamage();
+				//Delegate damage outgoing
 				IInteractable::Execute_ApplyDamage(GoalActor, Damage, this, GetQuintController());
-				//TODO: result from attack effects
+				//Delegate damage delt
+				DelegateOnDamageDelt(Damage, GoalActor->GetInstigatorController());
 			}
 			else {
 				Stop();
@@ -276,6 +278,14 @@ bool AAvatar::IsTaskCombatTask() {
 //--------------------------------------------------------
 
 //--------------------------------------------------------
+//------------------Get List of Effects-------------------
+TArray<UObject*> AAvatar::GetEffects(){
+	TArray<UObject*> retVal = TArray<UObject*>(Effects);
+	retVal.Append(GetQuintController()->GetEquipmentAsList());
+	return retVal;
+}
+
+//--------------------------------------------------------
 //------------------On Incoming Damage--------------------
 void AAvatar::DelegateOnIncomingDamage(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
 	for (UObject*current : GetEffects()) {
@@ -298,10 +308,10 @@ void AAvatar::DelegateOnDamageTaken(FDamageStruct & Damage, UObject * DamageCaus
 
 //--------------------------------------------------------
 //------------------On Outgoing Damage--------------------
-void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageTarget){
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
-			IEffectInterface::Execute_OnOutgoingDamage(current, Damage, DamageCauser, CauserController);
+			IEffectInterface::Execute_OnOutgoingDamage(current, Damage, DamageTarget);
 		}
 	}
 
@@ -309,10 +319,10 @@ void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageC
 
 //--------------------------------------------------------
 //----------------------On Damage Delt--------------------
-void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageTarget){
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
-			IEffectInterface::Execute_OnDamageDelt(current, Damage, DamageCauser, CauserController);
+			IEffectInterface::Execute_OnDamageDelt(current, Damage, DamageTarget);
 		}
 	}
 
@@ -386,6 +396,7 @@ void AAvatar::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifeti
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
 	DOREPLIFETIME(AAvatar, Health);
 	DOREPLIFETIME(AAvatar, MaxHealth);
+	DOREPLIFETIME(AAvatar, Effects);
 	DOREPLIFETIME(AAvatar, PercentTaskCompleted);
 	DOREPLIFETIME(AAvatar, IsDoingTask);
 	DOREPLIFETIME(AAvatar, TurnSpeed);
@@ -504,6 +515,7 @@ float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, 
 	if(Health<= 0.f){ 
 		Destroy(true);
 	}
+	
 	return FinalHealthRemoved;
 }
 
@@ -554,6 +566,7 @@ FDamageStruct AAvatar::CalculateAttackDamage() {
 	}
 	//TODO:
 	//Calculate Bonus
+	DelegateOnOutgoingDamage(retVal, GoalActor);
 	return retVal;
 }
 
@@ -584,9 +597,12 @@ void AAvatar::ApplyDamage_Implementation(FDamageStruct Damage, UObject * DamageC
 	if (!HasAuthority())
 		return;
 	SetIsInCombat(true);
-	//TODO OntakeDamageEvent
+	//Delegate on incoming damage before taking damage
+	DelegateOnIncomingDamage(Damage, DamageCauser, CauserController);
 	Damage.CollapseProbility();
 	Damage.DamageAmount = (Health - Damage.DamageAmount) >= 0.f ? Damage.DamageAmount : Health;
+	//Delegete on damage taken events
+	DelegateOnDamageTaken(Damage, DamageCauser, CauserController);
 	Health -= Damage.DamageAmount;
 	if (Health <= 0.f) {
 		Destroy(true);

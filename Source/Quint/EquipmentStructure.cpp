@@ -82,3 +82,34 @@ UItem * FEquipmentStruct::Get(EEquipmentSlot Slot){
 	}
 	return NULL;
 }
+
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Helm")
+UItem* Helm;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chest")
+UItem* Chest;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Leggings")
+UItem* Leggings;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boots")
+UItem* Boots;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gloves")
+UItem* Gloves;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+UItem* Weapon;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sheild")
+UItem* Sheild;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quiver")
+UItem* Quiver;
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ring")
+UItem* Ring;
+TArray<UItem*> FEquipmentStruct::GetAsList(){
+	TArray<UItem*> retVal = TArray<UItem*>();
+	retVal.Add(Helm);
+	retVal.Add(Chest);
+	retVal.Add(Leggings);
+	retVal.Add(Boots);
+	retVal.Add(Gloves);
+	retVal.Add(Weapon);
+	retVal.Add(Quiver);
+	retVal.Add(Ring);
+	return retVal;
+}

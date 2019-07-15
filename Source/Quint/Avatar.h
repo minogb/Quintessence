@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(Replicated)
 	float MaxHealth = 100.f;
 
+	UPROPERTY(Replicated)
+	TArray<UObject*> Effects;
+
 	//What our actor is after
 	AActor* GoalActor = nullptr;
 	//What our actor should use
@@ -112,15 +115,15 @@ protected:
 	//-------------------------Effects------------------------
 	//--------------------------------------------------------
 	//Get Effects - including equipment
-	TArray<UObject*> GetEffects() { return TArray<UObject*>(); }
+	TArray<UObject*> GetEffects();
 	//Incoming damage
 	void DelegateOnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
 	//Damage Taken
 	void DelegateOnDamageTaken(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
 	//Damge outgoing
-	void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
 	//Damage delt
-	void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
 
 public:	
 	// Sets default values for this character's properties

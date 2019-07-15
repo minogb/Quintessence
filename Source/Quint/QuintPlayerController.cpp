@@ -8,6 +8,7 @@
 #include "Item_World.h"
 #include "Item.h"
 #include "Interfaces/Equipment.h"
+#include "Interfaces/EffectInterface.h"
 #include "Interfaces/Tool.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/ActorChannel.h"
@@ -425,6 +426,9 @@ void AQuintPlayerController::EquipItem_Implementation(int Slot) {
 			if (!IsValid(Equipment.Get(slot))) {
 				Inventory[Slot] = NULL;
 				Equipment.SetEquipment(item);
+				if (IsValid(item) && item->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+					IEffectInterface::Execute_OnApply(item, GetPlayerAvatar());
+				}
 			}
 		}
 	}
@@ -443,12 +447,19 @@ void AQuintPlayerController::UnEquipItem(UItem * Item) {
 		}
 	}
 }
+TArray<UItem*> AQuintPlayerController::GetEquipmentAsList()
+{
+	return Equipment.GetAsList();
+}
 //--------------------------------------------------------
 void AQuintPlayerController::UnEquipItem_Implementation(EEquipmentSlot Slot) {
 	UItem* item = GetEquipment(Slot);
 	AddItemToInventory(item);
 	if (!IsValid(item)) {
 		Equipment.SetEquipment(NULL, Slot);
+		if (IsValid(item) && item->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			IEffectInterface::Execute_OnApply(item, GetPlayerAvatar());
+		}
 	}
 
 }
@@ -465,21 +476,32 @@ bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentSlot Slot)
 //--------------------------------------------------------
 //-----------------------DISPLAY UI-----------------------
 void AQuintPlayerController::DisplayUI_Implementation(TSubclassOf<UUserWidget> WidgetClass, AActor* WorldReference){
+	UUserWidget* WidgetReferenc = nullptr;
+	if(IsValid(WidgetClass))
+		WidgetReferenc = CreateWidget<UUserWidget>(this, WidgetClass);
+	DisplayUIReference(WidgetReferenc, WorldReference);
+}
+//--------------------------------------------------------
+void AQuintPlayerController::Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference){
+	DisplayUI(WidgetClass, WorldReference);
+}
+
+//--------------------------------------------------------
+void AQuintPlayerController::DisplayUIReference_Implementation(UUserWidget* WidgetReference, AActor* WorldReference) {
 
 	if (IsValid(ActiveWidget)) {
 		ActiveWidget->RemoveFromParent();
 		ActiveWidget = NULL;
 	}
-	if(IsValid(WidgetClass))
-		ActiveWidget = CreateWidget<UUserWidget>(this, WidgetClass);
+	ActiveWidget = WidgetReference;
 	if (IsValid(ActiveWidget)) {
 		ActiveWidget->AddToViewport();
 	}
 	if (IsValid(ActiveWidget) && ActiveWidget->GetClass()->ImplementsInterface(UCraftingWidgetInterface::StaticClass())) {
-		ICraftingWidgetInterface::Execute_SetWorldReference(ActiveWidget, WorldReference); 
+		ICraftingWidgetInterface::Execute_SetWorldReference(ActiveWidget, WorldReference);
 	}
 }
 //--------------------------------------------------------
-void AQuintPlayerController::Client_DisplayUI_Implementation(TSubclassOf<class UUserWidget> WidgetClass, AActor* WorldReference){
-	DisplayUI(WidgetClass, WorldReference);
+void AQuintPlayerController::Client_DisplayUIReference_Implementation(UUserWidget* WidgetReference, AActor* WorldReference) {
+	DisplayUIReference(WidgetReference, WorldReference);
 }
