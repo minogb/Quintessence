@@ -11,6 +11,7 @@
 /**
  * 
  */
+class AAvatar;
 UINTERFACE(MinimalAPI)
 class  UWeaponInterface : public UInterface {
 	GENERATED_BODY()
@@ -40,4 +41,11 @@ public:
 	void GetDamageStruct(FDamageStruct& Damage);
 	void GetDamageStruct_Implementation(FDamageStruct& Damage) {};
 
+	UFUNCTION(BlueprintNativeEvent)
+	bool CanUseWeapon(AAvatar* Avatar);
+	bool CanUseWeapon_Implementation(AAvatar* Avatar) { return true; };
+
+	UFUNCTION(BlueprintNativeEvent)
+	bool UseWeapon(AAvatar* DamageCauser, FDamageStruct& Damage, AAvatar* DamageTarget);
+	bool UseWeapon_Implementation(AAvatar* DamageCauser, FDamageStruct& Damage, AAvatar* DamageTarget) { return CanUseWeapon(DamageCauser); };
 };

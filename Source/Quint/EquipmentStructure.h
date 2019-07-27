@@ -49,3 +49,4 @@ struct FEquipmentStruct  {
 	UItem* Get(EEquipmentSlot Slot);
 	TArray<UItem*> GetAsList();
 };
+	

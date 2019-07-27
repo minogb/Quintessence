@@ -281,7 +281,8 @@ bool AAvatar::IsTaskCombatTask() {
 //------------------Get List of Effects-------------------
 TArray<UObject*> AAvatar::GetEffects(){
 	TArray<UObject*> retVal = TArray<UObject*>(Effects);
-	retVal.Append(GetQuintController()->GetEquipmentAsList());
+	if(IsValid(GetQuintController()))
+		retVal.Append(GetQuintController()->GetEquipmentAsList());
 	return retVal;
 }
 
@@ -326,6 +327,22 @@ void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageTarge
 		}
 	}
 
+}
+
+void AAvatar::DelegateOnActionSpeedCalculation(float & Speed, EInteractionType Action){
+	for (UObject*current : GetEffects()) {
+		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			IEffectInterface::Execute_OnActionSpeedCalculation(current, Speed, Action);
+		}
+	}
+}
+
+void AAvatar::DelegateOnCoolDownCalculation(float & Speed, EInteractionType Action){
+	for (UObject*current : GetEffects()) {
+		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			IEffectInterface::Execute_OnActionCoolDownCalculation(current, Speed, Action);
+		}
+	}
 }
 
 /*
@@ -459,34 +476,40 @@ bool AAvatar::CanDoCurrentTask() {
 //--------------------------------------------------------
 //-------------------GET TASK DURATION--------------------
 float AAvatar::GetCurrentTaskDuration() {
+	float retVal = 0;
 	switch (GoalAction) {
 	case EInteractionType::Attack:
-		return CalculateAttackTime();
+		retVal = CalculateAttackTime();
 		break;
 	case EInteractionType::Harvest:
 		//Calculate base on node
-		return 1.f;
+		retVal = 1.f;
 	case EInteractionType::Use:
-		return !Cast<UCraftingInfo>(UseObject) ? 0.1 : Cast<UCraftingInfo>(UseObject)->GetCraftTime();
+		retVal = !Cast<UCraftingInfo>(UseObject) ? 0.1 : Cast<UCraftingInfo>(UseObject)->GetCraftTime();
 	default:
-		return 0.1;
+		retVal = 0.1;
 		break;
 	}
+	DelegateOnActionSpeedCalculation(retVal, GoalAction);
+	return retVal;
 }
 
 //--------------------------------------------------------
 //------------------TASK COOL DOWN TIME-------------------
 float AAvatar::GetCurrentTaskCoolDownDuration() {
+	float retVal = 0;
 	switch (GoalAction) {
 	case EInteractionType::Attack:
-		return CalculateAttackCooldownTime();
+		retVal = CalculateAttackCooldownTime();
 	case EInteractionType::Harvest:
-		return .4;
+		retVal = .4;
 	case EInteractionType::Use:
-		return !Cast<UCraftingInfo>(UseObject) ? 0.1 : 0.5;
+		retVal = !Cast<UCraftingInfo>(UseObject) ? 0.1 : 0.5;
 	default:
-		return 0.5;
+		retVal = 0.5;
 	}
+	DelegateOnActionSpeedCalculation(retVal, GoalAction);
+	return retVal;
 }
 
 //--------------------------------------------------------

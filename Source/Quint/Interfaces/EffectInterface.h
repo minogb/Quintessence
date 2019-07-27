@@ -42,20 +42,11 @@ public:
 	void OnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
 	virtual void OnDamageDelt_Implementation(FDamageStruct& Damage, UObject* DamageTarget) {}
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnActionSpeedCalculation(float& Speed, EInteractionType Action);
+	virtual void OnActionSpeedCalculation_Implementation(float& Speed, EInteractionType Action) {}
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnAttackSpeedCalculation(float& Speed);
-	virtual void OnWeaponSpeedCalculation_Implementation(float& Speed) {}
-
-	UFUNCTION(BlueprintNativeEvent)
-	void OnAttackCoolDownCalculation(float& Speed);
-	virtual void OnAttackCoolDownCalculation_Implementation(float& Duration) {}
-
-	UFUNCTION(BlueprintNativeEvent)
-	void OnActionSpeedCalculate(float& Speed);
-	virtual void OnActionSpeedCalculate_Implementation(float& Speed) {}
-
-	UFUNCTION(BlueprintNativeEvent)
-	void OnActionCoolDownCalculation(float& Speed);
-	virtual void OnActionCoolDownCalculation_Implementation(float& Duration) {}
+	void OnActionCoolDownCalculation(float& Speed, EInteractionType Action);
+	virtual void OnActionCoolDownCalculation_Implementation(float& Duration, EInteractionType Action) {}
 };

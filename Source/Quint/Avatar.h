@@ -124,6 +124,10 @@ protected:
 	void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
 	//Damage delt
 	void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
+	//Attack Speed
+	void DelegateOnActionSpeedCalculation(float& Speed, EInteractionType Action);
+	//Attack Speed
+	void DelegateOnCoolDownCalculation(float& Speed, EInteractionType Action);
 
 public:	
 	// Sets default values for this character's properties
