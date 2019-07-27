@@ -38,12 +38,13 @@ public:
 	float GetWeaponAttackCooldown_Implementation() { return 0.25; };
 
 	UFUNCTION(BlueprintNativeEvent)
-	void GetDamageStruct(FDamageStruct& Damage);
-	void GetDamageStruct_Implementation(FDamageStruct& Damage) {};
+	bool GetDamageStruct(UPARAM(ref)FDamageStruct& Damage);
+	bool GetDamageStruct_Implementation(UPARAM(ref)FDamageStruct& Damage) { return true; };
 
 	UFUNCTION(BlueprintNativeEvent)
 	bool CanUseWeapon(AAvatar* Avatar);
 	bool CanUseWeapon_Implementation(AAvatar* Avatar) { return true; };
+
 	UFUNCTION(BlueprintNativeEvent)
 	bool UseWeapon(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AAvatar* DamageTarget);
 	bool UseWeapon_Implementation(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AAvatar* DamageTarget) { return CanUseWeapon(DamageCauser); };

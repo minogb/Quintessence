@@ -229,5 +229,5 @@ public:
 	//--------------------------------------------------------
 	virtual uint8 GetAvaliableTasks_Implementation() override { return (uint8)EInteractionType::Follow | (uint8)EInteractionType::Trade | (uint8)EInteractionType::Examine | (uint8)EInteractionType::Attack; }
 	virtual EInteractionType GetDefaultTask_Implementation() override { return EInteractionType::Attack; }
-	virtual void ApplyDamage_Implementation(FDamageStruct Damage, UObject* DamageCauser, AController* CauserController = nullptr) override;
+	virtual void ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) override;
 };

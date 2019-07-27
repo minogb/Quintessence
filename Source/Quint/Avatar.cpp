@@ -482,10 +482,13 @@ float AAvatar::GetCurrentTaskDuration() {
 		retVal = CalculateAttackTime();
 		break;
 	case EInteractionType::Harvest:
+		//TODO:
 		//Calculate base on node
 		retVal = 1.f;
+		break;
 	case EInteractionType::Use:
 		retVal = !Cast<UCraftingInfo>(UseObject) ? 0.1 : Cast<UCraftingInfo>(UseObject)->GetCraftTime();
+		break;
 	default:
 		retVal = 0.1;
 		break;
@@ -501,12 +504,17 @@ float AAvatar::GetCurrentTaskCoolDownDuration() {
 	switch (GoalAction) {
 	case EInteractionType::Attack:
 		retVal = CalculateAttackCooldownTime();
+		break;
 	case EInteractionType::Harvest:
+		//TODO:
 		retVal = .4;
+		break;
 	case EInteractionType::Use:
 		retVal = !Cast<UCraftingInfo>(UseObject) ? 0.1 : 0.5;
+		break;
 	default:
 		retVal = 0.5;
+		break;
 	}
 	DelegateOnActionSpeedCalculation(retVal, GoalAction);
 	return retVal;
@@ -616,7 +624,7 @@ UItem* AAvatar::GetWeapon() {
 	return IsValid(GetQuintController()) ? GetQuintController()->GetEquipment(EEquipmentSlot::ES_WEAPON) : nullptr;
 }
 
-void AAvatar::ApplyDamage_Implementation(FDamageStruct Damage, UObject * DamageCauser, AController * CauserController){
+void AAvatar::ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject * DamageCauser, AController * CauserController){
 	if (!HasAuthority())
 		return;
 	SetIsInCombat(true);

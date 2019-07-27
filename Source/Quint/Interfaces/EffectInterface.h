@@ -27,26 +27,26 @@ public:
 	void OnRemove_Implementation(AActor* FromActor) {}
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
-	virtual void OnIncomingDamage_Implementation(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
+	bool OnIncomingDamage(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
+	virtual bool OnIncomingDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) { return true; }
 	
 	UFUNCTION(BlueprintNativeEvent)
-	void OnDamageTaken(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
-	virtual void OnDamageTaken_Implementation(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
+	bool OnDamageTaken(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
+	virtual bool OnDamageTaken_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) { return true; }
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
-	virtual void OnOutgoingDamage_Implementation(FDamageStruct& Damage, UObject* DamageTarget) {}
+	bool OnOutgoingDamage(UPARAM(ref)FDamageStruct& Damage, UObject* DamageTarget);
+	virtual bool OnOutgoingDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageTarget) { return true; }
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
-	virtual void OnDamageDelt_Implementation(FDamageStruct& Damage, UObject* DamageTarget) {}
+	bool OnDamageDelt(UPARAM(ref)FDamageStruct& Damage, UObject* DamageTarget);
+	virtual bool OnDamageDelt_Implementation(FDamageStruct& Damage, UObject* DamageTarget) { return true; }
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnActionSpeedCalculation(float& Speed, EInteractionType Action);
-	virtual void OnActionSpeedCalculation_Implementation(float& Speed, EInteractionType Action) {}
+	bool OnActionSpeedCalculation(UPARAM(ref)float& Speed, EInteractionType Action);
+	virtual bool OnActionSpeedCalculation_Implementation(UPARAM(ref)float& Speed, EInteractionType Action) { return true; }
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnActionCoolDownCalculation(float& Speed, EInteractionType Action);
-	virtual void OnActionCoolDownCalculation_Implementation(float& Duration, EInteractionType Action) {}
+	bool OnActionCoolDownCalculation(UPARAM(ref)float& Speed, EInteractionType Action);
+	virtual bool OnActionCoolDownCalculation_Implementation(UPARAM(ref)float& Duration, EInteractionType Action) { return true; }
 };
