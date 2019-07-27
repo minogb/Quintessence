@@ -44,8 +44,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	bool CanUseWeapon(AAvatar* Avatar);
 	bool CanUseWeapon_Implementation(AAvatar* Avatar) { return true; };
-
 	UFUNCTION(BlueprintNativeEvent)
-	bool UseWeapon(AAvatar* DamageCauser, FDamageStruct& Damage, AAvatar* DamageTarget);
-	bool UseWeapon_Implementation(AAvatar* DamageCauser, FDamageStruct& Damage, AAvatar* DamageTarget) { return CanUseWeapon(DamageCauser); };
+	bool UseWeapon(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AAvatar* DamageTarget);
+	bool UseWeapon_Implementation(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AAvatar* DamageTarget) { return CanUseWeapon(DamageCauser); };
 };

@@ -139,6 +139,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//Get controller
+	UFUNCTION(BlueprintCallable)
 	class AQuintPlayerController* GetQuintController();
 
 	//--------------------------------------------------------
