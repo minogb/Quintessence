@@ -246,6 +246,8 @@ bool AQuintPlayerController::HasRoom(UItem * Item) {
 }
 //--------------------------------------------------------
 bool AQuintPlayerController::HasRoom(TSubclassOf<UItem> Item, int Quantity) {
+	if (!IsValid(Item) || Quantity <= 0)
+		return true;
 	for (UItem* current : Inventory) {
 		if (!IsValid(current))
 			return true;

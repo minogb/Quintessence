@@ -36,28 +36,32 @@ protected:
 	//Get the rewards from a loot table. Should be called internally only
 	TArray<UItem*> GetLootRewards(TArray<FLootStruct>LootTable);
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr);
 	virtual bool IsValidTask_Implementation(TEnumAsByte<EInteractionType> Task, class AAvatar* Player = nullptr);
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool UseThis(UObject* With, UObject* Source = nullptr);
 	virtual bool UseThis_Implementation(UObject* With, UObject* Source = nullptr) { return false; }
 
 	//Returns bitmask
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	uint8 GetAvaliableTasks();
 	virtual uint8 GetAvaliableTasks_Implementation() { return (uint8)EInteractionType::No_Interaction; }
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	EInteractionType GetDefaultTask();
 	virtual EInteractionType GetDefaultTask_Implementation() { return EInteractionType::No_Interaction; }
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	float GetSize();
 	virtual float GetSize_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void ApplyDamage(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
 	virtual void ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void ReturnDamageDelt(FDamageStruct Damage, UObject* DamagedActor);
+	virtual void ReturnDamageDelt_Implementation(FDamageStruct Damage, UObject* DamagedActor) {}
 };

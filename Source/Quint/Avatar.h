@@ -114,21 +114,27 @@ protected:
 	//--------------------------------------------------------
 	//-------------------------Effects------------------------
 	//--------------------------------------------------------
+	//TODO: Should all of these effect functions be exposed to public?
 	//Get Effects - including equipment
 	TArray<UObject*> GetEffects();
 	//Incoming damage
-	void DelegateOnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	UFUNCTION(BlueprintCallable)
+		void DelegateOnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
 	//Damage Taken
-	void DelegateOnDamageTaken(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	UFUNCTION(BlueprintCallable)
+		void DelegateOnDamageTaken(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
 	//Damge outgoing
-	void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
+	UFUNCTION(BlueprintCallable)
+		void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
 	//Damage delt
-	void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
+	UFUNCTION(BlueprintCallable)
+		void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
 	//Attack Speed
-	void DelegateOnActionSpeedCalculation(float& Speed, EInteractionType Action);
+	UFUNCTION(BlueprintCallable)
+		void DelegateOnActionSpeedCalculation(float& Speed, EInteractionType Action);
 	//Attack Speed
-	void DelegateOnCoolDownCalculation(float& Speed, EInteractionType Action);
-
+	UFUNCTION(BlueprintCallable)
+		void DelegateOnCoolDownCalculation(float& Speed, EInteractionType Action);
 public:	
 	// Sets default values for this character's properties
 	AAvatar();
@@ -222,7 +228,6 @@ public:
 	//Get our health as a percent
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent() { return Health / MaxHealth; }
-
 
 	//--------------------------------------------------------
 	//-----------------INTERACTABLE INTERFACE-----------------

@@ -165,10 +165,17 @@ void AAvatar::TaskCompleted() {
 			if (GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
 				FDamageEvent dmgEvent = FDamageEvent();
 				FDamageStruct Damage = CalculateAttackDamage();
-				//Delegate damage outgoing
-				IInteractable::Execute_ApplyDamage(GoalActor, Damage, this, GetQuintController());
-				//Delegate damage delt
-				DelegateOnDamageDelt(Damage, GoalActor->GetInstigatorController());
+				//Deligate attack to weapon
+				if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
+					//Let the weapon deal damage
+					IWeaponInterface::Execute_UseWeapon(GetWeapon(),this,Damage,GoalActor);
+				}
+				else {
+					//Delegate damage outgoing
+					IInteractable::Execute_ApplyDamage(GoalActor, Damage, this, GetQuintController());
+					//Delegate damage delt
+					DelegateOnDamageDelt(Damage, GoalActor);
+				}
 			}
 			else {
 				Stop();
@@ -279,16 +286,16 @@ bool AAvatar::IsTaskCombatTask() {
 
 //--------------------------------------------------------
 //------------------Get List of Effects-------------------
-TArray<UObject*> AAvatar::GetEffects(){
+TArray<UObject*> AAvatar::GetEffects() {
 	TArray<UObject*> retVal = TArray<UObject*>(Effects);
-	if(IsValid(GetQuintController()))
+	if (IsValid(GetQuintController()))
 		retVal.Append(GetQuintController()->GetEquipmentAsList());
 	return retVal;
 }
 
 //--------------------------------------------------------
 //------------------On Incoming Damage--------------------
-void AAvatar::DelegateOnIncomingDamage(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+void AAvatar::DelegateOnIncomingDamage(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController) {
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnIncomingDamage(current, Damage, DamageCauser, CauserController);
@@ -298,7 +305,7 @@ void AAvatar::DelegateOnIncomingDamage(FDamageStruct & Damage, UObject * DamageC
 
 //--------------------------------------------------------
 //---------------------On Damage Taken--------------------
-void AAvatar::DelegateOnDamageTaken(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
+void AAvatar::DelegateOnDamageTaken(FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController) {
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnDamageTaken(current, Damage, DamageCauser, CauserController);
@@ -309,7 +316,7 @@ void AAvatar::DelegateOnDamageTaken(FDamageStruct & Damage, UObject * DamageCaus
 
 //--------------------------------------------------------
 //------------------On Outgoing Damage--------------------
-void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageTarget){
+void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageTarget) {
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnOutgoingDamage(current, Damage, DamageTarget);
@@ -320,7 +327,7 @@ void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageT
 
 //--------------------------------------------------------
 //----------------------On Damage Delt--------------------
-void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageTarget){
+void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageTarget) {
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnDamageDelt(current, Damage, DamageTarget);
@@ -329,7 +336,7 @@ void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageTarge
 
 }
 
-void AAvatar::DelegateOnActionSpeedCalculation(float & Speed, EInteractionType Action){
+void AAvatar::DelegateOnActionSpeedCalculation(float & Speed, EInteractionType Action) {
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnActionSpeedCalculation(current, Speed, Action);
@@ -337,7 +344,7 @@ void AAvatar::DelegateOnActionSpeedCalculation(float & Speed, EInteractionType A
 	}
 }
 
-void AAvatar::DelegateOnCoolDownCalculation(float & Speed, EInteractionType Action){
+void AAvatar::DelegateOnCoolDownCalculation(float & Speed, EInteractionType Action) {
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnActionCoolDownCalculation(current, Speed, Action);
@@ -467,10 +474,22 @@ bool AAvatar::ValidTask() {
 //--------------------------------------------------------
 //-----------------CAN DO CURRENT TASK--------------------
 bool AAvatar::CanDoCurrentTask() {
-	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-		return IInteractable::Execute_IsValidTask(GoalActor, GoalAction, this);
+	bool retVal = false;
+	switch (GoalAction) {
+	case EInteractionType::Attack:
+		if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
+			retVal = IWeaponInterface::Execute_CanUseWeapon(GetWeapon(),this);
+		}
+		break;
+	default:
+		if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+			retVal = IInteractable::Execute_IsValidTask(GoalActor, GoalAction, this);
+		}
+		else
+			retVal = !IsValid(GoalActor);
+		break;
 	}
-	return !IsValid(GoalActor);
+	return retVal;
 }
 
 //--------------------------------------------------------
@@ -606,8 +625,7 @@ FDamageStruct AAvatar::CalculateAttackDamage() {
 float AAvatar::CalculateWeaponRange() {
 	float retVal = 0.f;
 	if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
-		//TODO:
-		//retVal = IWeaponInterface::Execute_GetWeaponAttackCooldown(GetWeapon());
+		retVal = IWeaponInterface::Execute_GetWeaponRange(GetWeapon());
 	}
 	//Calculate Unarmed
 	if (retVal <= 0.f) {
@@ -637,6 +655,10 @@ void AAvatar::ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObje
 	Health -= Damage.DamageAmount;
 	if (Health <= 0.f) {
 		Destroy(true);
+	}
+	//Tell the damage causes how much they damaged us
+	if (IsValid(DamageCauser) && DamageCauser->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+		IInteractable::Execute_ReturnDamageDelt(DamageCauser, Damage, this);
 	}
 	//TODO Replicate to clients damagestruct
 }
