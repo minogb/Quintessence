@@ -137,36 +137,6 @@ void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTable
 
 	}
 }
-//--------------------------------------------------------
-//----------------------CONSUME ITEM----------------------
-bool AQuintPlayerController::ConsumeItem(TSubclassOf<UItem> Item, int Quantity, bool FullConsumption) {
-	TArray<int> Indexs;
-	int currentQuantity = Quantity;
-	for (int i = 0; i < Inventory.Num(); i++) {
-		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i]) && Inventory[i]->IsA(Item)) {
-			Indexs.Add(i);
-			currentQuantity -= Inventory[i]->GetStackSize();
-			if (currentQuantity <= 0)
-				break;
-		}
-	}
-	if (FullConsumption && currentQuantity > 0)
-		return false;
-	currentQuantity = Quantity;
-	for (int current : Indexs) {
-		if (Quantity - Inventory[current]->GetStackSize() >= 0) {
-			Quantity -= Inventory[current]->GetStackSize();
-			Inventory[current] = NULL;
-		}
-		else {
-			Quantity -= Inventory[current]->GetStackSize();
-			Inventory[current]->SetStackSize(Quantity*-1);
-			return true;
-		}
-	}
-	return false;
-
-}
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------PUBLIC----------------------------------------------------------------------------------
@@ -317,11 +287,43 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item) {
 }
 //--------------------------------------------------------
 void AQuintPlayerController::AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity) {
-	UItem* item = NewObject<UItem>(this, ItemClass);
-	item->SetStackSize(Quantity);
-	AddItemToInventory(item);
+	if (IsValid(ItemClass) && Quantity > 0) {
+		UItem* item = NewObject<UItem>(this, ItemClass);
+		item->SetStackSize(Quantity);
+		AddItemToInventory(item);
+	}
 }
 
+//--------------------------------------------------------
+//----------------------CONSUME ITEM----------------------
+bool AQuintPlayerController::ConsumeItem(TSubclassOf<UItem> Item, int Quantity, bool FullConsumption) {
+	TArray<int> Indexs;
+	int currentQuantity = Quantity;
+	for (int i = 0; i < Inventory.Num(); i++) {
+		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i]) && Inventory[i]->IsA(Item)) {
+			Indexs.Add(i);
+			currentQuantity -= Inventory[i]->GetStackSize();
+			if (currentQuantity <= 0)
+				break;
+		}
+	}
+	if (FullConsumption && currentQuantity > 0)
+		return false;
+	currentQuantity = Quantity;
+	for (int current : Indexs) {
+		if (Quantity - Inventory[current]->GetStackSize() >= 0) {
+			Quantity -= Inventory[current]->GetStackSize();
+			Inventory[current] = NULL;
+		}
+		else {
+			Quantity -= Inventory[current]->GetStackSize();
+			Inventory[current]->SetStackSize(Quantity*-1);
+			return true;
+		}
+	}
+	return false;
+
+}
 //--------------------------------------------------------
 //------------------START CRAFTING ITEM-------------------
 void AQuintPlayerController::StartCraftingItem_Implementation(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount) {
@@ -334,6 +336,15 @@ void AQuintPlayerController::StartCraftingItem_Implementation(AActor* AtLocation
 //--------------------------------------------------------
 //-------------------CAN CRAFT RECIPE---------------------
 bool AQuintPlayerController::CanCraftRecipe(FCraftingStruct Recipe) {
+	for (FItemCraftingStruct &current : Recipe.Input) {
+		if (!HasItem(current.Item, current.Count))
+			return false;
+	}
+	return HasRoom(Recipe.Output.Item, Recipe.Output.Count);
+}
+//--------------------------------------------------------
+//----------------Has Item to Consume---------------------
+bool AQuintPlayerController::HasItemToConsume(TSubclassOf<UItem> Item, int Quantity = 1) {
 	for (FItemCraftingStruct &current : Recipe.Input) {
 		if (!HasItem(current.Item, current.Count))
 			return false;

@@ -69,9 +69,6 @@ protected:
 	void Server_CraftRecipe_Implementation(FName RecipeTableRowName);
 	bool Server_CraftRecipe_Validate(FName RecipeTableRowName) { return true; };
 	
-	//Destroy item of class and qaunitty in our inventory
-	//@FullConsumption only destroy if we have  the whole quantity
-	bool ConsumeItem(TSubclassOf<UItem> Item, int Quantity = 1, bool FullConsumption = true);
 
 public:
 	//Init
@@ -116,15 +113,22 @@ public:
 	//Drop item in slot of inventory
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void DropItem(int Slot);
+	UFUNCTION(BlueprintCallable)
 	void DropItem_Implementation(int Slot);
+	UFUNCTION(BlueprintCallable)
 	bool DropItem_Validate(int Slot);
 
 	//Add An item to the inventory - from world
+	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(class AItem_World* ItemWorld);
 	//Add An item to the inventory - from item reference
 	void AddItemToInventory(class UItem*& Item);
 	//Add An item to the inventory - from item class
 	void AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity);
+	//Destroy item of class and qaunitty in our inventory
+	//@FullConsumption only destroy if we have  the whole quantity
+	UFUNCTION(BlueprintCallable)
+	bool ConsumeItem(TSubclassOf<UItem> Item, int Quantity = 1, bool FullConsumption = true);
 
 	//------------------------Crafting------------------------
 
