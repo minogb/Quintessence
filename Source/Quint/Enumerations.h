@@ -30,12 +30,12 @@ struct FDamageStruct : public FTableRowBase {
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float DamageAmount = 0;
+	float DamageAmount = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EDamageType DamageType;
 	//0-1% chance of glancing
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float GlanceChance = 0;
+	float GlanceChance = .125;
 	//0-1% minimum value to reduce damage by
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GlanceMultiplierFloor = 0.25;
@@ -44,7 +44,7 @@ public:
 	float GlanceMultiplierCeiling = 0.5;
 	//0-1% chance of criting
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CritChance = 0;
+	float CritChance = .125;
 	//Minimum amount damage should be multiplyed by after crit
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CritMultiplierFloor = 2;

@@ -268,6 +268,7 @@ void AQuintPlayerController::AddItemToInventory(AItem_World* ItemWorld) {
 void AQuintPlayerController::AddItemToInventory(UItem*& Item) {
 	if (!IsValid(Item))
 		return;
+	//Try to add item to an existing slot
 	for (int i = 0; i < InventorySizeMax; i++) {
 		if (IsValid(Inventory[i])) {
 			Inventory[i]->Combine(Item);
@@ -276,10 +277,11 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item) {
 		if (!IsValid(Item))
 			break;
 	}
-
+	//Add Item to a new slot
 	for (int i = 0; IsValid(Item) && Item->GetStackSize() > 0 && i < InventorySizeMax; i++) {
 		if (!IsValid(Inventory[i])) {
 			Inventory[i] = Item;
+			Inventory[i]->Owner = this;
 			Item = nullptr;
 			break;
 		}
@@ -336,15 +338,6 @@ void AQuintPlayerController::StartCraftingItem_Implementation(AActor* AtLocation
 //--------------------------------------------------------
 //-------------------CAN CRAFT RECIPE---------------------
 bool AQuintPlayerController::CanCraftRecipe(FCraftingStruct Recipe) {
-	for (FItemCraftingStruct &current : Recipe.Input) {
-		if (!HasItem(current.Item, current.Count))
-			return false;
-	}
-	return HasRoom(Recipe.Output.Item, Recipe.Output.Count);
-}
-//--------------------------------------------------------
-//----------------Has Item to Consume---------------------
-bool AQuintPlayerController::HasItemToConsume(TSubclassOf<UItem> Item, int Quantity = 1) {
 	for (FItemCraftingStruct &current : Recipe.Input) {
 		if (!HasItem(current.Item, current.Count))
 			return false;

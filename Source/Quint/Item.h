@@ -35,17 +35,17 @@ class QUINT_API UItem : public UObject
 {
 	GENERATED_BODY()
 protected:
-
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	       
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	int StackSize = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	int MaxStackSize = 2;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	int IndexId = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	int UniqueItemId = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	FString ItemName = "Item";
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	UTexture2D* ImageTexture;
@@ -53,6 +53,8 @@ protected:
 	FColor Color;
 	TArray<EItemAction> Actions;
 public:
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	UObject* Owner;
 	UItem();
 	UPROPERTY(Replicated)
 	uint32 bReplicatedFlag:1;
@@ -70,6 +72,7 @@ public:
 	TArray<EItemAction> GetCustomInventoryOptions() {return Actions;}
 	void Combine(UItem*& that);
 	virtual bool IsSupportedForNetworking() const override{return true;}
+	UFUNCTION(BlueprintCallable)
 	void SetStackSize(int Amount){StackSize = Amount <= MaxStackSize ? Amount : MaxStackSize;}
 	static UItem* CREATE_ITEM(AActor* Outer, TSubclassOf<UItem> SubClass, int Amount);
 };

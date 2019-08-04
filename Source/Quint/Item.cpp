@@ -15,6 +15,7 @@ void UItem::Combine(UItem*& that){
 	if(that->StackSize<=0){
 		that = nullptr;
 	}
+	
 }
 
 UItem::UItem() {
@@ -31,6 +32,7 @@ void UItem::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetime
 	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
 	DOREPLIFETIME(UItem, StackSize);
 	DOREPLIFETIME(UItem, bReplicatedFlag);
+	DOREPLIFETIME(UItem, Owner);
 }
 UItem * UItem::CREATE_ITEM(AActor* Outer, TSubclassOf<UItem> SubClass, int Amount)
 {

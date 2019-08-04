@@ -23,29 +23,29 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	bool SetWeaponMode(int Mode = 0);
-	bool SetWeaponMode_Implementation(int Mode = 0) { return false; };
+	virtual bool SetWeaponMode_Implementation(int Mode = 0) { return false; };
 
 	UFUNCTION(BlueprintNativeEvent)
 	float GetWeaponRange();
-	float GetWeaponRange_Implementation() { return 32.f; };
+	virtual float GetWeaponRange_Implementation() { return 32.f; };
 
 	UFUNCTION(BlueprintNativeEvent)
 	float GetWeaponAttackDuration();
-	float GetWeaponAttackDuration_Implementation() { return 0.25; };
+	virtual float GetWeaponAttackDuration_Implementation() { return 0.25; };
 
 	UFUNCTION(BlueprintNativeEvent)
 	float GetWeaponAttackCooldown();
-	float GetWeaponAttackCooldown_Implementation() { return 0.25; };
+	virtual float GetWeaponAttackCooldown_Implementation() { return 0.25; };
 
 	UFUNCTION(BlueprintNativeEvent)
 	bool GetDamageStruct(UPARAM(ref)FDamageStruct& Damage);
-	bool GetDamageStruct_Implementation(UPARAM(ref)FDamageStruct& Damage) { return true; };
+	virtual bool GetDamageStruct_Implementation(UPARAM(ref)FDamageStruct& Damage) { return true; };
 
 	UFUNCTION(BlueprintNativeEvent)
 	bool CanUseWeapon(AAvatar* Avatar);
-	bool CanUseWeapon_Implementation(AAvatar* Avatar) { return true; };
+	virtual bool CanUseWeapon_Implementation(AAvatar* Avatar) { return true; };
 
 	UFUNCTION(BlueprintNativeEvent)
 	bool UseWeapon(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AActor* DamageTarget);
-	bool UseWeapon_Implementation(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AActor* DamageTarget) { return CanUseWeapon(DamageCauser); };
+	virtual bool UseWeapon_Implementation(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AActor* DamageTarget) { return CanUseWeapon(DamageCauser); };
 };

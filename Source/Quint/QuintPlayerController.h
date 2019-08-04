@@ -59,9 +59,6 @@ protected:
 	//What slot in our inventory is this item?
 	int GetIndexOfItem(UItem* Item);
 
-	//Do we have an item of class and quantity?
-	UFUNCTION(BlueprintCallable)
-	bool HasItem(TSubclassOf<UItem> Item, int Quantity = 1);
 
 	//Craft recipie based on table recipe list
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
@@ -104,6 +101,9 @@ public:
 	bool HasRoom(UItem* Item);
 	//Get if we have room for item - class/Quantity
 	bool HasRoom(TSubclassOf<UItem> Item, int Quantity);
+	//Do we have an item of class and quantity?
+	UFUNCTION(BlueprintCallable)
+	bool HasItem(TSubclassOf<UItem> Item, int Quantity = 1);
 
 	//---------------------Manipulation-----------------------
 

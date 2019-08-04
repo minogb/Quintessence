@@ -387,7 +387,6 @@ void AAvatar::Tick(float DeltaTime){
 	if(ValidTask()){
 		FRotator lookAt = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation);
 		lookAt = FRotator(0, lookAt.Yaw, 0);
-		
 		SetActorRotation(FMath::RInterpTo(GetActorRotation(), lookAt, DeltaTime, TurnSpeed));
 		//AddActorWorldRotation(rotator);
 		//At goal
