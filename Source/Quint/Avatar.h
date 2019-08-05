@@ -8,11 +8,9 @@
 #include "Enumerations.h"
 #include "Avatar.generated.h"
 
-#define ECC_Interactable ECC_GameTraceChannel1
 UCLASS()
 class QUINT_API AAvatar : public ACharacter, public IInteractable {
 	GENERATED_BODY()
-
 protected:
 	//invalid location for use
 	const FVector INVALID_LOCATION = FVector(-1000);

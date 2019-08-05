@@ -366,6 +366,7 @@ AAvatar::AAvatar(){
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Interactable,ECR_Block);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_ProjectileBlock, ECollisionResponse::ECR_Ignore);
 	AIControllerClass= AAvatarController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	GetCharacterMovement()->RotationRate = FRotator(TurnSpeed);

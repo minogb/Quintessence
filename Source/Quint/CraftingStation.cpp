@@ -16,6 +16,7 @@ ACraftingStation::ACraftingStation(){
 	if (NavigationHitBox) {
 		NavigationHitBox->InitBoxExtent(FVector(WorldSize*.75, WorldSize*.75, WorldSize));
 		NavigationHitBox->SetCollisionResponseToAllChannels(ECR_Block);
+		NavigationHitBox->SetCollisionResponseToChannel(ECC_ProjectileBlock, ECollisionResponse::ECR_Ignore);
 		NavigationHitBox->SetVisibility(true);
 		NavigationHitBox->bHiddenInGame = false;
 		NavigationHitBox->SetCanEverAffectNavigation(true);

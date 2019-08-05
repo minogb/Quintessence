@@ -20,6 +20,7 @@ AProjectileBase::AProjectileBase()
 	if (ProjectileCollision) {
 		ProjectileCollision->InitSphereRadius(CollisionSize);
 		ProjectileCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+		ProjectileCollision->SetCollisionResponseToChannel(ECC_ProjectileBlock, ECollisionResponse::ECR_Ignore);
 		ProjectileCollision->SetVisibility(true);
 		ProjectileCollision->bHiddenInGame = false;
 		ProjectileCollision->SetCanEverAffectNavigation(false);
@@ -53,19 +54,21 @@ void AProjectileBase::Tick(float DeltaTime)
 
 void AProjectileBase::ProjectileCollided(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp,
 											int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult){
+	ECollisionResponse  response = OtherComp->GetCollisionResponseToChannel(ECC_ProjectileBlock);
+	//Is the collision valid
 	if (!HasAuthority() || OtherActor == GetInstigator() || OtherActor == GetOwner())
 		return;
-	//TODO: check for blocking wall
-	else if(false)
-		ProjectileCollidedWithBlocking(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-
-	if(OtherActor == Target)
+	//Collided with our target
+	else if (OtherActor == Target)
 		ProjectileCollidedWithTarget(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	//Note any static meseh actor or otherwise needs to have genearte overlap events on for this to work
+	else if(response == ECollisionResponse::ECR_Block || response == ECollisionResponse::ECR_Overlap)
+		ProjectileCollidedWithBlocking(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
 
-void AProjectileBase::ProjectileCollidedWithTarget(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-
+void AProjectileBase::ProjectileCollidedWithTarget(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, 
+											int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult){
+	//By default we apply our damage to the other actor
 	if (IsValid(OtherActor) && OtherActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
 
 		IInteractable::Execute_ApplyDamage(OtherActor,DamageStructure,GetInstigator(),(AController*)GetOwner());
@@ -73,7 +76,8 @@ void AProjectileBase::ProjectileCollidedWithTarget(UPrimitiveComponent * Overlap
 	Destroy(true);
 }
 
-void AProjectileBase::ProjectileCollidedWithBlocking(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
+void AProjectileBase::ProjectileCollidedWithBlocking(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, 
+											int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult){
+	Destroy(true);
 }
 

@@ -6,6 +6,9 @@
 #include "Engine/DataTable.h"
 #include "Enumerations.generated.h"
 
+#define ECC_Interactable ECC_GameTraceChannel1
+#define ECC_Floor ECC_GameTraceChannel2
+#define ECC_ProjectileBlock ECC_GameTraceChannel3
 UENUM(BlueprintType)
 enum class EDamageType : uint8 {
 	DT_NONE UMETA(DisplayName = "NONE"),

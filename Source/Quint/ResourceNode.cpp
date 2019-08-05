@@ -17,8 +17,10 @@ AResourceNode::AResourceNode(){
 	if (NavigationHitBox) {
 		NavigationHitBox->InitBoxExtent(FVector(WorldSize*.75, WorldSize*.75, WorldSize));
 		NavigationHitBox->SetCollisionResponseToAllChannels(ECR_Block);
+		NavigationHitBox->SetCollisionResponseToChannel(ECC_ProjectileBlock, ECollisionResponse::ECR_Ignore);
 		NavigationHitBox->SetVisibility(true);
 		NavigationHitBox->bHiddenInGame = false;
+		NavigationHitBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		NavigationHitBox->SetCanEverAffectNavigation(true);
 		SetRootComponent(NavigationHitBox);
 
@@ -31,6 +33,7 @@ AResourceNode::AResourceNode(){
 		ClickBox->SetVisibility(true);
 		ClickBox->bHiddenInGame = false;
 		ClickBox->SetCanEverAffectNavigation(false);
+		NavigationHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		FAttachmentTransformRules rules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, true);
 		ClickBox->AttachToComponent(NavigationHitBox, rules);
 	}

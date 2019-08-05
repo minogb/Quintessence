@@ -57,7 +57,9 @@ protected:
 	TArray<FResourceReward>Rewards;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	int WorldSize = 64;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UBoxComponent* ClickBox;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UBoxComponent* NavigationHitBox;
 	UPROPERTY(Replicated)
 	TArray<FPlayerHarvestedStruct>Harvesters;
