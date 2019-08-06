@@ -103,7 +103,7 @@ public:
 	bool HasRoom(TSubclassOf<UItem> Item, int Quantity);
 	//Do we have an item of class and quantity?
 	UFUNCTION(BlueprintCallable)
-	bool HasItem(TSubclassOf<UItem> Item, int Quantity = 1, bool UseQuiver = false);
+	bool HasItem(TSubclassOf<UItem> Item, int Quantity = 1, EEquipmentSlot EquipmentSlot = EEquipmentSlot::ES_NONE);
 
 	//---------------------Manipulation-----------------------
 
@@ -128,7 +128,7 @@ public:
 	//Destroy item of class and qaunitty in our inventory
 	//@FullConsumption only destroy if we have  the whole quantity
 	UFUNCTION(BlueprintCallable)
-	bool ConsumeItem(TSubclassOf<UItem> Item, int Quantity = 1, bool FullConsumption = true, bool FromQuiver = false);
+	bool ConsumeItem(TSubclassOf<UItem> Item, int Quantity = 1, bool FullConsumption = true, EEquipmentSlot EquipmentSlot = EEquipmentSlot::ES_NONE);
 
 	//------------------------Crafting------------------------
 
