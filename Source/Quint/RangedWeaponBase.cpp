@@ -20,13 +20,13 @@ URangedWeaponBase::URangedWeaponBase() {
 bool URangedWeaponBase::CanUseWeapon_Implementation(AAvatar * Avatar){
 	if(!IsValid(Avatar) && !IsValid(Avatar->GetQuintController()))
 		return false;
-	return IsValid(AmoRequired) ? Avatar->GetQuintController()->HasItem(AmoRequired, 1) : true;
+	return IsValid(AmoRequired) ? Avatar->GetQuintController()->HasItem(AmoRequired, 1,true) : true;
 }
 
 bool URangedWeaponBase::UseWeapon_Implementation(AAvatar * DamageCauser, UPARAM(ref)FDamageStruct & Damage, AActor * DamageTarget) {
 	UWorld* world = GetWorld();
 	if (world && CanUseWeapon_Implementation(DamageCauser) && IsValid(DamageCauser) && IsValid(DamageCauser->GetQuintController())
-		&& (!IsValid(AmoRequired) || DamageCauser->GetQuintController()->ConsumeItem(AmoRequired,1))) {
+		&& (!IsValid(AmoRequired) || DamageCauser->GetQuintController()->ConsumeItem(AmoRequired,1,true,true))) {
 		
 		FActorSpawnParameters params;
 		params.Owner = DamageCauser;

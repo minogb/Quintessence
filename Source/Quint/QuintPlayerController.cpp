@@ -105,7 +105,11 @@ int AQuintPlayerController::GetIndexOfItem(UItem * Item) {
 }
 //--------------------------------------------------------
 //------------------------HAS ITEM------------------------
-bool AQuintPlayerController::HasItem(TSubclassOf<UItem> Item, int Quantity) {
+bool AQuintPlayerController::HasItem(TSubclassOf<UItem> Item, int Quantity, bool UseQuiver) {
+	if (UseQuiver) {
+		UItem* quiver = GetEquipment(EEquipmentSlot::ES_QUIVER);
+		return quiver ? (quiver->IsA(Item) && quiver->GetStackSize() - Quantity >= 0) : false;
+	}
 	for (UItem*current : Inventory) {
 		if (IsValid(current) && current->IsA(Item)) {
 			Quantity -= current->GetStackSize();
@@ -298,7 +302,21 @@ void AQuintPlayerController::AddItemToInventory(TSubclassOf<UItem> ItemClass, in
 
 //--------------------------------------------------------
 //----------------------CONSUME ITEM----------------------
-bool AQuintPlayerController::ConsumeItem(TSubclassOf<UItem> Item, int Quantity, bool FullConsumption) {
+bool AQuintPlayerController::ConsumeItem(TSubclassOf<UItem> Item, int Quantity, bool FullConsumption, bool FromQuiver) {
+	if (FromQuiver) {
+		UItem* quiver = GetEquipment(EEquipmentSlot::ES_QUIVER);
+		if (IsValid(quiver)) {
+			if (!FullConsumption || HasItem(Item,Quantity,FromQuiver)) {
+				Quantity -= quiver->GetStackSize();
+				quiver->SetStackSize(Quantity < 0 ? Quantity*-1 : 0);
+				if (quiver->GetStackSize() <= 0)
+					Equipment.SetEquipment(NULL, EEquipmentSlot::ES_QUIVER);
+				return true;
+
+			}
+		}
+		return false;
+	}
 	TArray<int> Indexs;
 	int currentQuantity = Quantity;
 	for (int i = 0; i < Inventory.Num(); i++) {
