@@ -6,6 +6,7 @@
 #include "Item.h"
 #include "ComponentStructure.h"
 #include "Enumerations.h"
+#include "Enumerations.h"
 #include "EquipmentComponent.generated.h"
 
 /**

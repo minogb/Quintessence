@@ -94,6 +94,7 @@ protected:
 	void HarvestTask();
 	//Function for using goal with use object
 	void UseTask();
+	void AttackTask();
 
 	//--------------------------------------------------------
 	//-------------------------COMBAT-------------------------
@@ -117,22 +118,22 @@ protected:
 	TArray<UObject*> GetEffects();
 	//Incoming damage
 	UFUNCTION(BlueprintCallable)
-		void DelegateOnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	void DelegateOnIncomingDamage(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
 	//Damage Taken
 	UFUNCTION(BlueprintCallable)
-		void DelegateOnDamageTaken(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
+	void DelegateOnDamageTaken(FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController);
 	//Damge outgoing
 	UFUNCTION(BlueprintCallable)
-		void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
+	void DelegateOnOutgoingDamage(FDamageStruct& Damage, UObject* DamageTarget);
 	//Damage delt
 	UFUNCTION(BlueprintCallable)
-		void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
+	void DelegateOnDamageDelt(FDamageStruct& Damage, UObject* DamageTarget);
 	//Attack Speed
 	UFUNCTION(BlueprintCallable)
-		void DelegateOnActionSpeedCalculation(float& Speed, EInteractionType Action);
+	void DelegateOnActionSpeedCalculation(float& Speed, EInteractionType Action);
 	//Attack Speed
 	UFUNCTION(BlueprintCallable)
-		void DelegateOnCoolDownCalculation(float& Speed, EInteractionType Action);
+	void DelegateOnCoolDownCalculation(float& Speed, EInteractionType Action);
 public:	
 	// Sets default values for this character's properties
 	AAvatar();
@@ -191,8 +192,6 @@ public:
 	//-------------------------COMBAT-------------------------
 	//--------------------------------------------------------
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
-
 
 	//Get the attack speed of the current weapon
 	UFUNCTION(BlueprintCallable)
@@ -232,5 +231,6 @@ public:
 	//--------------------------------------------------------
 	virtual uint8 GetAvaliableTasks_Implementation() override { return (uint8)EInteractionType::Follow | (uint8)EInteractionType::Trade | (uint8)EInteractionType::Examine | (uint8)EInteractionType::Attack; }
 	virtual EInteractionType GetDefaultTask_Implementation() override { return EInteractionType::Attack; }
-	virtual void ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) override;
+	virtual void ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, AActor* DamageCauser, AController* CauserController = nullptr) override;
+	virtual void ReturnDamageDelt_Implementation(FDamageStruct Damage, AActor* DamagedActor, bool IsKillingBlow) override;
 };

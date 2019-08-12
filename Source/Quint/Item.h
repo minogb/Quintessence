@@ -49,6 +49,8 @@ protected:
 	FString ItemName = "Item";
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	UTexture2D* ImageTexture;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
+	int CraftExperience = 2;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rendering")
 	FColor Color;
 	TArray<EItemAction> Actions;

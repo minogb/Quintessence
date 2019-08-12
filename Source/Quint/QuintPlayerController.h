@@ -19,6 +19,9 @@ protected:
 	//Players inventory slots
 	UPROPERTY(Replicated)
 	TArray<class UItem*> Inventory;
+	//Total amount of expereince in a skill
+	UPROPERTY(Replicated)
+	TMap<ESkillType, FLevelStruct> SkillExperience;
 	//The players equiped items
 	UPROPERTY(Replicated)
 	FEquipmentStruct Equipment;
@@ -67,6 +70,10 @@ protected:
 	bool Server_CraftRecipe_Validate(FName RecipeTableRowName) { return true; };
 	
 
+	//--------------------------------------------------------
+	//---------------------Player Data------------------------
+	//--------------------------------------------------------
+	void NotifyOfLevelUp(ESkillType Skill, int Level);
 public:
 	//Init
 	AQuintPlayerController();
@@ -185,6 +192,20 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TArray<UItem*> GetEquipmentAsList();
+
+	//---------------------Player Data------------------------
+
+	UFUNCTION(BlueprintCallable)
+	void AddExperience(ESkillType Skill, int Amount);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetSkillLevel(ESkillType Skill);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetCurrentExpInSkill(ESkillType Skill);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetTotalExpRequiredForLevel(int Level);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetExpRequiredForLevel(int Level) { return 3.14159265359*10*FMath::Pow(2, (float)Level / (3.14159265359*2));}
+
 	//--------------------------------------------------------
 	//-----------------------INTERFACE------------------------
 	//--------------------------------------------------------

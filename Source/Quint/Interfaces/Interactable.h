@@ -58,10 +58,11 @@ public:
 	virtual float GetSize_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void ApplyDamage(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
-	virtual void ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) {}
+	void ApplyDamage(UPARAM(ref)FDamageStruct& Damage, AActor* DamageCauser, AController* CauserController = nullptr);
+	virtual void ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, AActor* DamageCauser, AController* CauserController = nullptr) {}
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void ReturnDamageDelt(FDamageStruct Damage, UObject* DamagedActor);
-	virtual void ReturnDamageDelt_Implementation(FDamageStruct Damage, UObject* DamagedActor) {}
+	void ReturnDamageDelt(FDamageStruct Damage, AActor* DamagedActor, bool IsKillingBlow);
+	virtual void ReturnDamageDelt_Implementation(FDamageStruct Damage, AActor* DamagedActor, bool IsKillingBlow) {}
+
 };

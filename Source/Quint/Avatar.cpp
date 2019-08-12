@@ -159,32 +159,7 @@ void AAvatar::TaskCompleted() {
 			Stop();
 		break;
 	case EInteractionType::Attack:
-		//Attack
-		if (ValidGoal()) {
-			//GoalActor->TakeDamage(Damage.DamageAmount, dmgEvent, GetQuintController(), this);
-			if (GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-				FDamageEvent dmgEvent = FDamageEvent();
-				FDamageStruct Damage = CalculateAttackDamage();
-				//Deligate attack to weapon
-				if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
-					//Let the weapon deal damage
-					IWeaponInterface::Execute_UseWeapon(GetWeapon(),this,Damage,GoalActor);
-				}
-				else {
-					//Delegate damage outgoing
-					IInteractable::Execute_ApplyDamage(GoalActor, Damage, this, GetQuintController());
-					//Delegate damage delt
-					DelegateOnDamageDelt(Damage, GoalActor);
-				}
-			}
-			else {
-				Stop();
-				return;
-			}
-		}
-		else {
-			Stop();
-		}
+		AttackTask();
 		break;
 	case EInteractionType::Follow:
 		break;
@@ -247,6 +222,34 @@ void AAvatar::UseTask() {
 			Stop();
 		}
 	}
+}
+
+void AAvatar::AttackTask(){
+	if (ValidGoal()) {
+		//GoalActor->TakeDamage(Damage.DamageAmount, dmgEvent, GetQuintController(), this);
+		if (GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+			FDamageEvent dmgEvent = FDamageEvent();
+			FDamageStruct Damage = CalculateAttackDamage();
+			//Deligate attack to weapon
+			if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
+				//Let the weapon deal damage
+				IWeaponInterface::Execute_UseWeapon(GetWeapon(), this, Damage, GoalActor);
+			}
+			//If no weapon deal your fists
+			else {
+				//Delegate damage outgoing
+				IInteractable::Execute_ApplyDamage(GoalActor, Damage, this, GetQuintController());
+			}
+		}
+		else {
+			Stop();
+			return;
+		}
+	}
+	else {
+		Stop();
+	}
+
 }
 
 //--------------------------------------------------------
@@ -328,6 +331,9 @@ void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageT
 //--------------------------------------------------------
 //----------------------On Damage Delt--------------------
 void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageTarget) {
+	if (GetQuintController()) {
+		GetQuintController()->AddExperience(Damage.Skill, Damage.DamageAmount * 3.14159265359);
+	}
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnDamageDelt(current, Damage, DamageTarget);
@@ -480,6 +486,8 @@ bool AAvatar::CanDoCurrentTask() {
 		if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
 			retVal = IWeaponInterface::Execute_CanUseWeapon(GetWeapon(),this);
 		}
+		//TODO: Is oponent in an attackable state
+		retVal = true;
 		break;
 	default:
 		if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
@@ -551,23 +559,6 @@ int AAvatar::GetHighestToolLevelOfType(EHarvestType Type) {
 //--------------------------------------------------------
 //------------------------COMBAT--------------------------
 //--------------------------------------------------------
-
-//--------------------------------------------------------
-//----------------------TAKE DAMAGE-----------------------
-float AAvatar::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser){
-	if(!HasAuthority())
-		return 0.f;
-	SetIsInCombat(true);
-	DamageEvent.ClassID;
-	DamageEvent.DamageTypeClass;
-	int FinalHealthRemoved = (Health-DamageAmount) >= 0.f ? DamageAmount : Health;
-	Health -= FinalHealthRemoved;
-	if(Health<= 0.f){ 
-		Destroy(true);
-	}
-	
-	return FinalHealthRemoved;
-}
 
 //--------------------------------------------------------
 //------------------CALC WEAPON SPEED---------------------
@@ -642,7 +633,7 @@ UItem* AAvatar::GetWeapon() {
 	return IsValid(GetQuintController()) ? GetQuintController()->GetEquipment(EEquipmentSlot::ES_WEAPON) : nullptr;
 }
 
-void AAvatar::ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject * DamageCauser, AController * CauserController){
+void AAvatar::ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, AActor * DamageCauser, AController * CauserController){
 	if (!HasAuthority())
 		return;
 	SetIsInCombat(true);
@@ -653,12 +644,21 @@ void AAvatar::ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObje
 	//Delegete on damage taken events
 	DelegateOnDamageTaken(Damage, DamageCauser, CauserController);
 	Health -= Damage.DamageAmount;
+	//Tell the damage causes how much they damaged us
+	if (IsValid(DamageCauser) && DamageCauser->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+		IInteractable::Execute_ReturnDamageDelt(DamageCauser, Damage, this, Health<=0);
+	}
+	//TODO Replicate to clients damagestruct
 	if (Health <= 0.f) {
 		Destroy(true);
 	}
-	//Tell the damage causes how much they damaged us
-	if (IsValid(DamageCauser) && DamageCauser->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-		IInteractable::Execute_ReturnDamageDelt(DamageCauser, Damage, this);
+}
+
+void AAvatar::ReturnDamageDelt_Implementation(FDamageStruct Damage, AActor * DamagedActor, bool IsKillingBlow){
+	//Delegate damage delt
+	DelegateOnDamageDelt(Damage, DamagedActor);
+	if (GetQuintController()) {
+		AAvatar* Other = Cast<AAvatar>(DamagedActor);
+		GetQuintController()->AddExperience(Damage.Skill, Other->Health/10 * 3.14159265359);
 	}
-	//TODO Replicate to clients damagestruct
 }

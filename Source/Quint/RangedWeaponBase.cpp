@@ -16,6 +16,7 @@ URangedWeaponBase::URangedWeaponBase() {
 	AttackDurationTime = .5;
 	AttackCooldownTime = 1.f;
 	AmoRequired = UItem::StaticClass();
+	DamageStructure.Weapon = this;
 }
 bool URangedWeaponBase::CanUseWeapon_Implementation(AAvatar * Avatar){
 	if(!IsValid(Avatar) && !IsValid(Avatar->GetQuintController()))

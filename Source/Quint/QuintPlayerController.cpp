@@ -15,6 +15,7 @@
 #include "QuintGameMode.h"
 #include "CraftingInfo.h"
 #include "CraftingWidgetInterface.h"
+#define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------PRIVATE---------------------------------------------------------------------------------
@@ -132,14 +133,44 @@ void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTable
 			if (CanCraftRecipe(recipe)) {
 				for (FItemCraftingStruct &current : recipe.Input) {
 					ConsumeItem(current.Item, current.Count, true);
+					
 				}
 				AddItemToInventory(recipe.Output.Item, recipe.Output.Count);
+				AddExperience(recipe.Experience.Skill, recipe.Experience.Exp);
 			}
 			else {
 			}
 		}
 
 	}
+}
+//--------------------------------------------------------
+//----------------------Player Data-----------------------
+//--------------------------------------------------------
+void AQuintPlayerController::AddExperience(ESkillType Skill, int Amount){
+	if (!SkillExperience.Contains(Skill)) {
+		SkillExperience.Add(Skill, FLevelStruct());
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString("added skill")); }
+	}
+	do {
+		//Player has leveled up
+		if (GetExpRequiredForLevel(SkillExperience[Skill].Level + 1) < SkillExperience[Skill].CurrentExp + Amount) {
+			Amount = (GetExpRequiredForLevel(SkillExperience[Skill].Level + 1) - SkillExperience[Skill].CurrentExp + Amount)*-1;
+			SkillExperience[Skill].CurrentExp = 0;
+			SkillExperience[Skill].Level += 1;
+			NotifyOfLevelUp(Skill, SkillExperience[Skill].Level);
+			if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(SkillExperience[Skill].CurrentExp)); }
+		}
+		//Player has not leveled up
+		else {
+			SkillExperience[Skill].CurrentExp += Amount;
+			Amount = 0;
+		}
+	} while (Amount > 0);
+}
+void AQuintPlayerController::NotifyOfLevelUp(ESkillType Skill, int Level) {
+	PrintToScreen("Leveled Up");
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Level)); }
 }
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
@@ -488,11 +519,24 @@ void AQuintPlayerController::UnEquipItem_Implementation(EEquipmentSlot Slot) {
 
 }
 //--------------------------------------------------------
-bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentSlot Slot)
-{
+bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentSlot Slot){
 	return true;
 }
 
+int AQuintPlayerController::GetSkillLevel(ESkillType Skill){
+	return SkillExperience.Contains(Skill) ? SkillExperience[Skill].Level : 1;
+}
+int AQuintPlayerController::GetCurrentExpInSkill(ESkillType Skill){
+	return SkillExperience.Contains(Skill) ? SkillExperience[Skill].CurrentExp : 0;
+}
+int AQuintPlayerController::GetTotalExpRequiredForLevel(int Level){	
+	int total = 0;
+	for (int i = 1; i < Level; i++) {
+		total += GetExpRequiredForLevel(i);
+	}
+	
+	return total;
+}
 //--------------------------------------------------------
 //-----------------------INVENTORY------------------------
 //--------------------------------------------------------

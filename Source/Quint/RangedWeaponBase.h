@@ -33,7 +33,7 @@ public:
 	virtual float GetWeaponRange_Implementation() override { return WeaponRange; };
 	virtual float GetWeaponAttackDuration_Implementation() override { return AttackDurationTime; };
 	virtual float GetWeaponAttackCooldown_Implementation() override { return AttackCooldownTime; };
-	virtual bool GetDamageStruct_Implementation(UPARAM(ref)FDamageStruct& Damage) override { Damage = DamageStructure; return true; };
+	virtual bool GetDamageStruct_Implementation(UPARAM(ref)FDamageStruct& Damage) override { DamageStructure.Weapon = this;  Damage = DamageStructure; return true; };
 	virtual bool CanUseWeapon_Implementation(AAvatar* Avatar) override;
 	virtual bool UseWeapon_Implementation(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AActor* DamageTarget) override;
 	virtual EEquipmentSlot GetEquipmentSlot_Implementation() override { return EEquipmentSlot::ES_WEAPON; }

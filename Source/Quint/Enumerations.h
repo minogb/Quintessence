@@ -9,6 +9,11 @@
 #define ECC_Interactable ECC_GameTraceChannel1
 #define ECC_Floor ECC_GameTraceChannel2
 #define ECC_ProjectileBlock ECC_GameTraceChannel3
+#define DT_PHYSICAL EDamageType::DT_DULL | EDamageType::DT_BLUNT | EDamageType::DT_CLEAVE | EDamageType::DT_PEIRCING
+#define DT_MAGIC EDamageType::DT_ELECTRICAL | EDamageType::DT_FIRE | EDamageType::DT_WATER | EDamageType::DT_EARTH | EDamageType::DT_WIND
+
+class UItem;
+
 UENUM(BlueprintType)
 enum class EDamageType : uint8 {
 	DT_NONE UMETA(DisplayName = "NONE"),
@@ -24,10 +29,49 @@ enum class EDamageType : uint8 {
 	DT_EARTH UMETA(DisplayName = "EARTH"),
 	DT_WIND UMETA(DisplayName = "WIND")
 };
+UENUM(BlueprintType)
+enum class EHarvestType : uint8 {
+	HT_NONE UMETA(DisplayName = "NONE"),
+	HT_MINING UMETA(DisplayName = "MINING")
+};
 
-#define DT_PHYSICAL EDamageType::DT_DULL | EDamageType::DT_BLUNT | EDamageType::DT_CLEAVE | EDamageType::DT_PEIRCING
-#define DT_MAGIC EDamageType::DT_ELECTRICAL | EDamageType::DT_FIRE | EDamageType::DT_WATER | EDamageType::DT_EARTH | EDamageType::DT_WIND
+UENUM(BlueprintType, Meta = (Bitflags))
+enum class EItemAction : uint8 {
+	IA_NONE UMETA(DisplayName = "None"),
+	IA_EQUIP UMETA(DisplayName = "Equip"),
+	IA_UNEQUIP UMETA(DisplayName = "Unequip"),
+	IA_DROP UMETA(DisplayName = "Drop"),
+	IA_USE UMETA(DisplayName = "Use")
+};
+UENUM(BlueprintType, Meta = (Bitflags))
+enum class ESkillType : uint8 {
+	ST_NONE UMETA(DisplayName = "None"),
+	//Gathering Skills
+	ST_LOGGING UMETA(DisplayName = "Logging"),
+	ST_MINING UMETA(DisplayName = "Mining"),
+	ST_FISHING UMETA(DisplayName = "Fishing"),
+	ST_FARMING UMETA(DisplayName = "Farming"),
+	//Refining Skills
+	ST_SMITHINHG UMETA(DisplayName = "Smithing"),
+	ST_TAILORING UMETA(DisplayName = "Tailoring"),
+	ST_APOTHECARY UMETA(DisplayName = "Apothecary"),
 
+	//Combat Skills
+	ST_MELEE UMETA(DisplayName = "Melee"),
+	ST_RANGED UMETA(DisplayName = "Ranged"),
+	ST_MAGIC UMETA(DisplayName = "Magic")
+};
+
+
+UENUM(BlueprintType, Meta = (Bitflags))
+enum class ECraftingToolType : uint8 {
+	CTT_NONE UMETA(DisplayName = "None")
+};
+UENUM(BlueprintType, Meta = (Bitflags))
+enum class ECraftingStationType : uint8 {
+	CST_NONE UMETA(DisplayName = "None"),
+	CST_SMELTING UMETA(DisplayName = "Smeltery")
+};
 USTRUCT(BlueprintType)
 struct FDamageStruct : public FTableRowBase {
 	GENERATED_BODY()
@@ -54,38 +98,13 @@ public:
 	//Minimum amount damage should be multiplyed by after crit
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CritMultiplierCeiling = 2;
+	//What skill should be rewarded for damage delt
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESkillType Skill;
+	//What skill should be rewarded for damage delt
+	UItem* Weapon;
 	//Calculate damage after glance/crits. Chance will be 1 or 0 for respective values
 	void CollapseProbility();
-};
-class UItem;
-UENUM(BlueprintType)
-enum class EHarvestType : uint8 {
-	HT_NONE UMETA(DisplayName = "NONE"),
-	HT_MINING UMETA(DisplayName = "MINING")
-};
-
-UENUM(BlueprintType, Meta = (Bitflags))
-enum class EItemAction : uint8 {
-	IA_NONE UMETA(DisplayName = "None"),
-	IA_EQUIP UMETA(DisplayName = "Equip"),
-	IA_UNEQUIP UMETA(DisplayName = "Unequip"),
-	IA_DROP UMETA(DisplayName = "Drop"),
-	IA_USE UMETA(DisplayName = "Use")
-};
-
-UENUM(BlueprintType, Meta = (Bitflags))
-enum class ESkillType : uint8 {
-	ST_NONE UMETA(DisplayName = "None")
-};
-
-UENUM(BlueprintType, Meta = (Bitflags))
-enum class ECraftingToolType : uint8 {
-	CTT_NONE UMETA(DisplayName = "None")
-};
-UENUM(BlueprintType, Meta = (Bitflags))
-enum class ECraftingStationType : uint8 {
-	CST_NONE UMETA(DisplayName = "None"),
-	CST_SMELTING UMETA(DisplayName = "Smeltery")
 };
 
 USTRUCT(BlueprintType)
@@ -97,11 +116,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
 	int Count = 1;
 };
+USTRUCT(BlueprintType)
+struct FExpRewardStruct {
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESkillType Skill;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Exp = 0;
+};
 //TODO: Add ?XP reward info?, add Craft time?
 USTRUCT(BlueprintType)
 struct FCraftingStruct : public FTableRowBase {
 	GENERATED_BODY()
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FExpRewardStruct Experience;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECraftingStationType CraftingLocation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -110,6 +140,14 @@ public:
 	TArray<FItemCraftingStruct> Input;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemCraftingStruct Output;
+};
+USTRUCT(BlueprintType)
+struct FLevelStruct {
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere)
+	int Level = 1;
+	UPROPERTY(EditAnywhere)
+	int CurrentExp;
 };
 USTRUCT(BlueprintType)
 struct FLootStruct {
