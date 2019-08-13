@@ -659,6 +659,6 @@ void AAvatar::ReturnDamageDelt_Implementation(FDamageStruct Damage, AActor * Dam
 	DelegateOnDamageDelt(Damage, DamagedActor);
 	if (GetQuintController()) {
 		AAvatar* Other = Cast<AAvatar>(DamagedActor);
-		GetQuintController()->AddExperience(Damage.Skill, Other->Health/10 * 3.14159265359);
+		GetQuintController()->AddExperience(Damage.Skill, Other->MaxHealth/10 * 3.14159265359);
 	}
 }

@@ -148,28 +148,23 @@ void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTable
 //----------------------Player Data-----------------------
 //--------------------------------------------------------
 void AQuintPlayerController::AddExperience(ESkillType Skill, int Amount){
-	if (!SkillExperience.Contains(Skill)) {
-		SkillExperience.Add(Skill, FLevelStruct());
-		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString("added skill")); }
-	}
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Amount)); }
 	do {
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(SkillExperience.GetSkillExp(Skill))); }
 		//Player has leveled up
-		if (GetExpRequiredForLevel(SkillExperience[Skill].Level + 1) < SkillExperience[Skill].CurrentExp + Amount) {
-			Amount = (GetExpRequiredForLevel(SkillExperience[Skill].Level + 1) - SkillExperience[Skill].CurrentExp + Amount)*-1;
-			SkillExperience[Skill].CurrentExp = 0;
-			SkillExperience[Skill].Level += 1;
-			NotifyOfLevelUp(Skill, SkillExperience[Skill].Level);
-			if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(SkillExperience[Skill].CurrentExp)); }
+		if (GetExpRequiredForLevel(SkillExperience.GetSkillLevel(Skill) + 1) < SkillExperience.GetSkillExp(Skill) + Amount) {
+			Amount = (GetExpRequiredForLevel(SkillExperience.GetSkillLevel(Skill) + 1) - SkillExperience.GetSkillExp(Skill) + Amount)*-1;
+			SkillExperience.SetSkillAndExpLevel(Skill, SkillExperience.GetSkillLevel(Skill) + 1,0);
+			NotifyOfLevelUp(Skill, SkillExperience.GetSkillLevel(Skill));
 		}
 		//Player has not leveled up
 		else {
-			SkillExperience[Skill].CurrentExp += Amount;
+			SkillExperience.AddExp(Skill,Amount);
 			Amount = 0;
 		}
 	} while (Amount > 0);
 }
 void AQuintPlayerController::NotifyOfLevelUp(ESkillType Skill, int Level) {
-	PrintToScreen("Leveled Up");
 	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Level)); }
 }
 /*
@@ -208,6 +203,7 @@ void AQuintPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimePropert
 	DOREPLIFETIME(AQuintPlayerController, PlayerAvatar);
 	DOREPLIFETIME(AQuintPlayerController, Inventory);
 	DOREPLIFETIME(AQuintPlayerController, Equipment);
+	DOREPLIFETIME(AQuintPlayerController, SkillExperience);
 }
 
 //--------------------------------------------------------
@@ -401,6 +397,7 @@ bool AQuintPlayerController::CraftRecipe(FCraftingStruct Recipe) {
 			ConsumeItem(current.Item, current.Count, true);
 		}
 		AddItemToInventory(Recipe.Output.Item, Recipe.Output.Count);
+		AddExperience(Recipe.Experience.Skill, Recipe.Experience.Exp);
 		return true;
 	}
 	return false;
@@ -524,10 +521,10 @@ bool AQuintPlayerController::UnEquipItem_Validate(EEquipmentSlot Slot){
 }
 
 int AQuintPlayerController::GetSkillLevel(ESkillType Skill){
-	return SkillExperience.Contains(Skill) ? SkillExperience[Skill].Level : 1;
+	return SkillExperience.GetSkillLevel(Skill);
 }
 int AQuintPlayerController::GetCurrentExpInSkill(ESkillType Skill){
-	return SkillExperience.Contains(Skill) ? SkillExperience[Skill].CurrentExp : 0;
+	return SkillExperience.GetSkillExp(Skill);
 }
 int AQuintPlayerController::GetTotalExpRequiredForLevel(int Level){	
 	int total = 0;

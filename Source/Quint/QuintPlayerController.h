@@ -5,6 +5,7 @@
 #include "Interfaces/Interactable.h"
 #include "Enumerations.h"
 #include "EquipmentStructure.h"
+#include "SkillStructure.h"
 #include "QuintPlayerController.generated.h"
 #define ECC_Interactable ECC_GameTraceChannel1
 #define ECC_Floor ECC_GameTraceChannel2
@@ -21,7 +22,7 @@ protected:
 	TArray<class UItem*> Inventory;
 	//Total amount of expereince in a skill
 	UPROPERTY(Replicated)
-	TMap<ESkillType, FLevelStruct> SkillExperience;
+	FPlayerSkilllLevelStruct SkillExperience;
 	//The players equiped items
 	UPROPERTY(Replicated)
 	FEquipmentStruct Equipment;
@@ -64,6 +65,7 @@ protected:
 
 
 	//Craft recipie based on table recipe list
+	//Is this depricated?
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void Server_CraftRecipe(FName RecipeTableRowName);
 	void Server_CraftRecipe_Implementation(FName RecipeTableRowName);

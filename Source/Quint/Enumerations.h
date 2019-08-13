@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "SkillStructure.h"
 #include "Enumerations.generated.h"
 
 #define ECC_Interactable ECC_GameTraceChannel1
@@ -43,24 +44,6 @@ enum class EItemAction : uint8 {
 	IA_DROP UMETA(DisplayName = "Drop"),
 	IA_USE UMETA(DisplayName = "Use")
 };
-UENUM(BlueprintType, Meta = (Bitflags))
-enum class ESkillType : uint8 {
-	ST_NONE UMETA(DisplayName = "None"),
-	//Gathering Skills
-	ST_LOGGING UMETA(DisplayName = "Logging"),
-	ST_MINING UMETA(DisplayName = "Mining"),
-	ST_FISHING UMETA(DisplayName = "Fishing"),
-	ST_FARMING UMETA(DisplayName = "Farming"),
-	//Refining Skills
-	ST_SMITHINHG UMETA(DisplayName = "Smithing"),
-	ST_TAILORING UMETA(DisplayName = "Tailoring"),
-	ST_APOTHECARY UMETA(DisplayName = "Apothecary"),
-
-	//Combat Skills
-	ST_MELEE UMETA(DisplayName = "Melee"),
-	ST_RANGED UMETA(DisplayName = "Ranged"),
-	ST_MAGIC UMETA(DisplayName = "Magic")
-};
 
 
 UENUM(BlueprintType, Meta = (Bitflags))
@@ -70,7 +53,8 @@ enum class ECraftingToolType : uint8 {
 UENUM(BlueprintType, Meta = (Bitflags))
 enum class ECraftingStationType : uint8 {
 	CST_NONE UMETA(DisplayName = "None"),
-	CST_SMELTING UMETA(DisplayName = "Smeltery")
+	CST_SMELTING UMETA(DisplayName = "Smeltery"),
+	CST_WORKBENCH UMETA(DisplayName = "Workbench")
 };
 USTRUCT(BlueprintType)
 struct FDamageStruct : public FTableRowBase {
@@ -140,14 +124,6 @@ public:
 	TArray<FItemCraftingStruct> Input;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemCraftingStruct Output;
-};
-USTRUCT(BlueprintType)
-struct FLevelStruct {
-	GENERATED_BODY()
-	UPROPERTY(EditAnywhere)
-	int Level = 1;
-	UPROPERTY(EditAnywhere)
-	int CurrentExp;
 };
 USTRUCT(BlueprintType)
 struct FLootStruct {
