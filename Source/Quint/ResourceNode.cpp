@@ -61,12 +61,14 @@ float AResourceNode::GetHarvestSpeed(){
 
 void AResourceNode::GivePlayerReward(AAvatar * Player){
 	AQuintPlayerController* pc = Player->GetQuintController();
-	TArray<UItem*> Reward = GetPlayerReward(Player);
+	TArray<FResourceReward> Reward = GetPlayerReward(Player);
 	for(int i = 0; i < Reward.Num(); i++){
 		if(Reward.IsValidIndex(i)){
-			pc->AddItemToInventory(Reward[i]);
-			if(IsValid((UObject*)Reward[i]) && Reward[i]->GetStackSize() > 0){
-				SpawnWorldItem(Reward[i], Player);
+			UItem* item = NewObject<UItem>(Player,Reward[i].ItemReward);
+			pc->AddItemToInventory(item);
+			pc->AddExperience(Reward[i].ExpReward.Skill, Reward[i].ExpReward.Exp);
+			if(IsValid((UObject*)item) && item->GetStackSize() > 0){
+				SpawnWorldItem(item, Player);
 			}
 		}
 	}
@@ -80,23 +82,15 @@ void AResourceNode::SpawnWorldItem(UItem * Item, AActor * ToOwn){
 	newItem->InitItem(Item);
 	newItem->FinishSpawning(actorTranform);
 }
-TArray<UItem*> AResourceNode::GetPlayerReward(AAvatar * Player){
-	TArray<UItem*> retVal = TArray<UItem*>();
+TArray<FResourceReward> AResourceNode::GetPlayerReward(AAvatar * Player){
+	TArray<FResourceReward> retVal = TArray<FResourceReward>();
 	//Generate item types/amount
 	for(int i =  0; i < Rewards.Num(); i++){
 		if(Rewards.IsValidIndex(i)){
 			int Result = FMath::FRandRange(0,100);
 			//TODO: add luck boost for chance and extra
-			if(Result <= Rewards[i].RewardChance && IsValid(Rewards[i].ItemReward)){/*
-				retVal.Add(
-					UItem::CREATE_ITEM(
-						Player,UItem::StaticClass(),
-						FMath::FRandRange(
-							Rewards[i].MinCount,Rewards[i].MaxCount
-						)
-					)
-				);*/
-				retVal.Add(NewObject<UItem>(Player, Rewards[i].ItemReward));
+			if(Result <= Rewards[i].RewardChance && IsValid(Rewards[i].Reward.ItemReward)){
+				retVal.Add(Rewards[i].Reward);
 			}
 		}
 	}

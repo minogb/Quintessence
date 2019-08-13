@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "SkillStructure.generated.h"
-
+/*
+This is a work around because TMaps do not get replicated
+*/
 UENUM(BlueprintType, Meta = (Bitflags))
 enum class ESkillType : uint8 {
 	ST_NONE UMETA(DisplayName = "None"),

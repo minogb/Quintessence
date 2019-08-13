@@ -23,11 +23,23 @@ struct FPlayerHarvestedStruct{
 	}
 	FPlayerHarvestedStruct(){}
 };
+
 USTRUCT(BlueprintType)
-struct FResourceReward{
+struct FResourceReward {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest Reward Info")
+	FExpRewardStruct ExpReward;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest Reward Info")
 	TSubclassOf<UItem> ItemReward;
+};
+USTRUCT(BlueprintType)
+struct FResourceRewardData {
+
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest Reward Info")
+	FResourceReward Reward;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
 	int MaxCount;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
@@ -35,13 +47,13 @@ struct FResourceReward{
 	//Chance is 0-100
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Harvest Reward Info")
 	int RewardChance;
-	FResourceReward(TSubclassOf<UItem> reward, int max, int min=1, int Chance = 100){
-		ItemReward = reward;
+	FResourceRewardData(FResourceReward reward, int max, int min=1, int Chance = 100){
+		Reward = reward;
 		MaxCount = FMath::Clamp(max, 1,100);
 		MinCount = FMath::Clamp(min, 1,100);
 		RewardChance = FMath::Clamp(Chance, 0,100);
 	}
-	FResourceReward(){}
+	FResourceRewardData(){}
 };
 UCLASS(BlueprintType)
 class QUINT_API AResourceNode : public AActor, public IInteractable
@@ -54,7 +66,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	int HarvestLevel;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	TArray<FResourceReward>Rewards;
+	TArray<FResourceRewardData>Rewards;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	int WorldSize = 64;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -68,7 +80,7 @@ protected:
 	void RemovePlayersFromHarvesters();
 	float TimeToReset = 4;
 	void GivePlayerReward(class AAvatar* Player);
-	TArray<class UItem*> GetPlayerReward(class AAvatar* Player);
+	TArray<FResourceReward> GetPlayerReward(class AAvatar* Player);
 	void SpawnWorldItem(class UItem* Item, AActor* ToOwn);
 public:	
 	// Sets default values for this actor's properties

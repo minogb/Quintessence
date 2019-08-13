@@ -52,6 +52,9 @@ FLevelStruct* FPlayerSkilllLevelStruct::GetSkill(ESkillType Skill)
 	case ESkillType::ST_WOODWORKING:
 		reference = &Woodworking;
 		break;
+	case ESkillType::ST_SMITHINHG:
+		reference = &Smithing;
+		break;
 	}
 	return reference;
 }
