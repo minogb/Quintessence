@@ -121,48 +121,12 @@ bool AQuintPlayerController::HasItem(TSubclassOf<UItem> Item, int Quantity, EEqu
 	return false;
 }
 //--------------------------------------------------------
-//------------------SERVER CRAFT RECIPE-------------------
-void AQuintPlayerController::Server_CraftRecipe_Implementation(FName RecipeTableRowName) {
-	//TODO  check if by a crafting area 
-	//TODO check if has room for output
-	//TODO check if has requried tool
-	AQuintGameMode* gm = Cast<AQuintGameMode>(GetWorld()->GetAuthGameMode());
-	if (IsValid(gm)) {
-		FCraftingStruct recipe;
-		if (gm->GetOutputofRecipe(RecipeTableRowName, recipe)) {
-			if (CanCraftRecipe(recipe)) {
-				for (FItemCraftingStruct &current : recipe.Input) {
-					ConsumeItem(current.Item, current.Count, true);
-					
-				}
-				AddItemToInventory(recipe.Output.Item, recipe.Output.Count);
-				AddExperience(recipe.Experience.Skill, recipe.Experience.Exp);
-			}
-			else {
-			}
-		}
-
-	}
-}
-//--------------------------------------------------------
 //----------------------Player Data-----------------------
 //--------------------------------------------------------
 void AQuintPlayerController::AddExperience(ESkillType Skill, int Amount){
-	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Amount)); }
-	do {
-		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(SkillExperience.GetSkillExp(Skill))); }
-		//Player has leveled up
-		if (GetExpRequiredForLevel(SkillExperience.GetSkillLevel(Skill) + 1) < SkillExperience.GetSkillExp(Skill) + Amount) {
-			Amount = (GetExpRequiredForLevel(SkillExperience.GetSkillLevel(Skill) + 1) - SkillExperience.GetSkillExp(Skill) + Amount)*-1;
-			SkillExperience.SetSkillAndExpLevel(Skill, SkillExperience.GetSkillLevel(Skill) + 1,0);
-			NotifyOfLevelUp(Skill, SkillExperience.GetSkillLevel(Skill));
-		}
-		//Player has not leveled up
-		else {
-			SkillExperience.AddExp(Skill,Amount);
-			Amount = 0;
-		}
-	} while (Amount > 0);
+	int newLevel = SkillExperience.AddExp(Skill, Amount);
+	if (newLevel > 0)
+		NotifyOfLevelUp(Skill, newLevel);
 }
 void AQuintPlayerController::NotifyOfLevelUp(ESkillType Skill, int Level) {
 	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Level)); }
@@ -526,14 +490,6 @@ int AQuintPlayerController::GetSkillLevel(ESkillType Skill){
 }
 int AQuintPlayerController::GetCurrentExpInSkill(ESkillType Skill){
 	return SkillExperience.GetSkillExp(Skill);
-}
-int AQuintPlayerController::GetTotalExpRequiredForLevel(int Level){	
-	int total = 0;
-	for (int i = 1; i < Level; i++) {
-		total += GetExpRequiredForLevel(i);
-	}
-	
-	return total;
 }
 //--------------------------------------------------------
 //-----------------------INVENTORY------------------------

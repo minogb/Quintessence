@@ -331,9 +331,6 @@ void AAvatar::DelegateOnOutgoingDamage(FDamageStruct & Damage, UObject * DamageT
 //--------------------------------------------------------
 //----------------------On Damage Delt--------------------
 void AAvatar::DelegateOnDamageDelt(FDamageStruct & Damage, UObject * DamageTarget) {
-	if (GetQuintController()) {
-		GetQuintController()->AddExperience(Damage.Skill, Damage.DamageAmount * 3.14159265359);
-	}
 	for (UObject*current : GetEffects()) {
 		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 			IEffectInterface::Execute_OnDamageDelt(current, Damage, DamageTarget);
@@ -655,10 +652,14 @@ void AAvatar::ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, AActo
 }
 
 void AAvatar::ReturnDamageDelt_Implementation(FDamageStruct Damage, AActor * DamagedActor, bool IsKillingBlow){
+	if (GetQuintController()) {
+	}
 	//Delegate damage delt
 	DelegateOnDamageDelt(Damage, DamagedActor);
 	if (GetQuintController()) {
+		GetQuintController()->AddExperience(Damage.Skill, Damage.DamageAmount * (3.14159265359 / 2));
 		AAvatar* Other = Cast<AAvatar>(DamagedActor);
-		GetQuintController()->AddExperience(Damage.Skill, Other->MaxHealth/10 * 3.14159265359);
+		if(IsKillingBlow)
+			GetQuintController()->AddExperience(Damage.Skill, Other->MaxHealth/10 * 3.14159265359);
 	}
 }

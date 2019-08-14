@@ -61,16 +61,7 @@ protected:
 	//-----------------------INVENTORY------------------------
 	//--------------------------------------------------------
 	//What slot in our inventory is this item?
-	int GetIndexOfItem(UItem* Item);
-
-
-	//Craft recipie based on table recipe list
-	//Is this depricated?
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	void Server_CraftRecipe(FName RecipeTableRowName);
-	void Server_CraftRecipe_Implementation(FName RecipeTableRowName);
-	bool Server_CraftRecipe_Validate(FName RecipeTableRowName) { return true; };
-	
+	int GetIndexOfItem(UItem* Item);	
 
 	//--------------------------------------------------------
 	//---------------------Player Data------------------------
@@ -204,9 +195,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetCurrentExpInSkill(ESkillType Skill);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	int GetTotalExpRequiredForLevel(int Level);
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	int GetExpRequiredForLevel(int Level) { return 3.14159265359*10*FMath::Pow(2, (float)Level / (3.14159265359*2));}
+	int GetTotalExpRequiredForLevel(int Level) { return FPlayerSkilllLevelStruct::GetTotalExpRequiredForLevel(Level); }
 
 	//--------------------------------------------------------
 	//-----------------------INTERFACE------------------------

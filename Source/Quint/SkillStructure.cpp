@@ -11,15 +11,22 @@ void FPlayerSkilllLevelStruct::SetSkillAndExpLevel(ESkillType Skill, int Level, 
 	}
 }
 
-void FPlayerSkilllLevelStruct::AddExp(ESkillType Skill, int Experience){
+int FPlayerSkilllLevelStruct::AddExp(ESkillType Skill, int Experience){
 	FLevelStruct* ref = GetSkill(Skill);
+	int leveldUpTo = 0;
 	if (ref) {
+		int NextLevelExp = FPlayerSkilllLevelStruct::GetExpRequiredForLevel(ref->Level + 1);
 		ref->CurrentExp += Experience;
+		while (NextLevelExp <= ref->CurrentExp) {
+			ref->Level += 1;
+			ref->CurrentExp = ref->CurrentExp - NextLevelExp;
+			NextLevelExp = FPlayerSkilllLevelStruct::GetExpRequiredForLevel(ref->Level + 1);
+		}
 	}
+	return leveldUpTo;
 }
 
-FLevelStruct* FPlayerSkilllLevelStruct::GetSkill(ESkillType Skill)
-{
+FLevelStruct* FPlayerSkilllLevelStruct::GetSkill(ESkillType Skill){
 	FLevelStruct* reference = nullptr;
 	switch (Skill) {
 	case ESkillType::ST_LOGGING:
@@ -59,8 +66,7 @@ FLevelStruct* FPlayerSkilllLevelStruct::GetSkill(ESkillType Skill)
 	return reference;
 }
 
-int FPlayerSkilllLevelStruct::GetSkillLevel(ESkillType Skill)
-{
+int FPlayerSkilllLevelStruct::GetSkillLevel(ESkillType Skill){
 	FLevelStruct* ref = GetSkill(Skill);
 	if (ref) {
 		return ref->Level;
@@ -68,11 +74,18 @@ int FPlayerSkilllLevelStruct::GetSkillLevel(ESkillType Skill)
 	return 1;
 }
 
-int FPlayerSkilllLevelStruct::GetSkillExp(ESkillType Skill)
-{
+int FPlayerSkilllLevelStruct::GetSkillExp(ESkillType Skill){
 	FLevelStruct* ref = GetSkill(Skill);
 	if (ref) {
 		return ref->CurrentExp;
 	}
 	return 0;
+}
+
+int FPlayerSkilllLevelStruct::GetTotalExpRequiredForLevel(int Level){
+	int total = 0;
+	for (int i = 1; i < Level; i++) {
+		total += FPlayerSkilllLevelStruct::GetExpRequiredForLevel(i);
+	}
+	return total;
 }
