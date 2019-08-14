@@ -33,7 +33,8 @@ enum class EDamageType : uint8 {
 UENUM(BlueprintType)
 enum class EHarvestType : uint8 {
 	HT_NONE UMETA(DisplayName = "NONE"),
-	HT_MINING UMETA(DisplayName = "MINING")
+	HT_MINING UMETA(DisplayName = "Mining"),
+	HT_LOGGING UMETA(DisplayName = "Logging")
 };
 
 UENUM(BlueprintType, Meta = (Bitflags))

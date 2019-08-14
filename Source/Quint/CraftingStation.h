@@ -30,6 +30,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// Sets default values for this actor's properties
 	ACraftingStation();
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+	ECraftingStationType GetStationType() { return CraftingStationType; };
 	virtual bool UseThis_Implementation(UObject* With, UObject* Source = nullptr) override;
 	virtual float GetSize_Implementation() override;
 	virtual EInteractionType GetDefaultTask_Implementation() override;

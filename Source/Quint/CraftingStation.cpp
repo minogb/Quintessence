@@ -35,7 +35,6 @@ ACraftingStation::ACraftingStation(){
 		ClickBox->AttachToComponent(NavigationHitBox, rules);
 	}
 	bNetLoadOnClient = false;
-	bNetLoadOnClient = false;
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1;
 	SetReplicates(true);

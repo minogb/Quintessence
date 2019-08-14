@@ -361,7 +361,6 @@ bool AQuintPlayerController::CraftRecipe(FCraftingStruct Recipe) {
 			ConsumeItem(current.Item, current.Count, true);
 		}
 		AddItemToInventory(Recipe.Output.Item, Recipe.Output.Count);
-		PrintToScreen("Printed here");
 		AddExperience(Recipe.Experience.Skill, Recipe.Experience.Exp);
 		return true;
 	}
