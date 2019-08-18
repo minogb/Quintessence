@@ -128,6 +128,11 @@ void AQuintPlayerController::AddExperience(ESkillType Skill, int Amount){
 	if (newLevel > 0)
 		NotifyOfLevelUp(Skill, newLevel);
 }
+void AQuintPlayerController::AddExperienceReward(TArray<FExpRewardStruct> Experience) {
+	for (FExpRewardStruct current : Experience) {
+		AddExperience(current.Skill, current.Exp);
+	}
+}
 void AQuintPlayerController::NotifyOfLevelUp(ESkillType Skill, int Level) {
 	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Level)); }
 }
@@ -347,6 +352,11 @@ void AQuintPlayerController::StartCraftingItem_Implementation(AActor* AtLocation
 //--------------------------------------------------------
 //-------------------CAN CRAFT RECIPE---------------------
 bool AQuintPlayerController::CanCraftRecipe(FCraftingStruct Recipe) {
+	
+	for (FSkillLevelStruct current : Recipe.SkillRequired) {
+		if (GetSkillLevel(current.Skill) < current.Level)
+			return false;
+	}
 	for (FItemCraftingStruct &current : Recipe.Input) {
 		if (!HasItem(current.Item, current.Count))
 			return false;
@@ -361,7 +371,7 @@ bool AQuintPlayerController::CraftRecipe(FCraftingStruct Recipe) {
 			ConsumeItem(current.Item, current.Count, true);
 		}
 		AddItemToInventory(Recipe.Output.Item, Recipe.Output.Count);
-		AddExperience(Recipe.Experience.Skill, Recipe.Experience.Exp);
+		AddExperienceReward(Recipe.ExpReward);
 		return true;
 	}
 	return false;

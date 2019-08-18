@@ -47,16 +47,6 @@ enum class EItemAction : uint8 {
 };
 
 
-UENUM(BlueprintType, Meta = (Bitflags))
-enum class ECraftingToolType : uint8 {
-	CTT_NONE UMETA(DisplayName = "None")
-};
-UENUM(BlueprintType, Meta = (Bitflags))
-enum class ECraftingStationType : uint8 {
-	CST_NONE UMETA(DisplayName = "None"),
-	CST_SMELTING UMETA(DisplayName = "Smeltery"),
-	CST_WORKBENCH UMETA(DisplayName = "Workbench")
-};
 USTRUCT(BlueprintType)
 struct FDamageStruct : public FTableRowBase {
 	GENERATED_BODY()
@@ -93,15 +83,6 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FItemCraftingStruct {
-	GENERATED_BODY()
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UItem> Item;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	int Count = 1;
-};
-USTRUCT(BlueprintType)
 struct FExpRewardStruct {
 	GENERATED_BODY()
 public:
@@ -109,22 +90,6 @@ public:
 	ESkillType Skill;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Exp = 0;
-};
-//TODO: Add ?XP reward info?, add Craft time?
-USTRUCT(BlueprintType)
-struct FCraftingStruct : public FTableRowBase {
-	GENERATED_BODY()
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FExpRewardStruct Experience;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ECraftingStationType CraftingLocation;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ECraftingToolType RequiredTool;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FItemCraftingStruct> Input;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FItemCraftingStruct Output;
 };
 USTRUCT(BlueprintType)
 struct FLootStruct {

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "Enumerations.h"
+#include "CraftingInfo.h"
 #include "QuintGameMode.generated.h"
 
 /**

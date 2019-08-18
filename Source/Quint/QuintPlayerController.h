@@ -6,6 +6,7 @@
 #include "Enumerations.h"
 #include "EquipmentStructure.h"
 #include "SkillStructure.h"
+#include "CraftingInfo.h"
 #include "QuintPlayerController.generated.h"
 #define ECC_Interactable ECC_GameTraceChannel1
 #define ECC_Floor ECC_GameTraceChannel2
@@ -190,6 +191,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddExperience(ESkillType Skill, int Amount);
+	UFUNCTION(BlueprintCallable)
+	void AddExperienceReward(TArray<FExpRewardStruct> Experience);
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetSkillLevel(ESkillType Skill);
 	UFUNCTION(BlueprintCallable, BlueprintPure)

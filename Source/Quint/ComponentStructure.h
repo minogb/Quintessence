@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class EEquipmentComponentType : uint8 {
+enum class EAssemblyComponentType : uint8 {
 	ECT_NONE UMETA(DisplayName = "Invalid Component"),
 	ECT_S_BLADE UMETA(DisplayName = "Short Blade Component"),
 	ECT_M_BLADE UMETA(DisplayName = "Medium Blade Component"),

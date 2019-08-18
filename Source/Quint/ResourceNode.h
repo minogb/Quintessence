@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Interfaces/Interactable.h"
 #include "Enumerations.h"
+#include "SkillStructure.h"
 #include "ResourceNode.generated.h"
 
 
@@ -65,8 +66,12 @@ protected:
 	EHarvestType HarvestType;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	int HarvestLevel;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true" ))
 	TArray<FResourceRewardData>Rewards;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FSkillLevelStruct RequiredLevel;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	float TimeToReset = 4;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	int WorldSize = 64;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -78,7 +83,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void RemovePlayersFromHarvesters();
-	float TimeToReset = 4;
 	void GivePlayerReward(class AAvatar* Player);
 	TArray<FResourceReward> GetPlayerReward(class AAvatar* Player);
 	void SpawnWorldItem(class UItem* Item, AActor* ToOwn);

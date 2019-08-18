@@ -27,6 +27,15 @@ enum class ESkillType : uint8 {
 	ST_RANGED UMETA(DisplayName = "Ranged"),
 	ST_MAGIC UMETA(DisplayName = "Magic")
 };
+
+USTRUCT(BlueprintType)
+struct FSkillLevelStruct {
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESkillType Skill = ESkillType::ST_NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Level = 1;
+};
 USTRUCT(BlueprintType)
 struct FLevelStruct {
 	GENERATED_BODY()
