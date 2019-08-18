@@ -44,8 +44,7 @@ void AResourceNode::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Out
 }
 bool AResourceNode::CanPlayerHarvest(AAvatar * Player){
 	if (IsValid(Player)) {
-		AQuintPlayerController* pc =  Player->GetQuintController();
-		if (pc && pc->GetSkillLevel(RequiredLevel.Skill) >= RequiredLevel.Level) {
+		if (Player->GetSkillLevel(RequiredLevel.Skill) >= RequiredLevel.Level) {
 			return Player->GetHighestToolLevelOfType(HarvestType) >= HarvestLevel;
 		}
 	}

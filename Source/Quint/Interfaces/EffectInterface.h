@@ -49,4 +49,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	bool OnActionCoolDownCalculation(UPARAM(ref)float& Speed, EInteractionType Action);
 	virtual bool OnActionCoolDownCalculation_Implementation(UPARAM(ref)float& Duration, EInteractionType Action) { return true; }
+
+	UFUNCTION(BlueprintNativeEvent)
+	int OnCalculateSkillLevel(ESkillType Skill, int Level);
+	int OnCalculateSkillLevel_Implementation(ESkillType Skill, int Level) { return Level; }
 };

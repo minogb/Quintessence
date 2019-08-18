@@ -134,6 +134,9 @@ protected:
 	//Attack Speed
 	UFUNCTION(BlueprintCallable)
 	void DelegateOnCoolDownCalculation(float& Speed, EInteractionType Action);
+	//Skill Level
+	UFUNCTION(BlueprintCallable)
+	int DelegateSkillLevel(ESkillType Skill, int Level);
 public:	
 	// Sets default values for this character's properties
 	AAvatar();
@@ -226,6 +229,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent() { return Health / MaxHealth; }
 
+
+	//Get our skill level
+	UFUNCTION(BlueprintCallable, Blueprintpure)
+	int GetSkillLevel(ESkillType Skill);
 	//--------------------------------------------------------
 	//-----------------INTERACTABLE INTERFACE-----------------
 	//--------------------------------------------------------

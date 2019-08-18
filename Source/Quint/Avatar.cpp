@@ -355,6 +355,15 @@ void AAvatar::DelegateOnCoolDownCalculation(float & Speed, EInteractionType Acti
 	}
 }
 
+int AAvatar::DelegateSkillLevel(ESkillType Skill, int Level){
+	for (UObject*current : GetEffects()) {
+		if (IsValid(current) && current->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
+			Level = IEffectInterface::Execute_OnCalculateSkillLevel(current,Skill,Level);
+		}
+	}
+	return Level;
+}
+
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------PUBLIC----------------------------------------------------------------------------------
@@ -628,6 +637,15 @@ float AAvatar::CalculateWeaponRange() {
 //-----------------GET CURRENT WEAPON---------------------
 UItem* AAvatar::GetWeapon() {
 	return IsValid(GetQuintController()) ? GetQuintController()->GetEquipment(EEquipmentSlot::ES_WEAPON) : nullptr;
+}
+
+int AAvatar::GetSkillLevel(ESkillType Skill){
+	int retVar = 1;
+	if (GetQuintController()) {
+		retVar = GetQuintController()->GetSkillLevel(Skill);
+		DelegateSkillLevel(Skill, retVar);
+	}
+	return retVar;
 }
 
 void AAvatar::ApplyDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, AActor * DamageCauser, AController * CauserController){

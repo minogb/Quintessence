@@ -354,7 +354,7 @@ void AQuintPlayerController::StartCraftingItem_Implementation(AActor* AtLocation
 bool AQuintPlayerController::CanCraftRecipe(FCraftingStruct Recipe) {
 	
 	for (FSkillLevelStruct current : Recipe.SkillRequired) {
-		if (GetSkillLevel(current.Skill) < current.Level)
+		if ((GetPlayerAvatar() ? GetPlayerAvatar()->GetSkillLevel(current.Skill) : GetSkillLevel(current.Skill)) < current.Level)
 			return false;
 	}
 	for (FItemCraftingStruct &current : Recipe.Input) {
