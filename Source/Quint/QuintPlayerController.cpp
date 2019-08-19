@@ -10,11 +10,11 @@
 #include "Interfaces/Equipment.h"
 #include "Interfaces/EffectInterface.h"
 #include "Interfaces/Tool.h"
+#include "Interfaces/CraftingWidgetInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/ActorChannel.h"
 #include "QuintGameMode.h"
 #include "CraftingInfo.h"
-#include "CraftingWidgetInterface.h"
 #define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
