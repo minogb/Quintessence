@@ -19,7 +19,12 @@ class  UEquipmentInterface : public UInterface{
 class QUINT_API IEquipmentInterface {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	EEquipmentSlot GetEquipmentSlot();
 	virtual EEquipmentSlot GetEquipmentSlot_Implementation() { return EEquipmentSlot::ES_NONE; }
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	int GetSkillLevel(ESkillType Skill);
+	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
+
 };

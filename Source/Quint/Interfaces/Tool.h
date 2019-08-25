@@ -21,11 +21,11 @@ class QUINT_API ITool {
 	GENERATED_BODY()
 protected:
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int GetHarvestLevelOfType(EHarvestType Type);
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int GetRequiredUseLevel(EHarvestType Type);
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	float GetHarvestSpeedMultiplier(EHarvestType Type);
 
 	virtual int GetHarvestLevelOfType_Implementation(EHarvestType Type);

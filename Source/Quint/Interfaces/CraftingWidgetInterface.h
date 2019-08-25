@@ -14,7 +14,7 @@ class  UCraftingWidgetInterface : public UInterface {
 class QUINT_API ICraftingWidgetInterface {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void SetWorldReference(AActor* WorldActor);
 	virtual void SetWorldReference_Implementation(AActor* WorldActor) {};
 };

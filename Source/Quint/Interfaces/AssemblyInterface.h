@@ -21,10 +21,10 @@ class QUINT_API IAssemblyInterface {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UItem* GetComponent(EAssemblyComponentType Type);
 	virtual UItem* GetComponent_Implementation(EAssemblyComponentType Type) { return nullptr; }
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool SetComponent(UItem* Component);
 	virtual bool SetComponent_Implementation(UItem* Component) { return false; }
 };

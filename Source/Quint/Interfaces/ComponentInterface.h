@@ -20,7 +20,7 @@ class QUINT_API IComponentInterface {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	EAssemblyComponentType GetComponentSlot();
 	virtual EAssemblyComponentType GetComponentSlot_Implementation() { return EAssemblyComponentType::ECT_NONE; }
 };

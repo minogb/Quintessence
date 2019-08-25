@@ -19,38 +19,38 @@ class  UEffectInterface : public UInterface {
 class QUINT_API IEffectInterface {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnApply(AActor* ToActor);
 	void OnApply_Implementation(AActor* ToActor) {}
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnRemove(AActor* FromActor);
 	void OnRemove_Implementation(AActor* FromActor) {}
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool OnIncomingDamage(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
 	virtual bool OnIncomingDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) { return true; }
-	
-	UFUNCTION(BlueprintNativeEvent)
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool OnDamageTaken(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr);
 	virtual bool OnDamageTaken_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageCauser, AController* CauserController = nullptr) { return true; }
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool OnOutgoingDamage(UPARAM(ref)FDamageStruct& Damage, UObject* DamageTarget);
 	virtual bool OnOutgoingDamage_Implementation(UPARAM(ref)FDamageStruct& Damage, UObject* DamageTarget) { return true; }
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool OnDamageDelt(UPARAM(ref)FDamageStruct& Damage, UObject* DamageTarget);
 	virtual bool OnDamageDelt_Implementation(FDamageStruct& Damage, UObject* DamageTarget) { return true; }
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool OnActionSpeedCalculation(UPARAM(ref)float& Speed, EInteractionType Action);
 	virtual bool OnActionSpeedCalculation_Implementation(UPARAM(ref)float& Speed, EInteractionType Action) { return true; }
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool OnActionCoolDownCalculation(UPARAM(ref)float& Speed, EInteractionType Action);
 	virtual bool OnActionCoolDownCalculation_Implementation(UPARAM(ref)float& Duration, EInteractionType Action) { return true; }
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int OnCalculateSkillLevel(ESkillType Skill, int Level);
 	int OnCalculateSkillLevel_Implementation(ESkillType Skill, int Level) { return Level; }
 };

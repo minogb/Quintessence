@@ -16,8 +16,11 @@ UCLASS()
 class QUINT_API UDagger : public UItem, public IAssemblyInterface, public IEquipmentInterface, public IWeaponInterface
 {
 	GENERATED_BODY()
+	UPROPERTY()
 	UItem* SmallBlade;
+	UPROPERTY()
 	UItem* ShortGrip;
+	UPROPERTY()
 	UItem* SmallPommel;
 public:
 	virtual UItem* GetComponent_Implementation(EAssemblyComponentType Type) override;
