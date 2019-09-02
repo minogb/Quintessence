@@ -11,6 +11,7 @@
 #define ECC_Interactable ECC_GameTraceChannel1
 #define ECC_Floor ECC_GameTraceChannel2
 
+class UAssembledEquipment;
 UCLASS()
 class QUINT_API AQuintPlayerController : public APlayerController
 {
@@ -139,6 +140,13 @@ public:
 	void StartCraftingItem_Implementation(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount);
 	bool StartCraftingItem_Validate(AActor* AtLocation, FCraftingStruct Recipe, int CraftingAmount) { return true; }
 	
+
+	//Craft Recipe at location and number of times to do so
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void CraftAssembly(TSubclassOf<UAssembledEquipment> AssemblyClass , const TArray<int>&ComponentList);
+	void CraftAssembly_Implementation(TSubclassOf<UAssembledEquipment> AssemblyClass, const TArray<int>&ComponentList);
+	bool CraftAssembly_Validate(TSubclassOf<UAssembledEquipment> AssemblyClass, const TArray<int>&ComponentList) { return true; }
+
 	//Do we have the items/reqruiments for the recipe?
 	UFUNCTION(BlueprintCallable)
 	bool CanCraftRecipe(FCraftingStruct Recipe);

@@ -24,7 +24,11 @@ public:
 	virtual EEquipmentSlot GetEquipmentSlot_Implementation() { return EEquipmentSlot::ES_NONE; }
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	int GetSkillLevel(ESkillType Skill);
-	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
+	TArray<FSkillLevelStruct> GetSkillsRequired();
+	virtual TArray<FSkillLevelStruct> GetSkillsRequired_Implementation(){ return TArray<FSkillLevelStruct>(); }
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool CanPlayerEquip(AAvatar* Player);
+	virtual bool CanPlayerEquip_Implementation(AAvatar* Player) { return false; }
 
 };

@@ -39,7 +39,7 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	int StackSize = 1;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
-	int MaxStackSize = 2;
+	int MaxStackSize = 1;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	int IndexId = 1;
@@ -50,7 +50,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	UTexture2D* ImageTexture;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
-	int CraftExperience = 2;
+	int CraftExperience = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rendering")
 	FColor Color;
 	TArray<EItemAction> Actions;

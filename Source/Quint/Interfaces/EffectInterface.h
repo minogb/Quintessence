@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "Enumerations.h"
+#include "Interfaces/Interactable.h"
 #include "EffectInterface.generated.h"
 
 /**
@@ -52,5 +53,5 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int OnCalculateSkillLevel(ESkillType Skill, int Level);
-	int OnCalculateSkillLevel_Implementation(ESkillType Skill, int Level) { return Level; }
+	virtual int OnCalculateSkillLevel_Implementation(ESkillType Skill, int Level) { return Level; }
 };

@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Item.h"
-#include "Interfaces/AssemblyInterface.h"
-#include "Interfaces/Equipment.h"
+#include "Assemblies/AssembledEquipment.h"
 #include "Interfaces/WeaponInterface.h"
 #include "Dagger.generated.h"
 
@@ -13,7 +12,7 @@
  * 
  */
 UCLASS()
-class QUINT_API UDagger : public UItem, public IAssemblyInterface, public IEquipmentInterface, public IWeaponInterface
+class QUINT_API UDagger : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
 	UPROPERTY()
@@ -23,6 +22,17 @@ class QUINT_API UDagger : public UItem, public IAssemblyInterface, public IEquip
 	UPROPERTY()
 	UItem* SmallPommel;
 public:
-	virtual UItem* GetComponent_Implementation(EAssemblyComponentType Type) override;
-	virtual bool SetComponent_Implementation(UItem* Item) override;
+	UDagger();
+	virtual UItem* GetComponent(EAssemblyComponentType Type) override;
+	virtual bool SetComponent(UItem* Item) override;
+
+	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
+
+	virtual bool SetWeaponMode_Implementation(int Mode = 0);
+	virtual float GetWeaponRange_Implementation();
+	virtual float GetWeaponAttackDuration_Implementation();
+	virtual float GetWeaponAttackCooldown_Implementation();
+	virtual bool GetDamageStruct_Implementation(UPARAM(ref)FDamageStruct& Damage);
+	virtual bool CanUseWeapon_Implementation(AAvatar* Avatar);
+	virtual bool UseWeapon_Implementation(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AActor* DamageTarget);
 };

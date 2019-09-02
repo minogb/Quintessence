@@ -11,10 +11,13 @@
 #include "Interfaces/EffectInterface.h"
 #include "Interfaces/Tool.h"
 #include "Interfaces/CraftingWidgetInterface.h"
+#include "Assemblies/AssembledEquipment.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/ActorChannel.h"
 #include "QuintGameMode.h"
 #include "CraftingInfo.h"
+#include "Assemblies/Dagger.h"
+
 #define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 /*
 -------------------------------------------------------------------------------------------------------------------------------------------
@@ -349,6 +352,38 @@ void AQuintPlayerController::StartCraftingItem_Implementation(AActor* AtLocation
 }
 
 
+void AQuintPlayerController::CraftAssembly_Implementation(TSubclassOf<UAssembledEquipment> AssemblyClass, const TArray<int>&ComponentList)
+{
+	if (!AssemblyClass) {
+		return;
+	}
+	TArray<UItem*> items = TArray<UItem*>();
+
+	for (int var : ComponentList) {
+		if (Inventory.IsValidIndex(var)) {
+			items.Add(Inventory[var]);
+			Inventory[var] = nullptr;
+		}
+		else {
+			return;
+		}
+	}
+
+	UAssembledEquipment* newItem = NewObject<UAssembledEquipment>(this,AssemblyClass);
+	newItem->Owner = this;
+	UItem* tmp = Cast<UItem>(newItem);
+	if (newItem->SetComponents(items)) {
+		AddItemToInventory(tmp);
+	}
+	else {
+		for (UItem* var : items) {
+			if (var) {
+				AddItemToInventory(var);
+			}
+		}
+	}
+}
+
 //--------------------------------------------------------
 //-------------------CAN CRAFT RECIPE---------------------
 bool AQuintPlayerController::CanCraftRecipe(FCraftingStruct Recipe) {
@@ -445,12 +480,19 @@ void AQuintPlayerController::EquipItem_Implementation(int Slot) {
 		return;
 	UItem* item = Inventory[Slot];
 
-	if (IsValid(item) && item->GetClass()->ImplementsInterface(UEquipmentInterface::StaticClass())) {
+	if (IsValid(item) && item->GetClass()->ImplementsInterface(UEquipmentInterface::StaticClass())
+		&& IEquipmentInterface::Execute_CanPlayerEquip(item, GetPlayerAvatar())) {
+		//Get equipment slot
 		const EEquipmentSlot slot = IEquipmentInterface::Execute_GetEquipmentSlot(item);
+		//if valid slot
 		if (slot != EEquipmentSlot::ES_NONE) {
+			//uniequipe current
 			UnEquipItem(slot);
+			//if we did unequip
 			if (!IsValid(Equipment.Get(slot))) {
 				Inventory[Slot] = NULL;
+				//Set equipment slot
+				//TODO: maybe this proccess should be handled by the struct
 				Equipment.SetEquipment(item);
 				if (IsValid(item) && item->GetClass()->ImplementsInterface(UEffectInterface::StaticClass())) {
 					IEffectInterface::Execute_OnApply(item, GetPlayerAvatar());
