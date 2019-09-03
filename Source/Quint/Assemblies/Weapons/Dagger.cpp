@@ -14,6 +14,7 @@ UDagger::UDagger() {
 	if (TextureFinder.Succeeded()) {
 		ImageTexture = TextureFinder.Object;
 	}
+	ItemName = "Dagger";
 	MaxStackSize = 1;
 }
 

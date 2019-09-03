@@ -16,7 +16,6 @@
 #include "Engine/ActorChannel.h"
 #include "QuintGameMode.h"
 #include "CraftingInfo.h"
-#include "Assemblies/Dagger.h"
 
 #define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 /*
