@@ -16,14 +16,16 @@ class QUINT_API UAssembledEquipment : public UItem, public IEquipmentInterface, 
 
 public:
 
+	virtual UItem** GetComponent(EAssemblyComponentType Type) { return false; }
+
 	UFUNCTION(BlueprintCallable)
-	virtual UItem* GetComponent(EAssemblyComponentType Type) { return nullptr; }
+	UItem* GetComponent_BP(EAssemblyComponentType Type);
 
 	UFUNCTION(BlueprintCallable)
 	virtual TArray<UItem*> GetComponents() {return TArray<UItem*>();}
 
 	UFUNCTION(BlueprintCallable)
-	virtual bool SetComponent(UItem* Component) { return false; }
+	virtual bool SetComponent(UItem* Component);
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool SetComponents(TArray<UItem*>& Components);

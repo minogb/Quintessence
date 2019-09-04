@@ -18,7 +18,7 @@ UMaul::UMaul() {
 	MaxStackSize = 1;
 }
 
-UItem * UMaul::GetComponent(EAssemblyComponentType Type) {/*
+UItem** UMaul::GetComponent(EAssemblyComponentType Type){/*
 	switch (Type) {
 	case EAssemblyComponentType::ECT_S_BLADE:
 		return SmallBlade;
@@ -30,31 +30,6 @@ UItem * UMaul::GetComponent(EAssemblyComponentType Type) {/*
 	return nullptr;
 }
 
-bool UMaul::SetComponent(UItem * Item) {/*
-	EAssemblyComponentType type = EAssemblyComponentType::ECT_NONE;
-	if (IsValid(Item) && Item->GetClass()->ImplementsInterface(UComponentInterface::StaticClass())) {
-		type = IComponentInterface::Execute_GetComponentSlot(Item);
-	}
-	switch (type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		SmallBlade = Item;
-		return true;
-		break;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		ShortGrip = Item;
-		return true;
-		break;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		SmallPommel = Item;
-		return true;
-		break;
-	default:
-		return false;
-		break;
-	}
-	*/
-	return false;
-}
 
 bool UMaul::SetWeaponMode_Implementation(int Mode) {
 	return false;

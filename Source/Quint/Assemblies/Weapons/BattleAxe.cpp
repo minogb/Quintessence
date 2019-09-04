@@ -18,7 +18,7 @@ UBattleAxe::UBattleAxe() {
 	MaxStackSize = 1;
 }
 
-UItem * UBattleAxe::GetComponent(EAssemblyComponentType Type) {/*
+UItem** UBattleAxe::GetComponent(EAssemblyComponentType Type){/*
 	switch (Type) {
 	case EAssemblyComponentType::ECT_S_BLADE:
 		return SmallBlade;
@@ -28,32 +28,6 @@ UItem * UBattleAxe::GetComponent(EAssemblyComponentType Type) {/*
 		return SmallPommel;
 	}*/
 	return nullptr;
-}
-
-bool UBattleAxe::SetComponent(UItem * Item) {/*
-	EAssemblyComponentType type = EAssemblyComponentType::ECT_NONE;
-	if (IsValid(Item) && Item->GetClass()->ImplementsInterface(UComponentInterface::StaticClass())) {
-		type = IComponentInterface::Execute_GetComponentSlot(Item);
-	}
-	switch (type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		SmallBlade = Item;
-		return true;
-		break;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		ShortGrip = Item;
-		return true;
-		break;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		SmallPommel = Item;
-		return true;
-		break;
-	default:
-		return false;
-		break;
-	}
-	*/
-	return false;
 }
 
 bool UBattleAxe::SetWeaponMode_Implementation(int Mode) {

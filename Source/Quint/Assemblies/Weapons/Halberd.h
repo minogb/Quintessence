@@ -17,8 +17,7 @@ class QUINT_API UHalberd : public UAssembledEquipment, public IWeaponInterface
 
 public:
 	UHalberd();
-	virtual UItem* GetComponent(EAssemblyComponentType Type) override;
-	virtual bool SetComponent(UItem* Item) override;
+	virtual UItem** GetComponent(EAssemblyComponentType Type);
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

@@ -16,8 +16,8 @@ class QUINT_API USpear : public UAssembledEquipment, public IWeaponInterface
 
 public:
 	USpear();
-	virtual UItem* GetComponent(EAssemblyComponentType Type) override;
-	virtual bool SetComponent(UItem* Item) override;
+
+	virtual UItem** GetComponent(EAssemblyComponentType Type) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

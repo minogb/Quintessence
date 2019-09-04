@@ -17,8 +17,7 @@ class QUINT_API UBroadSword : public UAssembledEquipment, public IWeaponInterfac
 
 public:
 	UBroadSword();
-	virtual UItem* GetComponent(EAssemblyComponentType Type) override;
-	virtual bool SetComponent(UItem* Item) override;
+	virtual UItem** GetComponent(EAssemblyComponentType Type) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

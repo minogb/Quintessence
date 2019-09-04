@@ -19,7 +19,7 @@ UShortSword::UShortSword() {
 	MaxStackSize = 1;
 }
 
-UItem * UShortSword::GetComponent(EAssemblyComponentType Type) {/*
+UItem** UShortSword::GetComponent(EAssemblyComponentType Type){/*
 	switch (Type) {
 	case EAssemblyComponentType::ECT_S_BLADE:
 		return SmallBlade;
@@ -31,31 +31,6 @@ UItem * UShortSword::GetComponent(EAssemblyComponentType Type) {/*
 	return nullptr;
 }
 
-bool UShortSword::SetComponent(UItem * Item) {
-	EAssemblyComponentType type = EAssemblyComponentType::ECT_NONE;
-	if (IsValid(Item) && Item->GetClass()->ImplementsInterface(UComponentInterface::StaticClass())) {
-		type = IComponentInterface::Execute_GetComponentSlot(Item);
-	}/*
-	switch (type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		SmallBlade = Item;
-		return true;
-		break;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		ShortGrip = Item;
-		return true;
-		break;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		SmallPommel = Item;
-		return true;
-		break;
-	default:
-		return false;
-		break;
-	}*/
-
-	return false;
-}
 
 bool UShortSword::SetWeaponMode_Implementation(int Mode) {
 	return false;

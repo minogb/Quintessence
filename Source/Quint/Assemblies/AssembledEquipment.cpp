@@ -4,13 +4,27 @@
 #include "AssembledEquipment.h"
 #include "Avatar.h"
 #include "Interfaces/ComponentInterface.h"
+#include "Engine/World.h"
 
+#define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 bool UAssembledEquipment::SetComponents(TArray<UItem*>& Components){
 	for (UItem* current : Components) {
 		if(!SetComponent(current))
 			return false;
 	}
 	return true;
+}
+bool UAssembledEquipment::SetComponent(UItem* Item) {
+	EAssemblyComponentType type = EAssemblyComponentType::ECT_NONE;
+	if (IsValid(Item) && Item->GetClass()->ImplementsInterface(UComponentInterface::StaticClass())) {
+		type = IComponentInterface::Execute_GetComponentSlot(Item);
+		UItem** comp = GetComponent(type);
+		if (comp) {
+			*comp = Item;
+			return true;
+		}
+	}
+	return false;
 }
 
 bool UAssembledEquipment::OnIncomingDamage_Implementation(UPARAM(ref)FDamageStruct & Damage, UObject * DamageCauser, AController * CauserController){
@@ -104,4 +118,9 @@ bool UAssembledEquipment::CanPlayerEquip_Implementation(AAvatar* Player){
 	}
 	//Player can't equip if he dosn't exist
 	return false;
+}
+
+UItem * UAssembledEquipment::GetComponent_BP(EAssemblyComponentType Type){
+	UItem ** ref = GetComponent(Type);
+	return ref ? *ref : nullptr;
 }
