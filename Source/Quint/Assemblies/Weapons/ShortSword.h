@@ -15,6 +15,15 @@ class QUINT_API UShortSword : public UAssembledEquipment, public IWeaponInterfac
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	UItem* MediumBlade;
+	UPROPERTY()
+	UItem* Pommel;
+	UPROPERTY()
+	UItem* Grip;
+	UPROPERTY()
+	UItem* Guard;
+
 public:
 	UShortSword();
 

@@ -18,15 +18,17 @@ UBattleAxe::UBattleAxe() {
 	MaxStackSize = 1;
 }
 
-UItem** UBattleAxe::GetComponent(EAssemblyComponentType Type){/*
+UItem** UBattleAxe::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_AXE_HEAD:
+		return &AxeHead;
+	case EAssemblyComponentType::ECT_M_POMMEL:
+		return &Pommel;
+	case EAssemblyComponentType::ECT_M_GRIP:
+		return &Grip;
+	case EAssemblyComponentType::ECT_S_HANDLE:
+		return &ShortHandle;
+	}
 	return nullptr;
 }
 

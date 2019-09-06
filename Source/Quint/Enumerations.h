@@ -42,7 +42,8 @@ enum class EAssemblyComponentType : uint8 {
 	ECT_L_HANDLE UMETA(DisplayName = "Large Handle Component"),
 
 	ECT_BINDING UMETA(DisplayName = "Binding Component"),
-	ECT_GUARD UMETA(DisplayName = "Gaurd Component")
+	ECT_GUARD UMETA(DisplayName = "Gaurd Component"),
+	ECT_SPIKE UMETA(DisplayName = "Spike Component")
 };
 UENUM(BlueprintType)
 enum class EDamageType : uint8 {

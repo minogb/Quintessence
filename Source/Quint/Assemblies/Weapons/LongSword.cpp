@@ -18,15 +18,17 @@ ULongSword::ULongSword() {
 	MaxStackSize = 1;
 }
 
-UItem** ULongSword::GetComponent(EAssemblyComponentType Type){/*
+UItem** ULongSword::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_L_BLADE:
+		return &LongBlade;
+	case EAssemblyComponentType::ECT_M_POMMEL:
+		return &Pommel;
+	case EAssemblyComponentType::ECT_GUARD:
+		return &Guard;
+	case EAssemblyComponentType::ECT_L_GRIP:
+		return &LongGrip;
+	}
 	return nullptr;
 }
 

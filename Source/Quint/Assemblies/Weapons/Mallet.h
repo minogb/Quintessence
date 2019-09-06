@@ -14,6 +14,12 @@ UCLASS()
 class QUINT_API UMallet : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
+	UPROPERTY()
+	UItem* HammerHead;
+	UPROPERTY()
+	UItem* Binding;
+	UPROPERTY()
+	UItem* ShortHandle;
 
 public:
 	UMallet();

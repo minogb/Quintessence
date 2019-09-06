@@ -15,6 +15,13 @@ class QUINT_API UMace : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	UItem* HammerHead;
+	UPROPERTY()
+	UItem* Spike;
+	UPROPERTY()
+	UItem* ShortHandle;
+
 public:
 	UMace();
 	virtual UItem** GetComponent(EAssemblyComponentType Type);

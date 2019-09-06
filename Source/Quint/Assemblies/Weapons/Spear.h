@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Assemblies/AssembledEquipment.h"
+#include "Interfaces/WeaponInterface.h"
 #include "Spear.generated.h"
 
 /**
@@ -13,6 +14,13 @@ UCLASS()
 class QUINT_API USpear : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
+
+	UPROPERTY()
+	UItem* Spike;
+	UPROPERTY()
+	UItem*Binding;
+	UPROPERTY()
+	UItem*MediumHandle;
 
 public:
 	USpear();

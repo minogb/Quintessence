@@ -18,15 +18,15 @@ UMaul::UMaul() {
 	MaxStackSize = 1;
 }
 
-UItem** UMaul::GetComponent(EAssemblyComponentType Type){/*
+UItem** UMaul::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_L_HAMMER_HEAD:
+		return &LargeHammerHead;
+	case EAssemblyComponentType::ECT_BINDING:
+		return &Binding;
+	case EAssemblyComponentType::ECT_M_HANDLE:
+		return &MediumHandle;
+	}
 	return nullptr;
 }
 

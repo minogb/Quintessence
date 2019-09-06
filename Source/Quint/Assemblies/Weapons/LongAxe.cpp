@@ -18,15 +18,13 @@ ULongAxe::ULongAxe() {
 	MaxStackSize = 1;
 }
 
-UItem** ULongAxe::GetComponent(EAssemblyComponentType Type){/*
+UItem** ULongAxe::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_AXE_HEAD:
+		return &AxeHead;
+	case EAssemblyComponentType::ECT_L_HANDLE:
+		return &LongHandle;
+	}
 	return nullptr;
 }
 

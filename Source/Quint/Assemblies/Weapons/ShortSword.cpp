@@ -19,15 +19,17 @@ UShortSword::UShortSword() {
 	MaxStackSize = 1;
 }
 
-UItem** UShortSword::GetComponent(EAssemblyComponentType Type){/*
+UItem** UShortSword::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_M_BLADE:
+		return &MediumBlade;
+	case EAssemblyComponentType::ECT_M_POMMEL:
+		return &Pommel;
+	case EAssemblyComponentType::ECT_M_GRIP:
+		return &Grip;
+	case EAssemblyComponentType::ECT_GUARD:
+		return &Guard;
+	}
 	return nullptr;
 }
 

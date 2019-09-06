@@ -14,6 +14,14 @@ UCLASS()
 class QUINT_API UBroadSword : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
+	UPROPERTY()
+	UItem* HeavyBlade;
+	UPROPERTY()
+	UItem* Pommel;
+	UPROPERTY()
+	UItem* LongGrip;
+	UPROPERTY()
+	UItem* Guard;
 
 public:
 	UBroadSword();

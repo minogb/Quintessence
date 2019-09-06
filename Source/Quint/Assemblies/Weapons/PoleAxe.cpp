@@ -17,15 +17,17 @@ UPoleAxe::UPoleAxe() {
 	MaxStackSize = 1;
 }
 
-UItem** UPoleAxe::GetComponent(EAssemblyComponentType Type){/*
+UItem** UPoleAxe::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_AXE_HEAD:
+		return &AxeHead;
+	case EAssemblyComponentType::ECT_HAMMER_HEAD:
+		return &HammerHead;
+	case EAssemblyComponentType::ECT_L_GRIP:
+		return &LongGrip;
+	case EAssemblyComponentType::ECT_L_HANDLE:
+		return &LongHandle;
+	}
 	return nullptr;
 }
 

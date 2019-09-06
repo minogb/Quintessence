@@ -14,7 +14,12 @@ UCLASS()
 class QUINT_API UMaul : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
-
+	UPROPERTY()
+	UItem* LargeHammerHead;
+	UPROPERTY()
+	UItem* Binding;
+	UPROPERTY()
+	UItem* MediumHandle;
 public:
 	UMaul();
 	virtual UItem** GetComponent(EAssemblyComponentType Type);

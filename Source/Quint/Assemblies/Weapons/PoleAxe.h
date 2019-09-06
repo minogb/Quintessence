@@ -14,7 +14,14 @@ UCLASS()
 class QUINT_API UPoleAxe : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
-
+	UPROPERTY()
+	UItem* AxeHead;
+	UPROPERTY()
+	UItem* HammerHead;
+	UPROPERTY()
+	UItem* LongGrip;
+	UPROPERTY()
+	UItem* LongHandle;
 public:
 	UPoleAxe();
 	virtual UItem** GetComponent(EAssemblyComponentType Type);

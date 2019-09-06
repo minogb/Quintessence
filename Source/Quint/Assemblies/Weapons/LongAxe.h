@@ -14,6 +14,10 @@ UCLASS()
 class QUINT_API ULongAxe : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
+	UPROPERTY()
+	UItem* AxeHead;
+	UPROPERTY()
+	UItem* LongHandle;
 
 public:
 	ULongAxe();

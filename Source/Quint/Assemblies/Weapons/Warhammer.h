@@ -14,7 +14,14 @@ UCLASS()
 class QUINT_API UWarhammer : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
-
+	UPROPERTY()
+	UItem* LargeHammerHead;
+	UPROPERTY()
+	UItem* Spike;
+	UPROPERTY()
+	UItem* Grip;
+	UPROPERTY()
+	UItem* LongHandle;
 public:
 	UWarhammer();
 	virtual UItem** GetComponent(EAssemblyComponentType Type);

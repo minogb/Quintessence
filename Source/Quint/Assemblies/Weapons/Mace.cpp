@@ -18,15 +18,15 @@ UMace::UMace() {
 	MaxStackSize = 1;
 }
 
-UItem** UMace::GetComponent(EAssemblyComponentType Type){/*
+UItem** UMace::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_HAMMER_HEAD:
+		return &HammerHead;
+	case EAssemblyComponentType::ECT_SPIKE:
+		return &Spike;
+	case EAssemblyComponentType::ECT_S_HANDLE:
+		return &ShortHandle;
+	}
 	return nullptr;
 }
 

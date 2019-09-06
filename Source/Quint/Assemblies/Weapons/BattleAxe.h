@@ -14,6 +14,14 @@ UCLASS()
 class QUINT_API UBattleAxe : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
+	UPROPERTY()
+	UItem* AxeHead;
+	UPROPERTY()
+	UItem* Pommel;
+	UPROPERTY()
+	UItem* Grip;
+	UPROPERTY()
+	UItem* ShortHandle;
 
 public:
 	UBattleAxe();

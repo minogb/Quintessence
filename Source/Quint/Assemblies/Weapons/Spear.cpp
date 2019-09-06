@@ -17,15 +17,16 @@ USpear::USpear() {
 	MaxStackSize = 1;
 }
 
-UItem** USpear::GetComponent(EAssemblyComponentType Type) {/*
+
+UItem** USpear::GetComponent(EAssemblyComponentType Type) {
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_SPIKE:
+		return &Spike;
+	case EAssemblyComponentType::ECT_BINDING:
+		return &Binding;
+	case EAssemblyComponentType::ECT_M_HANDLE:
+		return &MediumHandle;
+	}
 	return nullptr;
 }
 bool USpear::SetWeaponMode_Implementation(int Mode) {

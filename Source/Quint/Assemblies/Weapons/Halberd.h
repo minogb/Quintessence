@@ -15,6 +15,14 @@ class QUINT_API UHalberd : public UAssembledEquipment, public IWeaponInterface
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	UItem* AxeHead;
+	UPROPERTY()
+	UItem* Spike;
+	UPROPERTY()
+	UItem* LongGrip;
+	UPROPERTY()
+	UItem* LongHandle;
 public:
 	UHalberd();
 	virtual UItem** GetComponent(EAssemblyComponentType Type);

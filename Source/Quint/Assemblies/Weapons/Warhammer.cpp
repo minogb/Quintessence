@@ -19,15 +19,17 @@ UWarhammer::UWarhammer() {
 	MaxStackSize = 1;
 }
 
-UItem** UWarhammer::GetComponent(EAssemblyComponentType Type){/*
+UItem** UWarhammer::GetComponent(EAssemblyComponentType Type){
 	switch (Type) {
-	case EAssemblyComponentType::ECT_S_BLADE:
-		return SmallBlade;
-	case EAssemblyComponentType::ECT_S_GRIP:
-		return ShortGrip;
-	case EAssemblyComponentType::ECT_S_POMMEL:
-		return SmallPommel;
-	}*/
+	case EAssemblyComponentType::ECT_L_HAMMER_HEAD:
+	return &LargeHammerHead;
+	case EAssemblyComponentType::ECT_SPIKE:
+	return &Spike;
+	case EAssemblyComponentType::ECT_M_GRIP:
+	return &Grip;
+	case EAssemblyComponentType::ECT_L_HANDLE:
+	return &LongHandle;
+	}
 	return nullptr;
 }
 
