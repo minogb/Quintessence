@@ -1,7 +1,4 @@
 #include "QuintGameMode.h"
-// Fill out your copyright notice in the Description page of Project Settings.
-
-#include "QuintGameMode.h"
 #include "PlayerVessel.h"
 #include "QuintPlayerController.h"
 #include "Engine/World.h"
@@ -10,50 +7,168 @@
 #include "Engine/GameEngine.h"
 #include "QuintPlayerController.h"
 #include "ConstructorHelpers.h"
+#include "Json/Public/Dom/JsonObject.h"
+#include "Json/Public/Serialization/JsonReader.h"
+#include "Json/Public/Serialization/JsonSerializer.h"
+#include "JsonUtilities/Public/JsonObjectConverter.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/GameSession.h"
+#include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+
 AQuintGameMode::AQuintGameMode(){
 
-	//PlayerControllerClass = AWorldController::StaticClass();
 	DefaultPawnClass = APlayerVessel::StaticClass();
 	PlayerControllerClass  = AQuintPlayerController::StaticClass();
-	static ConstructorHelpers::FObjectFinder<UDataTable> Recepies(TEXT("/Game/Crafting/CraftingRecipies.CraftingRecipies"));
-	if (Recepies.Succeeded()){
-		RecipeTable = Recepies.Object;
+	Http = &FHttpModule::Get();
+	SaveTask = new FAutoDeleteAsyncTask<FSaveTask>(this);
+	SaveTask->StartBackgroundTask();
+	
+}
+
+void AQuintGameMode::CallToGetPlayerInfo(int PlayerID){
+	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &AQuintGameMode::OnPlayerInfoReceived);
+	//This is the url on which to process the request
+	Request->SetURL("localhost");
+	Request->SetVerb("GET");
+	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	Request->SetHeader("Content-Type", TEXT("application/json"));
+	Request->ProcessRequest();
+}
+
+void AQuintGameMode::OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful){
+	if (!bWasSuccessful) {
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "not succesful");
+		return;
+	}
+	//Create a pointer to hold the json serialized data
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	//Create a reader pointer to read the json data
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+
+	//Deserialize the json data given Reader and the actual object to deserialize
+	if (FJsonSerializer::Deserialize(Reader, JsonObject))
+	{
+		int32 playerId = 0;
+		if(JsonObject->HasField("ID"))
+			playerId = JsonObject->GetIntegerField("ID");
+
+		if (JsonObject->HasField("ID") && JsonObject->HasField("X") && JsonObject->HasField("Y") && JsonObject->HasField("Z")
+			&& JsonObject->HasField("Inventory") && JsonObject->HasField("Equipment") && JsonObject->HasField("Skills")) {
+			//If the current player is logged into our system
+			if (UnLoggedPlayers.Contains(playerId) && !Players.Contains(playerId)) {
+				//Add player to the logged list
+				Players.Add(playerId, UnLoggedPlayers[playerId].Player);
+				//Remove player from the unloged list
+				UnLoggedPlayers.Remove(playerId);
+				//Get player data
+				float x = (float)JsonObject->GetNumberField("X");
+				float y = (float)JsonObject->GetNumberField("Y");
+				float z = (float)JsonObject->GetNumberField("Z");
+				//Create player avatar
+				SpawnPlayerAvatar(playerId, x, y, z);
+
+				FString name = JsonObject->GetStringField("Name");
+				//Set player name
+				Players[playerId]->PlayerState->SetPlayerName(name);
+				//Setup player data like inventory
+				Players[playerId]->InitWithJSON(JsonObject->GetObjectField("Inventory"),
+					JsonObject->GetObjectField("Equipment"), JsonObject->GetObjectField("Skills"));
+			}
+			else if(Players.Contains(playerId)){
+				//player already logged in
+
+			}
+		}
+		//No valid player found / invalid player info retrieved
+		else if(JsonObject->HasField("ID") && UnLoggedPlayers.Contains(playerId)) {
+			GameSession->KickPlayer(UnLoggedPlayers[playerId].Player, FText::FromString("Internal Server Error"));
+		}
 	}
 }
 
-bool AQuintGameMode::GetOutputofRecipe(FName Row, FCraftingStruct & Output){
-	static const FString ContextString(TEXT("Recipe"));
-	FCraftingStruct* OutputRow = RecipeTable->FindRow<FCraftingStruct>(Row, ContextString);
-	if (OutputRow) {
-		Output = *OutputRow;
-		return true;
-	}
-	return false;
-}
-
-void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
-	Super::PostLogin(NewPlayer);
-	if(NewPlayer){
-		if(GetWorld()){
+void AQuintGameMode::SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z){
+	if (Players.Contains(PlayerID)) {
+		if (GetWorld()) {
 			FActorSpawnParameters spawnInfo = FActorSpawnParameters();
-			spawnInfo.Owner = NewPlayer;
-			FVector location = FVector(-490.0,-86.44342,292.000671);
+			spawnInfo.Owner = Players[PlayerID];
+			FVector location = FVector(X,Y,Z);
 			AAvatar * avatar = nullptr;
-			//todo: spawninfo set player name
-			if(IsValid(PlayerAvatarClass)){
-				avatar = GetWorld()->SpawnActor<AAvatar>(PlayerAvatarClass, location,FRotator(0),spawnInfo);
+			if (IsValid(PlayerAvatarClass)) {
+				avatar = GetWorld()->SpawnActor<AAvatar>(PlayerAvatarClass, location, FRotator(0), spawnInfo);
 			}
-			else{
-				avatar = GetWorld()->SpawnActor<AAvatar>(location,FRotator(0),spawnInfo);
+			else {
+				avatar = GetWorld()->SpawnActor<AAvatar>(location, FRotator(0), spawnInfo);
 			}
-			APlayerVessel* vessel = Cast<APlayerVessel>(NewPlayer->GetPawn());
-			if(vessel){
-				vessel->SetPlayerAvater(avatar,NewPlayer);
-				AQuintPlayerController* player = Cast<AQuintPlayerController>(NewPlayer);
-				if(player){
+			APlayerVessel* vessel = Cast<APlayerVessel>(Players[PlayerID]->GetPawn());
+			if (vessel) {
+				//Set the state of player avatar from our pawn
+				avatar->SetPlayerState(vessel->GetPlayerState());
+				//Set the avatar for reference in the pawn
+				vessel->SetPlayerAvater(avatar, Players[PlayerID]);
+				AQuintPlayerController* player = Cast<AQuintPlayerController>(Players[PlayerID]);
+				if (player) {
 					player->SetPlayerAvatar(avatar);
 				}
 			}
 		}
 	}
+}
+
+void AQuintGameMode::RemoveUnloggedPlayers()
+{
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow,"Removing players"); }
+	int now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+	for (TPair<int, FPlayerLogStruct> current : UnLoggedPlayers) {
+		if (current.Value.TimeStamp * 60 * 2 <= now) {
+			GameSession->KickPlayer(current.Value.Player, FText::FromString("Could not load player data in time"));
+			
+		}
+	}
+}
+
+void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
+	Super::PostLogin(NewPlayer);
+	FPlayerLogStruct log = FPlayerLogStruct();
+	log.Player = Cast<AQuintPlayerController>(NewPlayer);
+	log.TimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+	//UnLoggedPlayers.Add(NewPlayer->PlayerState->PlayerId, log);
+	//TODO:
+	UnLoggedPlayers.Add(1, log);
+
+	if (!RemoveUnloggedPlayersTimer.IsValid() && GetWorld())
+		GetWorldTimerManager().SetTimer(RemoveUnloggedPlayersTimer, this, &AQuintGameMode::RemoveUnloggedPlayers, 300, true);
+	//CallToGetPlayerInfo(NewPlayer->PlayerState->PlayerId);
+	//TODO:
+	CallToGetPlayerInfo(1);
+}
+
+void FSaveTask::DoWork(){
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow,"Working"); }
+	TSharedPtr<FJsonObject> List;
+	
+	for (TPair<int, AQuintPlayerController*> current : GM->Players) {
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, "output"); }
+		TSharedPtr<FJsonObject> currentObj;
+		if (IsValid(current.Value) && current.Value->GetSaveJSON(currentObj)) {
+			currentObj->SetStringField("request", "save");
+			TSharedRef<IHttpRequest> Request = GM->Http->CreateRequest();
+			//This is the url on which to process the request
+			Request->SetURL("localhost");
+			Request->SetVerb("POST");
+			Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+			Request->SetHeader("Content-Type", TEXT("application/json"));
+			//Request->SetContentAsString(ContentJsonString);
+			Request->ProcessRequest();
+			
+		}
+	}
+	this->Abandon();
+}
+
+FSaveTask::FSaveTask(AQuintGameMode* GameMode)
+{
+	GM = GameMode;
 }

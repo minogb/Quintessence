@@ -11,11 +11,13 @@ This is a work around because TMaps do not get replicated
 UENUM(BlueprintType, Meta = (Bitflags))
 enum class ESkillType : uint8 {
 	ST_NONE UMETA(DisplayName = "None"),
+
 	//Gathering Skills
 	ST_LOGGING UMETA(DisplayName = "Logging"),
 	ST_MINING UMETA(DisplayName = "Mining"),
 	ST_FISHING UMETA(DisplayName = "Fishing"),
 	ST_FARMING UMETA(DisplayName = "Farming"),
+
 	//Refining Skills
 	ST_SMITHINHG UMETA(DisplayName = "Smithing"),
 	ST_TAILORING UMETA(DisplayName = "Tailoring"),
@@ -70,7 +72,6 @@ struct FPlayerSkilllLevelStruct {
 	FLevelStruct Ranged;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FLevelStruct Magic;
-
 	
 	void SetSkillAndExpLevel(ESkillType Skill, int Level, int CurrentExp);
 	int AddExp(ESkillType Skill, int Experience);

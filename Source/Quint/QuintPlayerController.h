@@ -12,6 +12,7 @@
 #define ECC_Floor ECC_GameTraceChannel2
 
 class UAssembledEquipment;
+class FJsonObject;
 UCLASS()
 class QUINT_API AQuintPlayerController : public APlayerController
 {
@@ -70,9 +71,13 @@ protected:
 	//--------------------------------------------------------
 	void NotifyOfLevelUp(ESkillType Skill, int Level);
 public:
+	void ClientWasKicked_Implementation(const FText& KickReason) override;
 	//Init
 	AQuintPlayerController();
 
+	//Load player info in with json data
+	void InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON, TSharedPtr<FJsonObject> EquipmentJSON, TSharedPtr<FJsonObject> SkillsJSON);
+	bool GetSaveJSON(TSharedPtr<FJsonObject>& JSON);
 	//Replication setup
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 

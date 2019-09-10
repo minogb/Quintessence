@@ -16,6 +16,9 @@
 #include "Engine/ActorChannel.h"
 #include "QuintGameMode.h"
 #include "CraftingInfo.h"
+#include "Json/Public/Dom/JsonObject.h"
+#include "Json/Public/Serialization/JsonReader.h"
+#include "Json/Public/Serialization/JsonSerializer.h"
 
 #define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 /*
@@ -144,6 +147,10 @@ void AQuintPlayerController::NotifyOfLevelUp(ESkillType Skill, int Level) {
 --------------------------------------------------FUNCTIONS--------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------
 */
+
+void AQuintPlayerController::ClientWasKicked_Implementation(const FText & KickReason) {
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, KickReason.ToString()); }
+}
 //--------------------------------------------------------
 //-----------------------CONSTRUCTOR----------------------
 AQuintPlayerController::AQuintPlayerController() {
@@ -151,6 +158,14 @@ AQuintPlayerController::AQuintPlayerController() {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
 	Inventory.Init(nullptr, InventorySizeMax);
+}
+
+void AQuintPlayerController::InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON, TSharedPtr<FJsonObject> EquipmentJSON, TSharedPtr<FJsonObject> SkillsJSON){
+}
+
+bool AQuintPlayerController::GetSaveJSON(TSharedPtr<FJsonObject>& JSON)
+{
+	return false;
 }
 
 //--------------------------------------------------------
