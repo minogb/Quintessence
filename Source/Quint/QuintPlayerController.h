@@ -77,7 +77,7 @@ public:
 
 	//Load player info in with json data
 	void InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON, TSharedPtr<FJsonObject> EquipmentJSON, TSharedPtr<FJsonObject> SkillsJSON);
-	bool GetSaveJSON(TSharedPtr<FJsonObject>& JSON);
+	FString GetSaveJSON();
 	//Replication setup
 	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 

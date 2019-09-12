@@ -84,7 +84,7 @@ void AQuintGameMode::OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponse
 		}
 		//No valid player found / invalid player info retrieved
 		else if(JsonObject->HasField("ID") && UnLoggedPlayers.Contains(playerId)) {
-			GameSession->KickPlayer(UnLoggedPlayers[playerId].Player, FText::FromString("Internal Server Error"));
+			//TOD: GameSession->KickPlayer(UnLoggedPlayers[playerId].Player, FText::FromString("Internal Server Error"));
 		}
 	}
 }
@@ -123,48 +123,66 @@ void AQuintGameMode::RemoveUnloggedPlayers()
 	int now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	for (TPair<int, FPlayerLogStruct> current : UnLoggedPlayers) {
 		if (current.Value.TimeStamp * 60 * 2 <= now) {
-			GameSession->KickPlayer(current.Value.Player, FText::FromString("Could not load player data in time"));
+			//TODO: GameSession->KickPlayer(current.Value.Player, FText::FromString("Could not load player data in time"));
 			
 		}
 	}
+	SaveTask = new FAutoDeleteAsyncTask<FSaveTask>(this);
+	SaveTask->StartBackgroundTask();
 }
 
 void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
 	Super::PostLogin(NewPlayer);
+	//todo: remove
+	NewPlayer->PlayerState->PlayerId = 1;
+
 	FPlayerLogStruct log = FPlayerLogStruct();
 	log.Player = Cast<AQuintPlayerController>(NewPlayer);
 	log.TimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	//UnLoggedPlayers.Add(NewPlayer->PlayerState->PlayerId, log);
-	//TODO:
-	UnLoggedPlayers.Add(1, log);
+	UnLoggedPlayers.Add(NewPlayer->PlayerState->PlayerId, log);
 
 	if (!RemoveUnloggedPlayersTimer.IsValid() && GetWorld())
-		GetWorldTimerManager().SetTimer(RemoveUnloggedPlayersTimer, this, &AQuintGameMode::RemoveUnloggedPlayers, 300, true);
-	//CallToGetPlayerInfo(NewPlayer->PlayerState->PlayerId);
-	//TODO:
-	CallToGetPlayerInfo(1);
+		GetWorldTimerManager().SetTimer(RemoveUnloggedPlayersTimer, this, &AQuintGameMode::RemoveUnloggedPlayers, 2, true);
+	CallToGetPlayerInfo(NewPlayer->PlayerState->PlayerId);
 }
 
 void FSaveTask::DoWork(){
-	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow,"Working"); }
 	TSharedPtr<FJsonObject> List;
-	
+	FString jsonString;
+	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&jsonString);
+	JsonWriter->WriteObjectStart();
+	JsonWriter->WriteValue("request", TEXT("save"));
+	bool makeSave = false;
+
+	JsonWriter->WriteArrayStart("Players");
 	for (TPair<int, AQuintPlayerController*> current : GM->Players) {
-		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, "output"); }
-		TSharedPtr<FJsonObject> currentObj;
-		if (IsValid(current.Value) && current.Value->GetSaveJSON(currentObj)) {
-			currentObj->SetStringField("request", "save");
-			TSharedRef<IHttpRequest> Request = GM->Http->CreateRequest();
-			//This is the url on which to process the request
-			Request->SetURL("localhost");
-			Request->SetVerb("POST");
-			Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
-			Request->SetHeader("Content-Type", TEXT("application/json"));
-			//Request->SetContentAsString(ContentJsonString);
-			Request->ProcessRequest();
-			
+		if (IsValid(current.Value)) {
+			JsonWriter->WriteRawJSONValue(current.Value->GetSaveJSON());
+			makeSave = true;
 		}
 	}
+	JsonWriter->WriteArrayEnd();
+
+	JsonWriter->WriteObjectEnd();
+	JsonWriter->Close();
+	if (makeSave) {
+
+
+	}
+	/*
+	//currentObj->SetStringField("request", "save");
+	TSharedRef<IHttpRequest> Request = GM->Http->CreateRequest();
+	//This is the url on which to process the request
+	Request->SetURL("localhost");
+	Request->SetVerb("POST");
+	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+	Request->SetHeader("Content-Type", TEXT("application/json"));
+	Request->SetContentAsString(jsonString);
+	Request->ProcessRequest();
+	*/
+
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, jsonString); }
+
 	this->Abandon();
 }
 

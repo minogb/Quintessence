@@ -5,6 +5,9 @@
 #include "ConstructorHelpers.h"
 #include "UObject/UObjectGlobals.h"
 #include "Engine/GameEngine.h"
+#include "Json/Public/Serialization/JsonReader.h"
+#include "Json/Public/Serialization/JsonSerializer.h"
+#include "JsonUtilities/Public/JsonObjectConverter.h"
 
 void UItem::Combine(UItem*& that){
 	if(that && !this->IsA(that->GetClass()))
@@ -26,6 +29,18 @@ UItem::UItem() {
 	if (TextureFinder.Succeeded()) {
 		ImageTexture = TextureFinder.Object;
 	}
+}
+
+FString UItem::GetSaveJSON()
+{
+	FString JSON;
+	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&JSON);
+	JsonWriter->WriteObjectStart();
+	JsonWriter->WriteValue("ID", UniqueItemId);
+	JsonWriter->WriteValue("StackSize", StackSize);
+	JsonWriter->WriteObjectEnd();
+	JsonWriter->Close();
+	return JSON;
 }
 
 void UItem::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const{

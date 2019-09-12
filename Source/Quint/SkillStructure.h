@@ -76,6 +76,7 @@ struct FPlayerSkilllLevelStruct {
 	void SetSkillAndExpLevel(ESkillType Skill, int Level, int CurrentExp);
 	int AddExp(ESkillType Skill, int Experience);
 	FLevelStruct* GetSkill(ESkillType Skill);
+	TArray<FLevelStruct> GetAsList();
 	int GetSkillLevel(ESkillType Skill);
 	int GetSkillExp(ESkillType Skill);
 	static int GetExpRequiredForLevel(int Level) { return 3.14159265359 * 10 * FMath::Pow(2, (float)Level / (3.14159265359 * 2)); }

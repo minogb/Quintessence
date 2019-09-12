@@ -65,6 +65,21 @@ FLevelStruct* FPlayerSkilllLevelStruct::GetSkill(ESkillType Skill){
 	}
 	return reference;
 }
+TArray<FLevelStruct> FPlayerSkilllLevelStruct::GetAsList()
+{
+	TArray<FLevelStruct> retVal = TArray<FLevelStruct>();
+	retVal.Add(Logging);
+	retVal.Add(Mining);
+	retVal.Add(Fishing);
+	retVal.Add(Farming);
+	retVal.Add(Smithing);
+	retVal.Add(Tailoring);
+	retVal.Add(Woodworking);
+	retVal.Add(Apothecary);
+	retVal.Add(Ranged);
+	retVal.Add(Magic);
+	return TArray<FLevelStruct>();
+}
 
 int FPlayerSkilllLevelStruct::GetSkillLevel(ESkillType Skill){
 	FLevelStruct* ref = GetSkill(Skill);

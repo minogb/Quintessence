@@ -19,6 +19,7 @@
 #include "Json/Public/Dom/JsonObject.h"
 #include "Json/Public/Serialization/JsonReader.h"
 #include "Json/Public/Serialization/JsonSerializer.h"
+#include "GameFramework/PlayerState.h"
 
 #define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 /*
@@ -163,9 +164,42 @@ AQuintPlayerController::AQuintPlayerController() {
 void AQuintPlayerController::InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON, TSharedPtr<FJsonObject> EquipmentJSON, TSharedPtr<FJsonObject> SkillsJSON){
 }
 
-bool AQuintPlayerController::GetSaveJSON(TSharedPtr<FJsonObject>& JSON)
+FString AQuintPlayerController::GetSaveJSON()
 {
-	return false;
+	FString JSON;
+	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&JSON);
+	JsonWriter->WriteObjectStart();
+	JsonWriter->WriteValue("ID", PlayerState->PlayerId);
+	//Add avatar information
+	JsonWriter->WriteValue("Health", GetPlayerAvatar()? GetPlayerAvatar()->GetHealth() : 0);
+	FVector loc = GetPlayerAvatar() ? GetPlayerAvatar()->GetActorLocation() : FVector(0);
+	JsonWriter->WriteValue("X", loc.X);
+	JsonWriter->WriteValue("Y", loc.Y);
+	JsonWriter->WriteValue("Z", loc.Z);
+	//Add inventory
+	JsonWriter->WriteObjectStart("Inventory");
+	for (int i = 0; i < Inventory.Num(); i++) {
+		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i])) {
+			JsonWriter->WriteRawJSONValue(FString::FromInt(i),Inventory[i]->GetSaveJSON());
+		}
+	}
+	JsonWriter->WriteObjectEnd();
+
+	//Add Equipment
+	JsonWriter->WriteObjectStart("Equipment");
+	for (UItem* current : Equipment.GetAsList()) {
+	}
+	JsonWriter->WriteObjectEnd();
+
+	//Add Skills
+	JsonWriter->WriteObjectStart("Skills");
+	for (FLevelStruct current : SkillExperience.GetAsList()) {
+	}
+	JsonWriter->WriteObjectEnd();
+	//End Writing player information
+	JsonWriter->WriteObjectEnd();
+	JsonWriter->Close();
+	return JSON;
 }
 
 //--------------------------------------------------------
@@ -292,10 +326,11 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item) {
 		}
 		//all items added to inventory
 		if (!IsValid(Item))
-			break;
+			return;
 	}
 	//Add Item to a new slot
-	for (int i = 0; IsValid(Item) && Item->GetStackSize() > 0 && i < InventorySizeMax; i++) {
+	//TODO: if here Get unique ID for item
+	for (int i = 0; Item->GetStackSize() > 0 && i < InventorySizeMax; i++) {
 		if (!IsValid(Inventory[i])) {
 			Inventory[i] = Item;
 			Inventory[i]->Owner = this;
