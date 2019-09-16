@@ -225,6 +225,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealth() { return Health; }
 
+	void SetHealth(float Amount) { Health = Amount < MaxHealth ? Amount : MaxHealth; }
+
 	//Get our health as a percent
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent() { return Health / MaxHealth; }

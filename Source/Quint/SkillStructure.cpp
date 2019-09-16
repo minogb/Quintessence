@@ -2,6 +2,9 @@
 
 
 #include "SkillStructure.h"
+#include "Json/Public/Dom/JsonObject.h"
+#include "Json/Public/Serialization/JsonReader.h"
+#include "Json/Public/Serialization/JsonSerializer.h"
 
 void FPlayerSkilllLevelStruct::SetSkillAndExpLevel(ESkillType Skill, int Level, int CurrentExp){
 	FLevelStruct* ref = GetSkill(Skill);
@@ -95,6 +98,78 @@ int FPlayerSkilllLevelStruct::GetSkillExp(ESkillType Skill){
 		return ref->CurrentExp;
 	}
 	return 0;
+}
+
+FString FPlayerSkilllLevelStruct::GetSaveJSON()
+{
+
+	FString JSON;
+	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&JSON);
+
+	JsonWriter->WriteObjectStart();
+
+	JsonWriter->WriteObjectStart("Logging");
+	JsonWriter->WriteValue("Level", Logging.Level);
+	JsonWriter->WriteValue("CurrentExp", Logging.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Mining");
+	JsonWriter->WriteValue("Level", Mining.Level);
+	JsonWriter->WriteValue("CurrentExp", Mining.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Fishing");
+	JsonWriter->WriteValue("Level", Fishing.Level);
+	JsonWriter->WriteValue("CurrentExp", Fishing.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Farming");
+	JsonWriter->WriteValue("Level", Farming.Level);
+	JsonWriter->WriteValue("CurrentExp", Farming.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Smithing");
+	JsonWriter->WriteValue("Level", Smithing.Level);
+	JsonWriter->WriteValue("CurrentExp", Smithing.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Tailoring");
+	JsonWriter->WriteValue("Level", Tailoring.Level);
+	JsonWriter->WriteValue("CurrentExp", Tailoring.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Woodworking");
+	JsonWriter->WriteValue("Level", Woodworking.Level);
+	JsonWriter->WriteValue("CurrentExp", Woodworking.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Apothecary");
+	JsonWriter->WriteValue("Level", Apothecary.Level);
+	JsonWriter->WriteValue("CurrentExp", Apothecary.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Melee");
+	JsonWriter->WriteValue("Level", Melee.Level);
+	JsonWriter->WriteValue("CurrentExp", Melee.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Ranged");
+	JsonWriter->WriteValue("Level", Ranged.Level);
+	JsonWriter->WriteValue("CurrentExp", Ranged.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectStart("Magic");
+	JsonWriter->WriteValue("Level", Magic.Level);
+	JsonWriter->WriteValue("CurrentExp", Magic.CurrentExp);
+	JsonWriter->WriteObjectEnd();
+
+	JsonWriter->WriteObjectEnd();
+	JsonWriter->Close();
+	return JSON;
+}
+
+void FPlayerSkilllLevelStruct::InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON){
+
 }
 
 int FPlayerSkilllLevelStruct::GetTotalExpRequiredForLevel(int Level){

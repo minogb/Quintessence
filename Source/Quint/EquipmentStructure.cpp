@@ -4,6 +4,78 @@
 #include "EquipmentStructure.h"
 #include "Interfaces/Equipment.h"
 #include "Item.h"
+#include "Json/Public/Dom/JsonObject.h"
+#include "Json/Public/Serialization/JsonReader.h"
+#include "Json/Public/Serialization/JsonSerializer.h"
+
+FString FEquipmentStruct::GetSaveJSON()
+{
+	FString JSON;
+	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&JSON);
+
+	JsonWriter->WriteObjectStart();
+	if(IsValid(Helm))
+		JsonWriter->WriteRawJSONValue("Helm", Helm->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Helm");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Chest))
+		JsonWriter->WriteRawJSONValue("Chest", Chest->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Chest");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Leggings))
+		JsonWriter->WriteRawJSONValue("Leggings", Leggings->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Leggings");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Boots))
+		JsonWriter->WriteRawJSONValue("Boots", Boots->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Boots");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Gloves))
+		JsonWriter->WriteRawJSONValue("Gloves", Gloves->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Gloves");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Weapon))
+		JsonWriter->WriteRawJSONValue("Weapon", Weapon->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Weapon");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Sheild))
+		JsonWriter->WriteRawJSONValue("Sheild", Sheild->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Sheild");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Quiver))
+		JsonWriter->WriteRawJSONValue("Quiver", Quiver->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Quiver");
+		JsonWriter->WriteObjectEnd();
+	}
+	if (IsValid(Ring))
+		JsonWriter->WriteRawJSONValue("Ring", Ring->GetSaveJSON());
+	else {
+		JsonWriter->WriteObjectStart("Ring");
+		JsonWriter->WriteObjectEnd();
+	}
+
+	JsonWriter->WriteObjectEnd();
+	JsonWriter->Close();
+	return JSON;
+}
+void FEquipmentStruct::InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON){
+
+}
 UItem * FEquipmentStruct::SetEquipment(UItem * Equipment, EEquipmentSlot Slot){
 	UItem* retVal = NULL;
 	if (IsValid(Equipment) && Equipment->GetClass()->ImplementsInterface(UEquipmentInterface::StaticClass())) {

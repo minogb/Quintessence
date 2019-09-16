@@ -48,7 +48,7 @@ class QUINT_API AQuintGameMode : public AGameModeBase
 	void CallToGetPlayerInfo(int PlayerID);
 	/*Assign this function to call when the GET request processes sucessfully*/
 	void OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-	void SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z);
+	void SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z, float Health);
 	void RemoveUnloggedPlayers();
 public:
 	AQuintGameMode();

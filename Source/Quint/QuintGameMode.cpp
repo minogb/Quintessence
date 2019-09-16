@@ -31,9 +31,24 @@ void AQuintGameMode::CallToGetPlayerInfo(int PlayerID){
 	Request->OnProcessRequestComplete().BindUObject(this, &AQuintGameMode::OnPlayerInfoReceived);
 	//This is the url on which to process the request
 	Request->SetURL("localhost");
-	Request->SetVerb("GET");
+	Request->SetVerb("POST");
 	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
 	Request->SetHeader("Content-Type", TEXT("application/json"));
+
+	//Start making content request data
+	FString jsonString;
+	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&jsonString);
+	//Write json data
+	JsonWriter->WriteObjectStart();
+	JsonWriter->WriteValue("request", TEXT("load"));
+	JsonWriter->WriteValue("ID", FString::FromInt(PlayerID));
+
+	//End content creation
+	JsonWriter->WriteObjectEnd();
+	JsonWriter->Close();
+
+	//Set html content
+	Request->SetContentAsString(jsonString);
 	Request->ProcessRequest();
 }
 
@@ -67,8 +82,9 @@ void AQuintGameMode::OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponse
 				float x = (float)JsonObject->GetNumberField("X");
 				float y = (float)JsonObject->GetNumberField("Y");
 				float z = (float)JsonObject->GetNumberField("Z");
+				float health = (float)JsonObject->GetNumberField("Health");
 				//Create player avatar
-				SpawnPlayerAvatar(playerId, x, y, z);
+				SpawnPlayerAvatar(playerId, x, y, z, health);
 
 				FString name = JsonObject->GetStringField("Name");
 				//Set player name
@@ -89,7 +105,7 @@ void AQuintGameMode::OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponse
 	}
 }
 
-void AQuintGameMode::SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z){
+void AQuintGameMode::SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z, float Health){
 	if (Players.Contains(PlayerID)) {
 		if (GetWorld()) {
 			FActorSpawnParameters spawnInfo = FActorSpawnParameters();
@@ -106,6 +122,7 @@ void AQuintGameMode::SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z){
 			if (vessel) {
 				//Set the state of player avatar from our pawn
 				avatar->SetPlayerState(vessel->GetPlayerState());
+				avatar->SetHealth(Health);
 				//Set the avatar for reference in the pawn
 				vessel->SetPlayerAvater(avatar, Players[PlayerID]);
 				AQuintPlayerController* player = Cast<AQuintPlayerController>(Players[PlayerID]);
@@ -148,12 +165,11 @@ void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
 
 void FSaveTask::DoWork(){
 	TSharedPtr<FJsonObject> List;
-	FString jsonString;
+	FString jsonString = "";
 	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&jsonString);
 	JsonWriter->WriteObjectStart();
 	JsonWriter->WriteValue("request", TEXT("save"));
 	bool makeSave = false;
-
 	JsonWriter->WriteArrayStart("Players");
 	for (TPair<int, AQuintPlayerController*> current : GM->Players) {
 		if (IsValid(current.Value)) {
@@ -166,23 +182,16 @@ void FSaveTask::DoWork(){
 	JsonWriter->WriteObjectEnd();
 	JsonWriter->Close();
 	if (makeSave) {
-
-
+		TSharedRef<IHttpRequest> Request = GM->Http->CreateRequest();
+		//This is the url on which to process the request
+		Request->SetURL("localhost");
+		Request->SetVerb("POST");
+		Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
+		Request->SetHeader("Content-Type", TEXT("application/json"));
+		Request->SetContentAsString(jsonString);
+		Request->ProcessRequest();
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, jsonString); }
 	}
-	/*
-	//currentObj->SetStringField("request", "save");
-	TSharedRef<IHttpRequest> Request = GM->Http->CreateRequest();
-	//This is the url on which to process the request
-	Request->SetURL("localhost");
-	Request->SetVerb("POST");
-	Request->SetHeader(TEXT("User-Agent"), "X-UnrealEngine-Agent");
-	Request->SetHeader("Content-Type", TEXT("application/json"));
-	Request->SetContentAsString(jsonString);
-	Request->ProcessRequest();
-	*/
-
-	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, jsonString); }
-
 	this->Abandon();
 }
 

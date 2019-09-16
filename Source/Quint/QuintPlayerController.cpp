@@ -162,6 +162,10 @@ AQuintPlayerController::AQuintPlayerController() {
 }
 
 void AQuintPlayerController::InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON, TSharedPtr<FJsonObject> EquipmentJSON, TSharedPtr<FJsonObject> SkillsJSON){
+	
+	SkillExperience.InitWithJSON(SkillsJSON);
+	Equipment.InitWithJSON(EquipmentJSON);
+	//TODO: inventory
 }
 
 FString AQuintPlayerController::GetSaveJSON()
@@ -176,26 +180,27 @@ FString AQuintPlayerController::GetSaveJSON()
 	JsonWriter->WriteValue("X", loc.X);
 	JsonWriter->WriteValue("Y", loc.Y);
 	JsonWriter->WriteValue("Z", loc.Z);
+	//Add Equipment
+	JsonWriter->WriteRawJSONValue("Equipment", Equipment.GetSaveJSON());
 	//Add inventory
 	JsonWriter->WriteObjectStart("Inventory");
 	for (int i = 0; i < Inventory.Num(); i++) {
-		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i])) {
-			JsonWriter->WriteRawJSONValue(FString::FromInt(i),Inventory[i]->GetSaveJSON());
+		//Write info for each slot even if nothing is there
+		if (Inventory.IsValidIndex(i)) {
+			if (IsValid(Inventory[i])) {
+				JsonWriter->WriteRawJSONValue(FString::FromInt(i),Inventory[i]->GetSaveJSON());
+			}
+			else {
+				JsonWriter->WriteObjectStart(FString::FromInt(i));
+				JsonWriter->WriteObjectEnd();
+			}
 		}
 	}
 	JsonWriter->WriteObjectEnd();
 
-	//Add Equipment
-	JsonWriter->WriteObjectStart("Equipment");
-	for (UItem* current : Equipment.GetAsList()) {
-	}
-	JsonWriter->WriteObjectEnd();
-
 	//Add Skills
-	JsonWriter->WriteObjectStart("Skills");
-	for (FLevelStruct current : SkillExperience.GetAsList()) {
-	}
-	JsonWriter->WriteObjectEnd();
+	JsonWriter->WriteRawJSONValue("Skills",SkillExperience.GetSaveJSON());
+
 	//End Writing player information
 	JsonWriter->WriteObjectEnd();
 	JsonWriter->Close();
