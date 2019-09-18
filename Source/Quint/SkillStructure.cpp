@@ -5,6 +5,7 @@
 #include "Json/Public/Dom/JsonObject.h"
 #include "Json/Public/Serialization/JsonReader.h"
 #include "Json/Public/Serialization/JsonSerializer.h"
+#include "Engine/GameEngine.h"
 
 void FPlayerSkilllLevelStruct::SetSkillAndExpLevel(ESkillType Skill, int Level, int CurrentExp){
 	FLevelStruct* ref = GetSkill(Skill);
@@ -168,8 +169,48 @@ FString FPlayerSkilllLevelStruct::GetSaveJSON()
 	return JSON;
 }
 
-void FPlayerSkilllLevelStruct::InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON){
-
+void FPlayerSkilllLevelStruct::InitWithJSON(TSharedPtr<FJsonObject> SkillJSON){
+	if (SkillJSON->HasField("Logging")) {
+		Logging.Level = SkillJSON->GetObjectField("Logging")->GetIntegerField("Level");
+		Logging.CurrentExp = SkillJSON->GetObjectField("Logging")->GetIntegerField("Experience");
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Logging.CurrentExp)); }
+	}
+	if (SkillJSON->HasField("Mining")) {
+		Mining.Level = SkillJSON->GetObjectField("Mining")->GetIntegerField("Level");
+		Mining.CurrentExp = SkillJSON->GetObjectField("Mining")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Fishing")) {
+		Fishing.Level = SkillJSON->GetObjectField("Fishing")->GetIntegerField("Level");
+		Fishing.CurrentExp = SkillJSON->GetObjectField("Fishing")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Smithing")) {
+		Smithing.Level = SkillJSON->GetObjectField("Smithing")->GetIntegerField("Level");
+		Smithing.CurrentExp = SkillJSON->GetObjectField("Smithing")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Tailoring")) {
+		Tailoring.Level = SkillJSON->GetObjectField("Tailoring")->GetIntegerField("Level");
+		Tailoring.CurrentExp = SkillJSON->GetObjectField("Tailoring")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Woodworking")) {
+		Woodworking.Level = SkillJSON->GetObjectField("Woodworking")->GetIntegerField("Level");
+		Woodworking.CurrentExp = SkillJSON->GetObjectField("Woodworking")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Apothecary")) {
+		Apothecary.Level = SkillJSON->GetObjectField("Apothecary")->GetIntegerField("Level");
+		Apothecary.CurrentExp = SkillJSON->GetObjectField("Apothecary")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Melee")) {
+		Melee.Level = SkillJSON->GetObjectField("Melee")->GetIntegerField("Level");
+		Melee.CurrentExp = SkillJSON->GetObjectField("Melee")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Ranged")) {
+		Ranged.Level = SkillJSON->GetObjectField("Ranged")->GetIntegerField("Level");
+		Ranged.CurrentExp = SkillJSON->GetObjectField("Ranged")->GetIntegerField("Experience");
+	}
+	if (SkillJSON->HasField("Magic")) {
+		Magic.Level = SkillJSON->GetObjectField("Magic")->GetIntegerField("Level");
+		Magic.CurrentExp = SkillJSON->GetObjectField("Magic")->GetIntegerField("Experience");
+	}
 }
 
 int FPlayerSkilllLevelStruct::GetTotalExpRequiredForLevel(int Level){

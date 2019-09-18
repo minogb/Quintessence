@@ -41,15 +41,29 @@ class QUINT_API AQuintGameMode : public AGameModeBase
 	FAutoDeleteAsyncTask<FSaveTask>* SaveTask;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AAvatar> PlayerAvatarClass;
+
 	TMap<int, FPlayerLogStruct> UnLoggedPlayers;
 	TMap<int, AQuintPlayerController*> Players;
+
 	FHttpModule* Http;
-	FTimerHandle RemoveUnloggedPlayersTimer;
+
+	FTimerHandle PreformBackgroundTasksTimer;
+	float TimeBetweenBackgroundTasks = 60*60*2;
+
+	//Make http request to get player info to spawn
 	void CallToGetPlayerInfo(int PlayerID);
-	/*Assign this function to call when the GET request processes sucessfully*/
+	//Call back from http get player request / used to spawn
 	void OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z, float Health);
+
+	void PreformBackgroundTasks();
+
+	//Remove players whoms connection timed out
 	void RemoveUnloggedPlayers();
+	//Remove afk/disconneccted players
+	void RemoveAfkPlayers();
+	//Save all valid players
+	void SavePlayers();
 public:
 	AQuintGameMode();
 

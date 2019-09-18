@@ -27,6 +27,7 @@ AQuintGameMode::AQuintGameMode(){
 }
 
 void AQuintGameMode::CallToGetPlayerInfo(int PlayerID){
+
 	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &AQuintGameMode::OnPlayerInfoReceived);
 	//This is the url on which to process the request
@@ -134,16 +135,8 @@ void AQuintGameMode::SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z, 
 	}
 }
 
-void AQuintGameMode::RemoveUnloggedPlayers()
+void AQuintGameMode::PreformBackgroundTasks()
 {
-	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow,"Removing players"); }
-	int now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	for (TPair<int, FPlayerLogStruct> current : UnLoggedPlayers) {
-		if (current.Value.TimeStamp * 60 * 2 <= now) {
-			//TODO: GameSession->KickPlayer(current.Value.Player, FText::FromString("Could not load player data in time"));
-			
-		}
-	}
 	SaveTask = new FAutoDeleteAsyncTask<FSaveTask>(this);
 	SaveTask->StartBackgroundTask();
 }
@@ -158,12 +151,39 @@ void AQuintGameMode::PostLogin(APlayerController * NewPlayer){
 	log.TimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	UnLoggedPlayers.Add(NewPlayer->PlayerState->PlayerId, log);
 
-	if (!RemoveUnloggedPlayersTimer.IsValid() && GetWorld())
-		GetWorldTimerManager().SetTimer(RemoveUnloggedPlayersTimer, this, &AQuintGameMode::RemoveUnloggedPlayers, 2, true);
+	if (!PreformBackgroundTasksTimer.IsValid() && GetWorld())
+		GetWorldTimerManager().SetTimer(PreformBackgroundTasksTimer, this, &AQuintGameMode::PreformBackgroundTasks, TimeBetweenBackgroundTasks, true);
 	CallToGetPlayerInfo(NewPlayer->PlayerState->PlayerId);
 }
 
 void FSaveTask::DoWork(){
+	GM->RemoveAfkPlayers();
+	GM->SavePlayers();
+	GM->RemoveUnloggedPlayers();
+	
+	this->Abandon();
+}
+
+FSaveTask::FSaveTask(AQuintGameMode* GameMode)
+{
+	GM = GameMode;
+}
+
+void AQuintGameMode::RemoveAfkPlayers(){
+	//TODO:
+}
+void AQuintGameMode::RemoveUnloggedPlayers()
+{
+	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, "Removing players"); }
+	int now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+	for (TPair<int, FPlayerLogStruct> current : UnLoggedPlayers) {
+		if (current.Value.TimeStamp * 60 * 2 <= now) {
+			//GameSession->KickPlayer(current.Value.Player, FText::FromString("Could not load player data in time"));
+
+		}
+	}
+}
+void AQuintGameMode::SavePlayers() {
 	TSharedPtr<FJsonObject> List;
 	FString jsonString = "";
 	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&jsonString);
@@ -171,7 +191,7 @@ void FSaveTask::DoWork(){
 	JsonWriter->WriteValue("request", TEXT("save"));
 	bool makeSave = false;
 	JsonWriter->WriteArrayStart("Players");
-	for (TPair<int, AQuintPlayerController*> current : GM->Players) {
+	for (TPair<int, AQuintPlayerController*> current : Players) {
 		if (IsValid(current.Value)) {
 			JsonWriter->WriteRawJSONValue(current.Value->GetSaveJSON());
 			makeSave = true;
@@ -182,7 +202,7 @@ void FSaveTask::DoWork(){
 	JsonWriter->WriteObjectEnd();
 	JsonWriter->Close();
 	if (makeSave) {
-		TSharedRef<IHttpRequest> Request = GM->Http->CreateRequest();
+		TSharedRef<IHttpRequest> Request = Http->CreateRequest();
 		//This is the url on which to process the request
 		Request->SetURL("localhost");
 		Request->SetVerb("POST");
@@ -190,12 +210,7 @@ void FSaveTask::DoWork(){
 		Request->SetHeader("Content-Type", TEXT("application/json"));
 		Request->SetContentAsString(jsonString);
 		Request->ProcessRequest();
-		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, jsonString); }
+		//if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, jsonString); }
 	}
-	this->Abandon();
-}
 
-FSaveTask::FSaveTask(AQuintGameMode* GameMode)
-{
-	GM = GameMode;
 }

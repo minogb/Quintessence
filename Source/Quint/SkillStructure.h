@@ -80,7 +80,7 @@ struct FPlayerSkilllLevelStruct {
 	int GetSkillLevel(ESkillType Skill);
 	int GetSkillExp(ESkillType Skill);
 	FString GetSaveJSON();
-	void InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON);
+	void InitWithJSON(TSharedPtr<FJsonObject> SkillJSON);
 	static int GetExpRequiredForLevel(int Level) { return 3.14159265359 * 10 * FMath::Pow(2, (float)Level / (3.14159265359 * 2)); }
 	static int GetTotalExpRequiredForLevel(int Level);
 };
