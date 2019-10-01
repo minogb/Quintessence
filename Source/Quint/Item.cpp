@@ -21,6 +21,10 @@ void UItem::Combine(UItem*& that){
 	
 }
 
+void UItem::SetUp(int id){
+
+}
+
 UItem::UItem() {
 	ImageTexture = CreateDefaultSubobject<UTexture2D>("Image");
 	Actions = TArray<EItemAction>();
@@ -36,7 +40,8 @@ FString UItem::GetSaveJSON()
 	FString JSON;
 	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&JSON);
 	JsonWriter->WriteObjectStart();
-	JsonWriter->WriteValue("ID", UniqueItemId);
+	JsonWriter->WriteValue("UniqueID", UniqueItemId);
+	JsonWriter->WriteValue("TableID", ItemTableID);
 	JsonWriter->WriteValue("StackSize", StackSize);
 	JsonWriter->WriteObjectEnd();
 	JsonWriter->Close();

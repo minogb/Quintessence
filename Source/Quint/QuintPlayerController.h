@@ -204,12 +204,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddExperience(ESkillType Skill, int Amount);
+
 	UFUNCTION(BlueprintCallable)
 	void AddExperienceReward(TArray<FExpRewardStruct> Experience);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetSkillLevel(ESkillType Skill);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetCurrentExpInSkill(ESkillType Skill);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetTotalExpRequiredForLevel(int Level) { return FPlayerSkilllLevelStruct::GetTotalExpRequiredForLevel(Level); }
 

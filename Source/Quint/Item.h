@@ -60,6 +60,9 @@ protected:
 	FColor Color;
 
 	TArray<EItemAction> Actions;
+	//On creation
+	UFUNCTION(BlueprintCallable)
+	void SetUp(int id = 0);
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -85,9 +88,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TArray<EItemAction> GetCustomInventoryOptions() {return Actions;}
+
 	void Combine(UItem*& that);
+
 	virtual bool IsSupportedForNetworking() const override{return true;}
+
 	UFUNCTION(BlueprintCallable)
 	void SetStackSize(int Amount){ StackSize = Amount <= MaxStackSize ? (Amount > 0 ? Amount : 0) : MaxStackSize;}
+
+	UFUNCTION(BlueprintCallable)
 	static UItem* CREATE_ITEM(AActor* Outer, TSubclassOf<UItem> SubClass, int Amount);
 };

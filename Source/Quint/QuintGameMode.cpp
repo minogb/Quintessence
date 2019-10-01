@@ -55,7 +55,6 @@ void AQuintGameMode::CallToGetPlayerInfo(int PlayerID){
 
 void AQuintGameMode::OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful){
 	if (!bWasSuccessful) {
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "not succesful");
 		return;
 	}
 	//Create a pointer to hold the json serialized data
@@ -174,7 +173,6 @@ void AQuintGameMode::RemoveAfkPlayers(){
 }
 void AQuintGameMode::RemoveUnloggedPlayers()
 {
-	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, "Removing players"); }
 	int now = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	for (TPair<int, FPlayerLogStruct> current : UnLoggedPlayers) {
 		if (current.Value.TimeStamp * 60 * 2 <= now) {
@@ -210,7 +208,6 @@ void AQuintGameMode::SavePlayers() {
 		Request->SetHeader("Content-Type", TEXT("application/json"));
 		Request->SetContentAsString(jsonString);
 		Request->ProcessRequest();
-		//if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, jsonString); }
 	}
 
 }

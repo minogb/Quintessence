@@ -14,7 +14,7 @@
 #include "ResourceNode.h"
 #include "Interfaces/Tool.h"
 #include "Interfaces/WeaponInterface.h"
-#include "Interfaces/EffectInterface.h"
+#include "Interfaces/EffectInterface.h"	
 #include "CraftingInfo.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -409,7 +409,7 @@ void AAvatar::Tick(float DeltaTime){
 			}
 			else if(lookAt.Equals(GetActorRotation(), 10) && !IsDoingTask && !IsTaskOnCoolDown){
 				StartDoingTask();
-			}
+			}	
 			//if can't do task, do nothing
 		}
 		//Am I not doing anything? and am I 
