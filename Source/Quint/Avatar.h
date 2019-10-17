@@ -8,13 +8,36 @@
 #include "Enumerations.h"
 #include "Avatar.generated.h"
 
+UENUM(BlueprintType, Meta = (Bitflags))
+enum class EGoalType : uint8 {
+	GT_INVALID UMETA(DisplayName = "None"),
+	GT_ACTOR UMETA(DisplayName = "Actor"),
+	GT_LOCATION UMETA(DisplayName = "Location")
+};
+USTRUCT(BlueprintType)
+struct FGoalPlayerStruct {
+	GENERATED_BODY()
+	//invalid location for use
+	static FVector GetInvalidLocation() { return FVector(-1000); }
+	//What our actor is after
+	AActor* Actor = nullptr;
+	//What our actor should use
+	UObject* UseObject = nullptr;
+	//How our actor should act
+	EInteractionType Action = EInteractionType::No_Interaction;
+	//Where our actor should be
+	FVector Location = GetInvalidLocation();
+
+	bool Valid() { return IsValid(Actor) || !Location.Equals(GetInvalidLocation()); }
+	bool ValidActor() { return IsValid(Actor); }
+	EGoalType GetGoalType() { return IsValid(Actor) ? EGoalType::GT_ACTOR : !Location.Equals(GetInvalidLocation()) ? EGoalType::GT_LOCATION : EGoalType::GT_INVALID; }
+	bool GetLocation(FVector& Loc) { Loc = IsValid(Actor) ? Actor->GetActorLocation() : Location; return Valid(); }
+	void Invalidate() { Actor = nullptr; UseObject = nullptr; Action = EInteractionType::No_Interaction; Location = GetInvalidLocation();}
+};
 UCLASS()
 class QUINT_API AAvatar : public ACharacter, public IInteractable {
 	GENERATED_BODY()
 protected:
-	//invalid location for use
-	const FVector INVALID_LOCATION = FVector(-1000);
-
 	//how fast our character should turn
 	UPROPERTY(Replicated)
 	float TurnSpeed = 5.f;
@@ -28,14 +51,8 @@ protected:
 	UPROPERTY(Replicated)
 	TArray<UObject*> Effects;
 
-	//What our actor is after
-	AActor* GoalActor = nullptr;
-	//What our actor should use
-	UObject* UseObject = nullptr;
-	//How our actor should act
-	EInteractionType GoalAction = EInteractionType::No_Interaction;
-	//Where our actor should be
-	FVector GoalLocation = INVALID_LOCATION;
+	FGoalPlayerStruct Goal;
+
 	//Timer: How long action should take
 	FTimerHandle TaskTimer;
 	//Timer: How long inbetween actions
@@ -103,6 +120,7 @@ protected:
 	//Client:Recivie damage notification
 	UFUNCTION(NetMulticast,Unreliable)
 	void ReplicateDamageRecived(int Amount);
+	void ReplicateDamageRecived_Implementation(int Amount);
 	//Set if we are in combat
 	void SetIsInCombat(bool Combat = true);
 	//End combat timer
@@ -156,16 +174,8 @@ public:
 	//Set our goal as lokcation
 	void SetLocationGoal(FVector Location);
 	//Set our goal as actor and action
-	void SetGoalAndAction(AActor* Goal, EInteractionType Action, UObject* UsingThis = nullptr);
-	
-	//Do we have a current task
-	UFUNCTION(BlueprintCallable)
-	bool ValidTask();
-
-	//Do we have a valid goal
-	UFUNCTION(BlueprintCallable)
-	bool ValidGoal() { return IsValid(GoalActor); }
-
+	void SetGoalAndAction(AActor* GoalActor, EInteractionType Action, UObject* UsingThis = nullptr);
+		
 	//Can we do the asigned task?
 	UFUNCTION(Blueprintable)
 	bool CanDoCurrentTask();

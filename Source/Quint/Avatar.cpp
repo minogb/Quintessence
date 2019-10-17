@@ -40,11 +40,11 @@ void AAvatar::BeginPlay() {
 float AAvatar::GetGoalDistance() {
 
 	float bonusDistance = 32.f;
-	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+	if (IsValid(Goal.Actor) && Goal.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
 
-		bonusDistance += IInteractable::Execute_GetSize(GoalActor);
+		bonusDistance += IInteractable::Execute_GetSize(Goal.Actor);
 	}
-	switch (GoalAction) {
+	switch (Goal.Action) {
 	case EInteractionType::Attack:
 		//Calculate based on weapon
 		return bonusDistance + CalculateWeaponRange();
@@ -56,13 +56,11 @@ float AAvatar::GetGoalDistance() {
 //--------------------------------------------------------
 //----------------------IS AT GOAL------------------------
 bool AAvatar::IsAtGoal() {
-	if (ValidGoal()) {
-		return this->GetActorLocation().Equals(GoalActor->GetActorLocation(), GetGoalDistance());
+	FVector loc;
+	if (Goal.GetLocation(loc)) {
+		return this->GetActorLocation().Equals(loc, GetGoalDistance());
 	}
-	else {
-		//If invalid location we are always at goal, otherwise use calculated distance
-		return GoalLocation.Equals(INVALID_LOCATION) || this->GetActorLocation().Equals(GoalLocation, GetGoalDistance());
-	}
+	return true;
 }
 
 //--------------------------------------------------------
@@ -72,9 +70,9 @@ void AAvatar::MoveToLocationOrGoal() {
 		return;
 	AAvatarController* controller = Cast<AAvatarController>(GetController());
 	if (controller) {
-		if (ValidGoal()) {
+		if (Goal.ValidActor()) {
 			//Note: Pathfinding turned of for move to actor as it seems a bit buggy
-			switch (controller->MoveToActor(GoalActor, GetGoalDistance() / 2,false,false,true,0,true)) {
+			switch (controller->MoveToActor(Goal.Actor, GetGoalDistance() / 2,false,false,true,0,true)) {
 			case EPathFollowingRequestResult::Type::RequestSuccessful:
 				break;
 			case EPathFollowingRequestResult::Type::AlreadyAtGoal:
@@ -84,7 +82,7 @@ void AAvatar::MoveToLocationOrGoal() {
 			}
 		}
 		else {
-			controller->MoveToLocation(GoalLocation);
+			controller->MoveToLocation(Goal.Location);
 		}
 	}
 }
@@ -115,10 +113,7 @@ void AAvatar::Stop() {
 	if (!HasAuthority())
 		return;
 	InteruptTask();
-	GoalActor = nullptr;
-	GoalAction = EInteractionType::No_Interaction;
-	GoalLocation = INVALID_LOCATION;
-	UseObject = nullptr;
+	Goal.Invalidate();
 }
 
 //--------------------------------------------------------
@@ -140,8 +135,8 @@ void AAvatar::TaskCompleted() {
 	GetWorldTimerManager().ClearTimer(TaskTimer);
 	if (!HasAuthority())
 		return;
-
-	if (!IsValid(GoalActor) || !GoalActor) {
+	//TODO: ????????
+	if (!IsValid(Goal.Actor)) {
 		Stop();
 	}
 	//Once we are done we are no longer working on the task
@@ -152,10 +147,10 @@ void AAvatar::TaskCompleted() {
 	if (GetWorld())
 		GetWorldTimerManager().SetTimer(TaskCoolDownTimer, this, &AAvatar::EndTaskCooldown, GetCurrentTaskCoolDownDuration(), false);
 
-	switch (GoalAction) {
+	switch (Goal.Action) {
 	case EInteractionType::Use:
 		UseTask();
-		if (!Cast<UCraftingInfo>(UseObject) || Cast<UCraftingInfo>(UseObject)->GetCraftingAmount() <= 0)
+		if (!Cast<UCraftingInfo>(Goal.UseObject) || Cast<UCraftingInfo>(Goal.UseObject)->GetCraftingAmount() <= 0)
 			Stop();
 		break;
 	case EInteractionType::Attack:
@@ -189,7 +184,7 @@ void AAvatar::EndTaskCooldown() {
 void AAvatar::PickUpTask() {
 	if (!HasAuthority())
 		return;
-	AItem_World* goal = Cast<AItem_World>(GoalActor);
+	AItem_World* goal = Cast<AItem_World>(Goal.Actor);
 	if (!IsValid(goal)) {
 		Stop();
 	}
@@ -204,7 +199,7 @@ void AAvatar::PickUpTask() {
 //--------------------------------------------------------
 //----------------------HARVEST TASK----------------------
 void AAvatar::HarvestTask() {
-	AResourceNode* node = Cast<AResourceNode>(GoalActor);
+	AResourceNode* node = Cast<AResourceNode>(Goal.Actor);
 	if (IsValid(node)) {
 		node->HarvestThis(this);
 	}
@@ -213,9 +208,9 @@ void AAvatar::HarvestTask() {
 //--------------------------------------------------------
 //------------------------USE TASK------------------------
 void AAvatar::UseTask() {
-	if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+	if (IsValid(Goal.Actor) && Goal.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
 
-		if (IInteractable::Execute_UseThis(GoalActor, UseObject, this)) {
+		if (IInteractable::Execute_UseThis(Goal.Actor, Goal.UseObject, this)) {
 
 		}
 		else {
@@ -225,20 +220,20 @@ void AAvatar::UseTask() {
 }
 
 void AAvatar::AttackTask(){
-	if (ValidGoal()) {
+	if (Goal.ValidActor()) {
 		//GoalActor->TakeDamage(Damage.DamageAmount, dmgEvent, GetQuintController(), this);
-		if (GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+		if (Goal.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
 			FDamageEvent dmgEvent = FDamageEvent();
 			FDamageStruct Damage = CalculateAttackDamage();
 			//Deligate attack to weapon
 			if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
 				//Let the weapon deal damage
-				IWeaponInterface::Execute_UseWeapon(GetWeapon(), this, Damage, GoalActor);
+				IWeaponInterface::Execute_UseWeapon(GetWeapon(), this, Damage, Goal.Actor);
 			}
 			//If no weapon deal your fists
 			else {
 				//Delegate damage outgoing
-				IInteractable::Execute_ApplyDamage(GoalActor, Damage, this, GetQuintController());
+				IInteractable::Execute_ApplyDamage(Goal.Actor, Damage, this, GetQuintController());
 			}
 		}
 		else {
@@ -280,7 +275,7 @@ void AAvatar::EndOfCombat() {
 //--------------------------------------------------------
 //---------------IS TASK COMBAT RELATED-------------------
 bool AAvatar::IsTaskCombatTask() {
-	return GoalAction == EInteractionType::Attack;
+	return Goal.Action == EInteractionType::Attack;
 }
 
 //--------------------------------------------------------
@@ -397,32 +392,33 @@ void AAvatar::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 	if(!HasAuthority())
 		return;
-	if(ValidTask()){
-		FRotator lookAt = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), ValidGoal() ? GoalActor->GetActorLocation() : GoalLocation);
-		lookAt = FRotator(0, lookAt.Yaw, 0);
-		SetActorRotation(FMath::RInterpTo(GetActorRotation(), lookAt, DeltaTime, TurnSpeed));
-		//AddActorWorldRotation(rotator);
-		//At goal
-		if(IsAtGoal()){
-			if(!IsValid(GoalActor)){
-				Stop();
+		FVector loc;
+		if (Goal.GetLocation(loc)) {
+			FRotator lookAt = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), loc);
+			lookAt = FRotator(0, lookAt.Yaw, 0);
+			SetActorRotation(FMath::RInterpTo(GetActorRotation(), lookAt, DeltaTime, TurnSpeed));
+			//AddActorWorldRotation(rotator);
+			//At goal
+			if (IsAtGoal()) {
+				if (!Goal.ValidActor()) {
+					Stop();
+				}
+				else if (lookAt.Equals(GetActorRotation(), 10) && !IsDoingTask && !IsTaskOnCoolDown) {
+					StartDoingTask();
+				}
+				//if can't do task, do nothing
 			}
-			else if(lookAt.Equals(GetActorRotation(), 10) && !IsDoingTask && !IsTaskOnCoolDown){
-				StartDoingTask();
-			}	
-			//if can't do task, do nothing
-		}
-		//Am I not doing anything? and am I 
-		else{
-			//Am I not at goal and doing a task?
-			if(IsDoingTask){
-				//stop doing task 
-				InteruptTask();
+			//Am I not doing anything? and am I 
+			else {
+				//Am I not at goal and doing a task?
+				if (IsDoingTask) {
+					//stop doing task 
+					InteruptTask();
+				}
+				//If I am not at goal move to goal
+				MoveToLocationOrGoal();
 			}
-			//If I am not at goal move to goal
-			MoveToLocationOrGoal();
 		}
-	}
 	if(IsDoingTask){
 		PercentTaskCompleted = GetWorldTimerManager().GetTimerElapsed(TaskTimer) / GetCurrentTaskDuration();
 	}
@@ -462,32 +458,25 @@ void AAvatar::SetLocationGoal(FVector Location) {
 		return;
 	if (HasAuthority()) {
 		Stop();
-		GoalLocation = Location;
+		Goal.Location = Location;
 	}
 }
 
 //--------------------------------------------------------
 //-------------------SET GOAL ACTOR/ACTION----------------
-void AAvatar::SetGoalAndAction(AActor * Goal, EInteractionType Action, UObject* UsingThis) {
+void AAvatar::SetGoalAndAction(AActor * GoalActor, EInteractionType Action, UObject* UsingThis) {
 	if (!HasAuthority())
 		return;
 	Stop();
-	GoalActor = Goal;
-	GoalAction = Action;
-	UseObject = UsingThis;
+	Goal.Actor = GoalActor;
+	Goal.Action = Action;
+	Goal.UseObject = UsingThis;
 }
-
-//--------------------------------------------------------
-//-----------------------VALID TASK-----------------------
-bool AAvatar::ValidTask() {
-	return ValidGoal() || !GoalLocation.Equals(INVALID_LOCATION);
-}
-
 //--------------------------------------------------------
 //-----------------CAN DO CURRENT TASK--------------------
 bool AAvatar::CanDoCurrentTask() {
 	bool retVal = false;
-	switch (GoalAction) {
+	switch (Goal.Action) {
 	case EInteractionType::Attack:
 		if (GetWeapon() && GetWeapon()->GetClass()->ImplementsInterface(UWeaponInterface::StaticClass())) {
 			retVal = IWeaponInterface::Execute_CanUseWeapon(GetWeapon(),this);
@@ -496,11 +485,11 @@ bool AAvatar::CanDoCurrentTask() {
 		retVal = true;
 		break;
 	default:
-		if (IsValid(GoalActor) && GoalActor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-			retVal = IInteractable::Execute_IsValidTask(GoalActor, GoalAction, this);
+		if (Goal.ValidActor() && Goal.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
+			retVal = IInteractable::Execute_IsValidTask(Goal.Actor, Goal.Action, this);
 		}
 		else
-			retVal = !IsValid(GoalActor);
+			retVal = !Goal.ValidActor();
 		break;
 	}
 	return retVal;
@@ -510,7 +499,7 @@ bool AAvatar::CanDoCurrentTask() {
 //-------------------GET TASK DURATION--------------------
 float AAvatar::GetCurrentTaskDuration() {
 	float retVal = 0;
-	switch (GoalAction) {
+	switch (Goal.Action) {
 	case EInteractionType::Attack:
 		retVal = CalculateAttackTime();
 		break;
@@ -520,13 +509,13 @@ float AAvatar::GetCurrentTaskDuration() {
 		retVal = 1.f;
 		break;
 	case EInteractionType::Use:
-		retVal = !Cast<UCraftingInfo>(UseObject) ? 0.1 : Cast<UCraftingInfo>(UseObject)->GetCraftTime();
+		retVal = !Cast<UCraftingInfo>(Goal.UseObject) ? 0.1 : Cast<UCraftingInfo>(Goal.UseObject)->GetCraftTime();
 		break;
 	default:
 		retVal = 0.1;
 		break;
 	}
-	DelegateOnActionSpeedCalculation(retVal, GoalAction);
+	DelegateOnActionSpeedCalculation(retVal, Goal.Action);
 	return retVal;
 }
 
@@ -534,7 +523,7 @@ float AAvatar::GetCurrentTaskDuration() {
 //------------------TASK COOL DOWN TIME-------------------
 float AAvatar::GetCurrentTaskCoolDownDuration() {
 	float retVal = 0;
-	switch (GoalAction) {
+	switch (Goal.Action) {
 	case EInteractionType::Attack:
 		retVal = CalculateAttackCooldownTime();
 		break;
@@ -543,13 +532,13 @@ float AAvatar::GetCurrentTaskCoolDownDuration() {
 		retVal = .4;
 		break;
 	case EInteractionType::Use:
-		retVal = !Cast<UCraftingInfo>(UseObject) ? 0.1 : 0.5;
+		retVal = !Cast<UCraftingInfo>(Goal.UseObject) ? 0.1 : 0.5;
 		break;
 	default:
 		retVal = 0.5;
 		break;
 	}
-	DelegateOnActionSpeedCalculation(retVal, GoalAction);
+	DelegateOnActionSpeedCalculation(retVal, Goal.Action);
 	return retVal;
 }
 
@@ -613,7 +602,7 @@ FDamageStruct AAvatar::CalculateAttackDamage() {
 	}
 	//TODO:
 	//Calculate Bonus
-	DelegateOnOutgoingDamage(retVal, GoalActor);
+	DelegateOnOutgoingDamage(retVal, Goal.Actor);
 	return retVal;
 }
 
