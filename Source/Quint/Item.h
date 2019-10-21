@@ -6,36 +6,35 @@
 #include "UObject/NoExportTypes.h"
 #include "Enumerations.h"
 #include "Engine/Texture2D.h"
+#include "Runtime/Online/HTTP/Public/Http.h"
+#include "Engine/DataTable.h"
 #include "Item.generated.h"
 
 
 
 USTRUCT(BlueprintType)
-struct FItemIndex {
+struct FItemIndex : public FTableRowBase {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
 	FString ItemName;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
 	TSubclassOf<class UItem> ItemClass;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
 	class UTexture2D* ImageTexture;
 
 };
 
-USTRUCT(BlueprintType)
-struct FTextureStruct : public FTableRowBase {
-	GENERATED_BODY()
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadonly)
-	UTexture2D* ImageTexture;
-};
 UCLASS(Blueprintable)
 class QUINT_API UItem : public UObject
 {
+	friend class AQuintPlayerController;
 	GENERATED_BODY()
 protected:
-	       
+	static UDataTable* DataTable;
+
+	bool WaitingOrHasID = false;
+
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	int StackSize = 1;
 
@@ -43,15 +42,9 @@ protected:
 	int MaxStackSize = 1;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
-	int ItemTableID = 1;
+	int ItemTableID = 0;
 
 	int UniqueItemId = 0;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
-	FString ItemName = "Item";
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
-	UTexture2D* ImageTexture;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Info")
 	int CraftExperience = 0;
@@ -61,8 +54,10 @@ protected:
 
 	TArray<EItemAction> Actions;
 	//On creation
+	void OnItemDataRecived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
 	UFUNCTION(BlueprintCallable)
-	void SetUp(int id = 0);
+	void InitItemID();
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -71,6 +66,8 @@ public:
 	uint32 bReplicatedFlag : 1;
 
 	UItem();
+	//Load data from json. if has nested items, this is where it is loaded in
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData);
 
 	FString GetSaveJSON();
 
@@ -96,6 +93,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetStackSize(int Amount){ StackSize = Amount <= MaxStackSize ? (Amount > 0 ? Amount : 0) : MaxStackSize;}
 
-	UFUNCTION(BlueprintCallable)
-	static UItem* CREATE_ITEM(AActor* Outer, TSubclassOf<UItem> SubClass, int Amount);
+	static UItem* CreateItemFromTable(int TableID, AActor* Owner, TSharedPtr<FJsonObject> JsonData = nullptr);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static bool GetItemIndex(int TableID, FItemIndex& Result);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static bool GetItemIndexFromSubclass(TSubclassOf<UItem> ItemClass, FItemIndex& Result);
 };

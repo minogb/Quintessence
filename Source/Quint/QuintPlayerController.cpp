@@ -165,7 +165,17 @@ void AQuintPlayerController::InitWithJSON(TSharedPtr<FJsonObject> InventoryJSON,
 	
 	SkillExperience.InitWithJSON(SkillsJSON);
 	Equipment.InitWithJSON(EquipmentJSON);
-	//TODO: inventory
+
+	Inventory.Init(nullptr, InventorySizeMax);
+	for (int i = 0; i < InventorySizeMax; i++) {
+		if (!InventoryJSON->HasField(FString::FromInt(i)))
+			continue;
+		TSharedPtr<FJsonObject> current = InventoryJSON->GetObjectField(FString::FromInt(i));
+		if (!current->HasField("TableID"))
+			continue;
+		Inventory[i] = UItem::CreateItemFromTable(current->GetIntegerField("TableID"),this, current);
+	}
+
 }
 
 FString AQuintPlayerController::GetSaveJSON()
@@ -197,7 +207,6 @@ FString AQuintPlayerController::GetSaveJSON()
 		}
 	}
 	JsonWriter->WriteObjectEnd();
-
 	//Add Skills
 	JsonWriter->WriteRawJSONValue("Skills",SkillExperience.GetSaveJSON());
 
@@ -339,17 +348,10 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item) {
 		if (!IsValid(Inventory[i])) {
 			Inventory[i] = Item;
 			Inventory[i]->Owner = this;
+			Inventory[i]->InitItemID();
 			Item = nullptr;
 			break;
 		}
-	}
-}
-//--------------------------------------------------------
-void AQuintPlayerController::AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity) {
-	if (IsValid(ItemClass) && Quantity > 0) {
-		UItem* item = NewObject<UItem>(this, ItemClass);
-		item->SetStackSize(Quantity);
-		AddItemToInventory(item);
 	}
 }
 
@@ -459,7 +461,9 @@ bool AQuintPlayerController::CraftRecipe(FCraftingStruct Recipe) {
 		for (FItemCraftingStruct &current : Recipe.Input) {
 			ConsumeItem(current.Item, current.Count, true);
 		}
-		AddItemToInventory(Recipe.Output.Item, Recipe.Output.Count);
+		UItem* item = NewObject<UItem>(this, Recipe.Output.Item);
+		item->SetStackSize(Recipe.Output.Count);
+		AddItemToInventory(item);
 		AddExperienceReward(Recipe.ExpReward);
 		return true;
 	}

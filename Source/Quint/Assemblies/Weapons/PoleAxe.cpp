@@ -8,12 +8,7 @@
 UPoleAxe::UPoleAxe() {
 	//ImageTexture = CreateDefaultSubobject<UTexture2D>("Image");
 	Actions = TArray<EItemAction>();
-	//TODO:Replace image texture to get it from the item index table
-	ConstructorHelpers::FObjectFinder<UTexture2D> TextureFinder(TEXT("/Game/UserInterface/Icons/axe.axe"));
-	if (TextureFinder.Succeeded()) {
-		ImageTexture = TextureFinder.Object;
-	}
-	ItemName = "Pole Axe";
+
 	MaxStackSize = 1;
 }
 

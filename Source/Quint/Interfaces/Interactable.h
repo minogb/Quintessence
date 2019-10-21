@@ -33,8 +33,7 @@ ENUM_CLASS_FLAGS( EInteractionType )
 class QUINT_API IInteractable {
 	GENERATED_BODY()
 protected:
-	//Get the rewards from a loot table. Should be called internally only
-	TArray<UItem*> GetLootRewards(TArray<FLootStruct>LootTable);
+
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsValidTask(EInteractionType Task, class AAvatar* Player = nullptr);

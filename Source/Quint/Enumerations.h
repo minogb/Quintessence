@@ -139,5 +139,4 @@ public:
 		MaxReward = 1;
 		ChancePercent = 0;
 	}
-	UItem* GetReward(int booster = 0);
 };

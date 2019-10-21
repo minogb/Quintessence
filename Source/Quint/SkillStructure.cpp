@@ -103,7 +103,6 @@ int FPlayerSkilllLevelStruct::GetSkillExp(ESkillType Skill){
 
 FString FPlayerSkilllLevelStruct::GetSaveJSON()
 {
-
 	FString JSON;
 	TSharedRef <TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<>::Create(&JSON);
 
@@ -173,7 +172,6 @@ void FPlayerSkilllLevelStruct::InitWithJSON(TSharedPtr<FJsonObject> SkillJSON){
 	if (SkillJSON->HasField("Logging")) {
 		Logging.Level = SkillJSON->GetObjectField("Logging")->GetIntegerField("Level");
 		Logging.CurrentExp = SkillJSON->GetObjectField("Logging")->GetIntegerField("Experience");
-		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::FromInt(Logging.CurrentExp)); }
 	}
 	if (SkillJSON->HasField("Mining")) {
 		Mining.Level = SkillJSON->GetObjectField("Mining")->GetIntegerField("Level");

@@ -3,12 +3,6 @@
 
 #include "Enumerations.h"
 #include "Item.h"
-	//TODO: booster increases reward?
-UItem* FLootStruct::GetReward(int booster) {
-	UItem* reward = NewObject<UItem>(Reward);
-	reward->SetStackSize(FMath::RandRange(MinReward, MaxReward));
-	return reward;
-}
 
 void FDamageStruct::CollapseProbility(){
 	//Do we glance?

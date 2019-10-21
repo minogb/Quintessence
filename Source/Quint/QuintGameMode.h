@@ -48,7 +48,7 @@ class QUINT_API AQuintGameMode : public AGameModeBase
 	FHttpModule* Http;
 
 	FTimerHandle PreformBackgroundTasksTimer;
-	float TimeBetweenBackgroundTasks = 60*60*2;
+	float TimeBetweenBackgroundTasks = 10.f;
 
 	//Make http request to get player info to spawn
 	void CallToGetPlayerInfo(int PlayerID);

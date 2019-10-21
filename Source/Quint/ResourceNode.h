@@ -29,10 +29,12 @@ USTRUCT(BlueprintType)
 struct FResourceReward {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest Reward Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FExpRewardStruct ExpReward;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest Reward Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UItem> ItemReward;
+	//Ignore this on setup
+	int ItemQuantity;
 };
 USTRUCT(BlueprintType)
 struct FResourceRewardData {

@@ -9,6 +9,8 @@
 #include "QuintPlayerController.h"
 #include "Components/BoxComponent.h"
 
+#define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
+
 AResourceNode::AResourceNode(){
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1;
@@ -66,7 +68,9 @@ void AResourceNode::GivePlayerReward(AAvatar * Player){
 	TArray<FResourceReward> Reward = GetPlayerReward(Player);
 	for(int i = 0; i < Reward.Num(); i++){
 		if(Reward.IsValidIndex(i)){
-			UItem* item = NewObject<UItem>(Player,Reward[i].ItemReward);
+			UItem* item =  NewObject<UItem>(Player, Reward[i].ItemReward);
+			item->SetStackSize(Reward[i].ItemQuantity);
+			PrintToScreen(FString::FromInt(Reward[i].ItemQuantity));
 			pc->AddItemToInventory(item);
 			pc->AddExperience(Reward[i].ExpReward.Skill, Reward[i].ExpReward.Exp);
 			if(IsValid((UObject*)item) && item->GetStackSize() > 0){
@@ -92,7 +96,9 @@ TArray<FResourceReward> AResourceNode::GetPlayerReward(AAvatar * Player){
 			int Result = FMath::FRandRange(0,100);
 			//TODO: add luck boost for chance and extra
 			if(Result <= Rewards[i].RewardChance && IsValid(Rewards[i].Reward.ItemReward)){
-				retVal.Add(Rewards[i].Reward);
+				FResourceReward current = Rewards[i].Reward;
+				current.ItemQuantity = FMath::RandRange(Rewards[i].MinCount, Rewards[i].MaxCount);
+				retVal.Add(current);
 			}
 		}
 	}

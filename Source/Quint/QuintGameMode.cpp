@@ -16,6 +16,7 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 
+#define PrintToScreen(x) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString(x));}
 AQuintGameMode::AQuintGameMode(){
 
 	DefaultPawnClass = APlayerVessel::StaticClass();
@@ -57,12 +58,12 @@ void AQuintGameMode::OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponse
 	if (!bWasSuccessful) {
 		return;
 	}
+	PrintToScreen(Response->GetContentAsString());
 	//Create a pointer to hold the json serialized data
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
 	//Create a reader pointer to read the json data
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
-
 	//Deserialize the json data given Reader and the actual object to deserialize
 	if (FJsonSerializer::Deserialize(Reader, JsonObject))
 	{
@@ -163,8 +164,7 @@ void FSaveTask::DoWork(){
 	this->Abandon();
 }
 
-FSaveTask::FSaveTask(AQuintGameMode* GameMode)
-{
+FSaveTask::FSaveTask(AQuintGameMode* GameMode){
 	GM = GameMode;
 }
 

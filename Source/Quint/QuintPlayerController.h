@@ -130,8 +130,6 @@ public:
 	void AddItemToInventory(class AItem_World* ItemWorld);
 	//Add An item to the inventory - from item reference
 	void AddItemToInventory(class UItem*& Item);
-	//Add An item to the inventory - from item class
-	void AddItemToInventory(TSubclassOf<UItem> ItemClass, int Quantity);
 	//Destroy item of class and qaunitty in our inventory
 	//@FullConsumption only destroy if we have  the whole quantity
 	UFUNCTION(BlueprintCallable)

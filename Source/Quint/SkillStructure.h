@@ -8,6 +8,8 @@
 /*
 This is a work around because TMaps do not get replicated
 */
+class FJsonObject;
+
 UENUM(BlueprintType, Meta = (Bitflags))
 enum class ESkillType : uint8 {
 	ST_NONE UMETA(DisplayName = "None"),
