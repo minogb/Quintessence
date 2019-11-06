@@ -61,7 +61,7 @@ protected:
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
-	UObject* Owner;
+	AActor* Owner;
 	UPROPERTY(Replicated)
 	uint32 bReplicatedFlag : 1;
 
@@ -69,7 +69,7 @@ public:
 	//Load data from json. if has nested items, this is where it is loaded in
 	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData);
 
-	FString GetSaveJSON();
+	virtual FString GetSaveJSON();
 
 	UFUNCTION(BlueprintCallable)
 	int GetTypeID(){return ItemTableID;}

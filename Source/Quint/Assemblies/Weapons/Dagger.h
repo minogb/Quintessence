@@ -23,7 +23,9 @@ class QUINT_API UDagger : public UAssembledEquipment, public IWeaponInterface
 	UItem* SmallPommel;
 public:
 	UDagger();
+	virtual FString GetSaveJSON() override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type) override;
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

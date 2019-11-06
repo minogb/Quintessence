@@ -24,7 +24,9 @@ class QUINT_API UMace : public UAssembledEquipment, public IWeaponInterface
 
 public:
 	UMace();
+	virtual FString GetSaveJSON() override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type);
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

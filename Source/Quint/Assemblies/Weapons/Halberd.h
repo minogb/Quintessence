@@ -25,7 +25,9 @@ class QUINT_API UHalberd : public UAssembledEquipment, public IWeaponInterface
 	UItem* LongHandle;
 public:
 	UHalberd();
+	virtual FString GetSaveJSON() override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type);
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

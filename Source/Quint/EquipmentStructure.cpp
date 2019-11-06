@@ -18,54 +18,63 @@ FString FEquipmentStruct::GetSaveJSON()
 		JsonWriter->WriteRawJSONValue("Helm", Helm->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Helm");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Chest))
 		JsonWriter->WriteRawJSONValue("Chest", Chest->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Chest");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Leggings))
 		JsonWriter->WriteRawJSONValue("Leggings", Leggings->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Leggings");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Boots))
 		JsonWriter->WriteRawJSONValue("Boots", Boots->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Boots");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Gloves))
 		JsonWriter->WriteRawJSONValue("Gloves", Gloves->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Gloves");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Weapon))
 		JsonWriter->WriteRawJSONValue("Weapon", Weapon->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Weapon");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Sheild))
 		JsonWriter->WriteRawJSONValue("Sheild", Sheild->GetSaveJSON());
 	else {
-		JsonWriter->WriteObjectStart("Sheild");
+		JsonWriter->WriteObjectStart("Shield");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Quiver))
 		JsonWriter->WriteRawJSONValue("Quiver", Quiver->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Quiver");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 	if (IsValid(Ring))
 		JsonWriter->WriteRawJSONValue("Ring", Ring->GetSaveJSON());
 	else {
 		JsonWriter->WriteObjectStart("Ring");
+		JsonWriter->WriteValue("UniqueID", 0);
 		JsonWriter->WriteObjectEnd();
 	}
 

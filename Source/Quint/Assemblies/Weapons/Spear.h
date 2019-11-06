@@ -24,7 +24,8 @@ class QUINT_API USpear : public UAssembledEquipment, public IWeaponInterface
 
 public:
 	USpear();
-
+	virtual FString GetSaveJSON() override;
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }

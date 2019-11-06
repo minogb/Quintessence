@@ -48,12 +48,14 @@ class QUINT_API AQuintGameMode : public AGameModeBase
 	FHttpModule* Http;
 
 	FTimerHandle PreformBackgroundTasksTimer;
-	float TimeBetweenBackgroundTasks = 10.f;
+	float TimeBetweenBackgroundTasks = 1.f;
 
 	//Make http request to get player info to spawn
-	void CallToGetPlayerInfo(int PlayerID);
+	void CallToGetPlayerInfo(int PlayerID); 
 	//Call back from http get player request / used to spawn
 	void OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	//TODO: Remove
+	void OnSaveResultReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z, float Health);
 
 	void PreformBackgroundTasks();

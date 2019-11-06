@@ -106,6 +106,11 @@ void AQuintGameMode::OnPlayerInfoReceived(FHttpRequestPtr Request, FHttpResponse
 	}
 }
 
+void AQuintGameMode::OnSaveResultReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	PrintToScreen(Response->GetContentAsString());
+}
+
 void AQuintGameMode::SpawnPlayerAvatar(int PlayerID, float X, float Y, float Z, float Health){
 	if (Players.Contains(PlayerID)) {
 		if (GetWorld()) {
@@ -201,6 +206,8 @@ void AQuintGameMode::SavePlayers() {
 	JsonWriter->Close();
 	if (makeSave) {
 		TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+		Request->OnProcessRequestComplete().BindUObject(this, &AQuintGameMode::OnSaveResultReceived);
+
 		//This is the url on which to process the request
 		Request->SetURL("localhost");
 		Request->SetVerb("POST");

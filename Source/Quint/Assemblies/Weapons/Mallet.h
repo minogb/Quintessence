@@ -23,7 +23,9 @@ class QUINT_API UMallet : public UAssembledEquipment, public IWeaponInterface
 
 public:
 	UMallet();
+	virtual FString GetSaveJSON() override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type);
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

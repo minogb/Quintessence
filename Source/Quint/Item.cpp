@@ -28,7 +28,7 @@ void UItem::Combine(UItem*& that){
 
 void UItem::InitItemID(){
 
-	if (WaitingOrHasID || ItemTableID == 0)
+	if (WaitingOrHasID)
 		return;
 	WaitingOrHasID = true;
 	//Start making content request data
@@ -58,7 +58,6 @@ void UItem::InitItemID(){
 }
 
 void UItem::OnItemDataRecived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful){
-	PrintToScreen(Response->GetContentAsString());
 	//Create a pointer to hold the json serialized data
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
@@ -67,8 +66,9 @@ void UItem::OnItemDataRecived(FHttpRequestPtr Request, FHttpResponsePtr Response
 	//Deserialize the json data given Reader and the actual object to deserialize
 	if (FJsonSerializer::Deserialize(Reader, JsonObject))
 	{
-		if (JsonObject->HasField("ID"))
-			UniqueItemId = JsonObject->GetIntegerField("ID");
+		if (JsonObject->HasField("UniqueID")) {
+			UniqueItemId = JsonObject->GetIntegerField("UniqueID");
+		}
 	}
 }
 
@@ -110,7 +110,6 @@ void UItem::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetime
 UItem * UItem::CreateItemFromTable(int TableID, AActor* Owner, TSharedPtr<FJsonObject> JsonData) {
 	FItemIndex itemData;
 	if (UItem::GetItemIndex(TableID, itemData)) {
-		PrintToScreen(itemData.ItemName);
 		UItem* item = NewObject<UItem>(Owner,itemData.ItemClass);
 		item->InitWithJson(JsonData);
 		return item;

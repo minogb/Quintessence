@@ -118,7 +118,7 @@ bool AQuintPlayerController::HasItem(TSubclassOf<UItem> Item, int Quantity, EEqu
 		return quiver ? (quiver->IsA(Item) && quiver->GetStackSize() - Quantity >= 0) : false;
 	}
 	for (UItem*current : Inventory) {
-		if (IsValid(current) && current->IsA(Item)) {
+		if (IsValid(current) && current->IsA(Item)) {	
 			Quantity -= current->GetStackSize();
 		}
 		if (Quantity <= 0)
@@ -196,14 +196,13 @@ FString AQuintPlayerController::GetSaveJSON()
 	JsonWriter->WriteObjectStart("Inventory");
 	for (int i = 0; i < Inventory.Num(); i++) {
 		//Write info for each slot even if nothing is there
-		if (Inventory.IsValidIndex(i)) {
-			if (IsValid(Inventory[i])) {
-				JsonWriter->WriteRawJSONValue(FString::FromInt(i),Inventory[i]->GetSaveJSON());
-			}
-			else {
-				JsonWriter->WriteObjectStart(FString::FromInt(i));
-				JsonWriter->WriteObjectEnd();
-			}
+		if (Inventory.IsValidIndex(i) && IsValid(Inventory[i]) && Inventory[i]->GetUniqueID() > 0)	 {
+			JsonWriter->WriteRawJSONValue(FString::FromInt(i),Inventory[i]->GetSaveJSON());
+		}
+		else {
+			JsonWriter->WriteObjectStart(FString::FromInt(i));
+			JsonWriter->WriteValue("UniqueID", 0);
+			JsonWriter->WriteObjectEnd();
 		}
 	}
 	JsonWriter->WriteObjectEnd();
@@ -343,7 +342,6 @@ void AQuintPlayerController::AddItemToInventory(UItem*& Item) {
 			return;
 	}
 	//Add Item to a new slot
-	//TODO: if here Get unique ID for item
 	for (int i = 0; Item->GetStackSize() > 0 && i < InventorySizeMax; i++) {
 		if (!IsValid(Inventory[i])) {
 			Inventory[i] = Item;
@@ -537,7 +535,6 @@ void AQuintPlayerController::EquipItem_Implementation(int Slot) {
 	if (!Inventory.IsValidIndex(Slot))
 		return;
 	UItem* item = Inventory[Slot];
-
 	if (IsValid(item) && item->GetClass()->ImplementsInterface(UEquipmentInterface::StaticClass())
 		&& IEquipmentInterface::Execute_CanPlayerEquip(item, GetPlayerAvatar())) {
 		//Get equipment slot

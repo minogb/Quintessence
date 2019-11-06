@@ -22,7 +22,9 @@ class QUINT_API UMaul : public UAssembledEquipment, public IWeaponInterface
 	UItem* MediumHandle;
 public:
 	UMaul();
+	virtual FString GetSaveJSON() override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type);
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

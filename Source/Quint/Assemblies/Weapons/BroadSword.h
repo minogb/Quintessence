@@ -25,7 +25,9 @@ class QUINT_API UBroadSword : public UAssembledEquipment, public IWeaponInterfac
 
 public:
 	UBroadSword();
+	virtual FString GetSaveJSON() override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type) override;
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
 

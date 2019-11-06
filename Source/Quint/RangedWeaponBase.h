@@ -37,4 +37,5 @@ public:
 	virtual bool CanUseWeapon_Implementation(AAvatar* Avatar) override;
 	virtual bool UseWeapon_Implementation(AAvatar* DamageCauser, UPARAM(ref)FDamageStruct& Damage, AActor* DamageTarget) override;
 	virtual EEquipmentSlot GetEquipmentSlot_Implementation() override { return EEquipmentSlot::ES_WEAPON; }
+	virtual bool CanPlayerEquip_Implementation(AAvatar* Player) override { return true; }
 };

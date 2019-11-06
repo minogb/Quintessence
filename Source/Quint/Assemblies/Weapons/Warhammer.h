@@ -24,6 +24,8 @@ class QUINT_API UWarhammer : public UAssembledEquipment, public IWeaponInterface
 	UItem* LongHandle;
 public:
 	UWarhammer();
+	virtual FString GetSaveJSON() override;
+	virtual void InitWithJson(TSharedPtr<FJsonObject> JsonData) override;
 	virtual UItem** GetComponent(EAssemblyComponentType Type);
 
 	virtual int GetSkillLevel_Implementation(ESkillType Skill) { return 0; }
